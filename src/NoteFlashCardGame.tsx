@@ -56,6 +56,8 @@ interface NoteFlashCardGameProps {
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
   onExit?: () => void;
+  noteCount?: number;
+  onNoteCountChange?: (count: number) => void;
 }
 
 export default function NoteFlashCardGame({
@@ -65,16 +67,20 @@ export default function NoteFlashCardGame({
   holdDuration = 300,
   pitch = "CONCERT",
   onExit,
+  noteCount = 5,
+  onNoteCountChange,
 }: NoteFlashCardGameProps) {
   const activeNotes = notes;
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
   const [started, setStarted] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [pendingCount, setPendingCount] = useState(noteCount);
 
   const isFinished = activeIndex >= activeNotes.length;
 
-  const startOnsetCount = useThreeNoteSignal(!started, () => setStarted(true));
+  const startOnsetCount = useThreeNoteSignal(!started && !showSettings, () => setStarted(true));
   const abortOnsetCount = useThreeNoteSignal(started && !isFinished, () =>
     onExit?.(),
   );
@@ -98,7 +104,8 @@ export default function NoteFlashCardGame({
         padding: "24px",
       }}
     >
-      {/* Game state header */}
+      {/* Game state header — only while game is running */}
+      {started && !isFinished && (
       <div
         style={{
           display: "flex",
@@ -161,6 +168,7 @@ export default function NoteFlashCardGame({
           </div>
         </div>
       </div>
+      )}
 
       {/* Cards */}
       {started && !isFinished && (
@@ -188,22 +196,97 @@ export default function NoteFlashCardGame({
         </div>
       )}
 
-      {/* Start Game */}
+      {/* Start Game / Settings */}
       {!started && !isFinished && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          <Button3NotesSignal
-            label="Start Game"
-            onsetCount={startOnsetCount}
-            onClick={() => setStarted(true)}
-          />
-        </div>
+        showSettings ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "20px",
+              backgroundColor: "#f8f8f8",
+              border: "1px solid #e5e7eb",
+              borderRadius: "12px",
+              padding: "24px 32px",
+              minWidth: "260px",
+            }}
+          >
+            <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#222" }}>⚙ Settings</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
+              <label style={{ fontSize: "0.95rem", color: "#444", fontWeight: 600 }}>
+                Notes per game
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={19}
+                value={pendingCount}
+                onChange={(e) =>
+                  setPendingCount(Math.min(19, Math.max(1, Number(e.target.value))))
+                }
+                style={{
+                  fontSize: "1.1rem",
+                  padding: "6px 12px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "8px",
+                  width: "80px",
+                  textAlign: "center",
+                }}
+              />
+              <span style={{ fontSize: "0.8rem", color: "#888" }}>Range: 1 – 19</span>
+            </div>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button
+                onClick={() => { setPendingCount(noteCount); setShowSettings(false); }}
+                style={{
+                  fontSize: "0.95rem", padding: "8px 20px", borderRadius: "8px",
+                  border: "1px solid #d1d5db", background: "#fff", cursor: "pointer", color: "#555",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { onNoteCountChange?.(pendingCount); setShowSettings(false); }}
+                style={{
+                  fontSize: "0.95rem", padding: "8px 20px", borderRadius: "8px",
+                  border: "none", background: "#6366f1", cursor: "pointer", color: "#fff",
+                }}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <Button3NotesSignal
+              label="Start Game"
+              onsetCount={startOnsetCount}
+              onClick={() => setStarted(true)}
+            />
+            <button
+              onClick={() => { setPendingCount(noteCount); setShowSettings(true); }}
+              style={{
+                fontSize: "0.9rem",
+                padding: "6px 20px",
+                borderRadius: "8px",
+                border: "1px solid #d1d5db",
+                background: "#fff",
+                cursor: "pointer",
+                color: "#555",
+              }}
+            >
+              ⚙ Settings
+            </button>
+          </div>
+        )
       )}
 
       {/* Close */}

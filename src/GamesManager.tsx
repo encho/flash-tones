@@ -19,14 +19,21 @@ export default function GamesManager({
 }: GamesManagerProps) {
   const [currentNotes, setCurrentNotes] = useState<NoteEntry[] | null>(null);
   const [gameKey, setGameKey] = useState(0);
+  const [noteCount, setNoteCount] = useState(5);
 
   function startNewGame() {
-    setCurrentNotes(generateRandomNotes());
+    setCurrentNotes(generateRandomNotes(noteCount));
     setGameKey((k) => k + 1);
   }
 
   function exitGame() {
     setCurrentNotes(null);
+  }
+
+  function handleNoteCountChange(count: number) {
+    setNoteCount(count);
+    setCurrentNotes(generateRandomNotes(count));
+    setGameKey((k) => k + 1);
   }
 
   const onsetCount = useThreeNoteSignal(currentNotes === null, startNewGame);
@@ -42,6 +49,8 @@ export default function GamesManager({
         holdDuration={holdDuration}
         pitch={pitch}
         onExit={exitGame}
+        noteCount={noteCount}
+        onNoteCountChange={handleNoteCountChange}
       />
     );
   }
