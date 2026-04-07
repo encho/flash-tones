@@ -40,6 +40,7 @@ function App() {
               setActiveIndex((prev) => Math.min(prev + 1, notes.length - 1))
             }
             holdDuration={300}
+            pitch="Bb"
           />
         ))}
       </div>

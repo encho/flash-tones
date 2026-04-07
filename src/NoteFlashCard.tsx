@@ -8,6 +8,7 @@ interface NoteFlashCardProps {
   matchCents?: number;
   displayRange?: number;
   holdDuration?: number;
+  pitch?: "CONCERT" | "Bb";
   onNoteHit?: () => void;
 }
 
@@ -31,19 +32,24 @@ const NOTE_SEMITONES: Record<string, number> = {
   B: 11,
 };
 
-function noteToFrequency(note: string): number | null {
+const TRANSPOSE_SEMITONES: Record<string, number> = {
+  CONCERT: 0,
+  Bb: -2, // Bb instrument: written note sounds a major 2nd lower
+};
+
+function noteToFrequency(note: string, transposeSemitones = 0): number | null {
   const match = note.match(/^([A-G][#b]?)(\d)$/);
   if (!match) return null;
   const [, name, octaveStr] = match;
   const semitone = NOTE_SEMITONES[name];
   if (semitone === undefined) return null;
   const octave = parseInt(octaveStr, 10);
-  const midi = (octave + 1) * 12 + semitone;
+  const midi = (octave + 1) * 12 + semitone + transposeSemitones;
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function playNote(note: string) {
-  const freq = noteToFrequency(note);
+function playNote(note: string, transposeSemitones = 0) {
+  const freq = noteToFrequency(note, transposeSemitones);
   if (!freq) return;
   const ctx = new AudioContext();
   const oscillator = ctx.createOscillator();
@@ -185,6 +191,7 @@ function NoteFlashCard({
   matchCents = 50,
   displayRange = 400,
   holdDuration = 800,
+  pitch = "CONCERT",
   onNoteHit,
 }: NoteFlashCardProps) {
   const [cents, setCents] = useState<number | null>(null);
@@ -211,7 +218,7 @@ function NoteFlashCard({
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
 
-  const targetFreq = noteToFrequency(note);
+  const targetFreq = noteToFrequency(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
 
   useEffect(() => {
     if (!isActive || !targetFreq) return;
@@ -324,7 +331,7 @@ function NoteFlashCard({
         {type}
       </span>
       <button
-        onClick={() => playNote(note)}
+        onClick={() => playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0)}
         style={{
           marginTop: "4px",
           padding: "6px 18px",
