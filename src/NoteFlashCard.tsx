@@ -115,7 +115,9 @@ function NoteFlashCard({
   const inRangeSinceRef = useRef<number | null>(null);
   const hitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onNoteHitRef = useRef(onNoteHit);
-  useEffect(() => { onNoteHitRef.current = onNoteHit; }, [onNoteHit]);
+  useEffect(() => {
+    onNoteHitRef.current = onNoteHit;
+  }, [onNoteHit]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -330,27 +332,25 @@ function NoteFlashCard({
                   : "🎤 listening…"}
               </div>
               {/* Hold progress bar */}
-              {holdProgress > 0 && (
+              <div
+                style={{
+                  marginTop: "8px",
+                  height: "6px",
+                  width: "100%",
+                  backgroundColor: "#e5e7eb",
+                  borderRadius: "3px",
+                  overflow: "hidden",
+                }}
+              >
                 <div
                   style={{
-                    marginTop: "8px",
-                    height: "6px",
-                    width: "100%",
-                    backgroundColor: "#e5e7eb",
+                    height: "100%",
+                    width: `${holdProgress * 100}%`,
+                    backgroundColor: holdProgress > 0 ? "#22c55e" : "#d1d5db",
                     borderRadius: "3px",
-                    overflow: "hidden",
                   }}
-                >
-                  <div
-                    style={{
-                      height: "100%",
-                      width: `${holdProgress * 100}%`,
-                      backgroundColor: "#22c55e",
-                      borderRadius: "3px",
-                    }}
-                  />
-                </div>
-              )}
+                />
+              </div>
             </>
           )}
         </div>
