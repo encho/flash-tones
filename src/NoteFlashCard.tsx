@@ -74,58 +74,17 @@ interface TunerBarProps {
 }
 
 function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const W = canvas.width;
-    const H = canvas.height;
-    const ctx = canvas.getContext("2d")!;
-    ctx.clearRect(0, 0, W, H);
-
-    // Track background
-    ctx.fillStyle = "#e5e7eb";
-    ctx.roundRect(0, 0, W, H, 4);
-    ctx.fill();
-
-    // Tolerance zone
-    const toleranceW = (matchCents / displayRange) * W;
-    const toleranceX = W / 2 - toleranceW / 2;
-    ctx.fillStyle = "rgba(34,197,94,0.3)";
-    ctx.fillRect(toleranceX, 0, toleranceW, H);
-
-    // Centre tick
-    ctx.fillStyle = "#9ca3af";
-    ctx.fillRect(W / 2 - 1, 0, 2, H);
-
-    // Needle
-    const clamped =
-      cents !== null
-        ? Math.max(-displayRange, Math.min(displayRange, cents))
-        : 0;
-    const x = ((clamped + displayRange) / (2 * displayRange)) * W;
-
-    const inTolerance = cents !== null && Math.abs(cents) < matchCents;
-    const nearTolerance =
-      cents !== null && Math.abs(cents) < matchCents * 1.5;
-    ctx.fillStyle =
-      cents === null
-        ? "#9ca3af"
-        : inTolerance
-          ? "#22c55e"
-          : nearTolerance
-            ? "#eab308"
-            : "#ef4444";
-
-    const nW = 6;
-    const nH = H + 10;
-    ctx.fillRect(x - nW / 2, (H - nH) / 2, nW, nH);
-  });  // run every render — no transitions, no lag
+  const clamped =
+    cents !== null
+      ? Math.max(-displayRange, Math.min(displayRange, cents))
+      : 0;
+  // 0% = far left, 50% = centre, 100% = far right
+  const needlePct = ((clamped + displayRange) / (2 * displayRange)) * 100;
+  const toleranceHalfPct = (matchCents / displayRange) * 50;
 
   const inTolerance = cents !== null && Math.abs(cents) < matchCents;
   const nearTolerance = cents !== null && Math.abs(cents) < matchCents * 1.5;
-  const labelColor =
+  const color =
     cents === null
       ? "#9ca3af"
       : inTolerance
@@ -136,20 +95,37 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
 
   return (
     <>
-      <canvas
-        ref={canvasRef}
-        width={120}
-        height={10}
-        style={{ display: "block", width: "100%", height: "10px" }}
-      />
-      <div
-        style={{
-          marginTop: "8px",
-          fontSize: "0.72rem",
-          fontWeight: 600,
-          color: labelColor,
-        }}
-      >
+      {/* Track */}
+      <div style={{ position: "relative", height: "10px", backgroundColor: "#e5e7eb", borderRadius: "5px" }}>
+        {/* Tolerance zone */}
+        <div style={{
+          position: "absolute",
+          top: 0, bottom: 0,
+          left: `${50 - toleranceHalfPct}%`,
+          width: `${toleranceHalfPct * 2}%`,
+          backgroundColor: "rgba(34,197,94,0.3)",
+        }} />
+        {/* Centre tick */}
+        <div style={{
+          position: "absolute",
+          top: 0, bottom: 0,
+          left: "calc(50% - 1px)",
+          width: "2px",
+          backgroundColor: "#9ca3af",
+        }} />
+        {/* Needle */}
+        <div style={{
+          position: "absolute",
+          top: "-5px", bottom: "-5px",
+          left: `${needlePct}%`,
+          width: "4px",
+          marginLeft: "-2px",
+          backgroundColor: color,
+          borderRadius: "2px",
+        }} />
+      </div>
+      {/* Cents label */}
+      <div style={{ marginTop: "8px", fontSize: "0.72rem", fontWeight: 600, color }}>
         {cents !== null
           ? `${cents > 0 ? "+" : ""}${Math.round(cents)}¢`
           : "🎤 listening…"}
