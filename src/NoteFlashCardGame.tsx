@@ -6,6 +6,12 @@ interface NoteEntry {
   type: "INDEX" | "NOTE";
 }
 
+interface HitResult {
+  note: string;
+  totalTime: number;
+  effectiveTime: number;
+}
+
 interface NoteFlashCardGameProps {
   notes: NoteEntry[];
   matchCents?: number;
@@ -23,12 +29,14 @@ export default function NoteFlashCardGame({
 }: NoteFlashCardGameProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
+  const [results, setResults] = useState<HitResult[]>([]);
 
   const isFinished = activeIndex >= notes.length;
   const currentNote = notes[activeIndex];
 
-  function handleNoteHit() {
+  function handleNoteHit(result: HitResult) {
     setHits((h) => h + 1);
+    setResults((prev) => [...prev, result]);
     setActiveIndex((i) => i + 1);
   }
 
@@ -110,7 +118,7 @@ export default function NoteFlashCardGame({
             displayRange={displayRange}
             holdDuration={holdDuration}
             pitch={pitch}
-            onNoteHit={handleNoteHit}
+          onNoteHit={handleNoteHit}
           />
         ))}
       </div>
@@ -121,6 +129,7 @@ export default function NoteFlashCardGame({
           onClick={() => {
             setActiveIndex(0);
             setHits(0);
+            setResults([]);
           }}
           style={{
             marginTop: "8px",
@@ -136,6 +145,55 @@ export default function NoteFlashCardGame({
           Restart
         </button>
       )}
+      {/* Results table */}
+      {results.length > 0 && (
+        <table
+          style={{
+            borderCollapse: "collapse",
+            width: "100%",
+            maxWidth: "600px",
+            fontSize: "0.85rem",
+          }}
+        >
+          <thead>
+            <tr style={{ backgroundColor: "#f3f4f6" }}>
+              <th style={thStyle}>#</th>
+              <th style={thStyle}>Note</th>
+              <th style={thStyle}>Total time (s)</th>
+              <th style={thStyle}>Effective time (s)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((r, i) => (
+              <tr
+                key={i}
+                style={{ backgroundColor: i % 2 === 0 ? "#fff" : "#f9fafb" }}
+              >
+                <td style={tdStyle}>{i + 1}</td>
+                <td style={{ ...tdStyle, fontWeight: 700, color: "#6366f1" }}>
+                  {r.note}
+                </td>
+                <td style={tdStyle}>{(r.totalTime / 1000).toFixed(2)}</td>
+                <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
+
+const thStyle: React.CSSProperties = {
+  padding: "8px 12px",
+  textAlign: "left",
+  borderBottom: "1px solid #e5e7eb",
+  color: "#555",
+  fontWeight: 600,
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: "6px 12px",
+  borderBottom: "1px solid #e5e7eb",
+  color: "#333",
+};

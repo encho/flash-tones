@@ -10,7 +10,7 @@ interface NoteFlashCardProps {
   displayRange?: number;
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
-  onNoteHit?: () => void;
+  onNoteHit?: (result: { totalTime: number; effectiveTime: number; note: string }) => void;
 }
 
 const NOTE_SEMITONES: Record<string, number> = {
@@ -217,6 +217,10 @@ function NoteFlashCard({
   useEffect(() => {
     onNoteHitRef.current = onNoteHit;
   }, [onNoteHit]);
+  // Timing: when this card became active, and total time spent playing the example
+  const activatedAtRef = useRef<number | null>(null);
+  const totalPlayTimeRef = useRef(0);
+  const playStartRef = useRef<number | null>(null);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -228,6 +232,8 @@ function NoteFlashCard({
   useEffect(() => {
     if (!isActive || !targetFreq) return;
 
+    activatedAtRef.current = performance.now();
+    totalPlayTimeRef.current = 0;
     let stopped = false;
 
     (async () => {
@@ -286,10 +292,12 @@ function NoteFlashCard({
             setHoldProgress(progress);
             if (progress >= 1 && !firedRef.current) {
               firedRef.current = true;
+              const totalTime = performance.now() - (activatedAtRef.current ?? performance.now());
+              const effectiveTime = totalTime - totalPlayTimeRef.current;
               // Render bar at 100% first, then show ✅ and fire callback
               hitTimeoutRef.current = setTimeout(() => {
                 setMatched(true);
-                onNoteHitRef.current?.();
+                onNoteHitRef.current?.({ totalTime: Math.round(totalTime), effectiveTime: Math.round(effectiveTime), note });
               }, 120);
             }
           } else {
@@ -310,6 +318,8 @@ function NoteFlashCard({
     return () => {
       stopped = true;
       firedRef.current = false;
+      activatedAtRef.current = null;
+      totalPlayTimeRef.current = 0;
       inRangeSinceRef.current = null;
       if (hitTimeoutRef.current) clearTimeout(hitTimeoutRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -354,7 +364,12 @@ function NoteFlashCard({
           isPlayingRef.current = true;
           inRangeSinceRef.current = null;
           setHoldProgress(0);
+          playStartRef.current = performance.now();
           await playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
+          if (playStartRef.current !== null) {
+            totalPlayTimeRef.current += performance.now() - playStartRef.current;
+            playStartRef.current = null;
+          }
           isPlayingRef.current = false;
         }}
         style={{
