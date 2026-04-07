@@ -1,11 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { PitchDetector } from "pitchy";
+import { useState } from "react";
 import NoteFlashCardGame, { generateRandomNotes } from "./NoteFlashCardGame";
 import type { NoteEntry } from "./NoteFlashCardGame";
-
-// ── Onset tuning (same constants as in-game) ──────────────────────────────
-const ONSET_WINDOW_MS = 500;
-const ONSET_LOUDNESS_THRESHOLD = 0.08;
+import { useThreeNoteSignal, onsetDots } from "./signals";
 
 interface GamesManagerProps {
   matchCents?: number;
@@ -22,95 +18,17 @@ export default function GamesManager({
 }: GamesManagerProps) {
   const [currentNotes, setCurrentNotes] = useState<NoteEntry[] | null>(null);
   const [gameKey, setGameKey] = useState(0);
-  const [onsetCount, setOnsetCount] = useState(0);
-  const onsetTimesRef = useRef<number[]>([]);
 
   function startNewGame() {
     setCurrentNotes(generateRandomNotes());
     setGameKey((k) => k + 1);
-    setOnsetCount(0);
-    onsetTimesRef.current = [];
   }
 
   function exitGame() {
     setCurrentNotes(null);
-    setOnsetCount(0);
-    onsetTimesRef.current = [];
   }
 
-  // Listen for 3 quick onsets in the menu to auto-start a new game
-  useEffect(() => {
-    if (currentNotes !== null) return;
-
-    let stopped = false;
-    let audioCtx: AudioContext | null = null;
-    let stream: MediaStream | null = null;
-    let raf: number | null = null;
-    let prevClarityHigh = false;
-    onsetTimesRef.current = [];
-    setOnsetCount(0);
-
-    (async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false,
-        });
-      } catch {
-        return;
-      }
-      if (stopped) {
-        stream.getTracks().forEach((t) => t.stop());
-        return;
-      }
-
-      audioCtx = new AudioContext();
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      audioCtx.createMediaStreamSource(stream).connect(analyser);
-      const buffer = new Float32Array(analyser.fftSize);
-      const detector = PitchDetector.forFloat32Array(analyser.fftSize);
-
-      function rms(buf: Float32Array) {
-        let sum = 0;
-        for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
-        return Math.sqrt(sum / buf.length);
-      }
-
-      function tick() {
-        if (stopped) return;
-        analyser.getFloatTimeDomainData(buffer);
-        const [, clarity] = detector.findPitch(buffer, audioCtx!.sampleRate);
-        const loud = rms(buffer) >= ONSET_LOUDNESS_THRESHOLD;
-        const isHigh = clarity > 0.9 && loud;
-
-        if (isHigh && !prevClarityHigh) {
-          const now = performance.now();
-          const times = onsetTimesRef.current;
-          times.push(now);
-          const cutoff = now - ONSET_WINDOW_MS;
-          while (times.length > 0 && times[0] < cutoff) times.shift();
-          setOnsetCount(times.length);
-          if (times.length >= 3) {
-            stopped = true;
-            startNewGame();
-            return;
-          }
-        }
-
-        prevClarityHigh = isHigh;
-        raf = requestAnimationFrame(tick);
-      }
-      tick();
-    })();
-
-    return () => {
-      stopped = true;
-      if (raf) cancelAnimationFrame(raf);
-      stream?.getTracks().forEach((t) => t.stop());
-      audioCtx?.close();
-    };
-  }, [currentNotes]);
+  const onsetCount = useThreeNoteSignal(currentNotes === null, startNewGame);
 
   // ── Playing state ──────────────────────────────────────────────────────
   if (currentNotes !== null) {
@@ -165,9 +83,7 @@ export default function GamesManager({
       <div style={{ fontSize: "0.78rem", color: "#888", textAlign: "center" }}>
         or play 3 notes on your instrument{" "}
         <span style={{ color: "#6366f1", fontWeight: 700 }}>
-          {onsetCount > 0
-            ? "●".repeat(onsetCount) + "○".repeat(Math.max(0, 3 - onsetCount))
-            : "○○○"}
+          {onsetDots(onsetCount)}
         </span>
       </div>
     </div>
