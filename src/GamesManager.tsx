@@ -1,7 +1,8 @@
 import { useState } from "react";
 import NoteFlashCardGame, { generateRandomNotes } from "./NoteFlashCardGame";
 import type { NoteEntry } from "./NoteFlashCardGame";
-import { useThreeNoteSignal, onsetDots } from "./signals";
+import { useThreeNoteSignal } from "./signals";
+import { Button3NotesSignal } from "./Buttons";
 
 interface GamesManagerProps {
   matchCents?: number;
@@ -64,28 +65,13 @@ export default function GamesManager({
         Sing the displayed notes to complete each round.
       </p>
 
-      <button
+      <Button3NotesSignal
+        label="New Game"
+        onsetCount={onsetCount}
         onClick={startNewGame}
-        style={{
-          padding: "12px 36px",
-          fontSize: "1.1rem",
-          borderRadius: "12px",
-          border: "none",
-          backgroundColor: "#6366f1",
-          color: "#fff",
-          cursor: "pointer",
-          fontWeight: 600,
-        }}
-      >
-        New Game
-      </button>
-
-      <div style={{ fontSize: "0.78rem", color: "#888", textAlign: "center" }}>
-        or play 3 notes on your instrument{" "}
-        <span style={{ color: "#6366f1", fontWeight: 700 }}>
-          {onsetDots(onsetCount)}
-        </span>
-      </div>
+        fontSize="1.1rem"
+        padding="12px 36px"
+      />
     </div>
   );
 }

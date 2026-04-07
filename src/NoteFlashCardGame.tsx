@@ -1,6 +1,7 @@
 import { useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal, onsetDots } from "./signals";
+import { Button3NotesSignal } from "./Buttons";
 
 const NOTE_NAMES = [
   "C",
@@ -204,54 +205,22 @@ export default function NoteFlashCardGame({
             gap: "8px",
           }}
         >
-          <button
+          <Button3NotesSignal
+            label="Start Game"
+            onsetCount={startOnsetCount}
             onClick={() => setStarted(true)}
-            style={{
-              marginTop: "8px",
-              padding: "10px 28px",
-              fontSize: "1rem",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: "#6366f1",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            Start Game
-          </button>
-          <div style={{ fontSize: "0.78rem", color: "#888" }}>
-            or play 3 notes on your instrument{" "}
-            <span style={{ color: "#6366f1", fontWeight: 700 }}>
-              {onsetDots(startOnsetCount)}
-            </span>
-          </div>
+          />
         </div>
       )}
 
       {/* Close */}
       {isFinished && (
-        <button
+        <Button3NotesSignal
+          label="Close"
+          onsetCount={closeOnsetCount}
           onClick={() => onExit?.()}
-          style={{
-            marginTop: "8px",
-            padding: "10px 28px",
-            fontSize: "1rem",
-            borderRadius: "10px",
-            border: "none",
-            backgroundColor: "#6366f1",
-            color: "#fff",
-            cursor: "pointer",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "2px",
-          }}
-        >
-          <span>Close</span>
-          <span style={{ fontSize: "0.7rem", opacity: 0.85 }}>
-            {onsetDots(closeOnsetCount)}
-          </span>
-        </button>
+          padding="10px 28px"
+        />
       )}
       {/* Results table */}
       {results.length > 0 && (
