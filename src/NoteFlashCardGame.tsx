@@ -2,7 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "pitchy";
 import NoteFlashCard from "./NoteFlashCard";
 
-const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
 
 // All chromatic notes from F#3 (MIDI 54) to G5 (MIDI 79)
 const ALL_NOTES: string[] = [];
@@ -17,7 +30,9 @@ for (let octave = 3; octave <= 5; octave++) {
 
 function generateRandomNotes(count = 5): NoteEntry[] {
   const shuffled = [...ALL_NOTES].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count).map((note) => ({ note, type: "NOTE" as const }));
+  return shuffled
+    .slice(0, count)
+    .map((note) => ({ note, type: "NOTE" as const }));
 }
 
 interface NoteEntry {
@@ -44,7 +59,9 @@ export default function NoteFlashCardGame({
   holdDuration = 300,
   pitch = "CONCERT",
 }: NoteFlashCardGameProps) {
-  const [activeNotes, setActiveNotes] = useState<NoteEntry[]>(() => generateRandomNotes());
+  const [activeNotes, setActiveNotes] = useState<NoteEntry[]>(() =>
+    generateRandomNotes(),
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
@@ -254,7 +271,8 @@ export default function NoteFlashCardGame({
         <div>
           <span style={{ color: "#888" }}>Note </span>
           <strong>
-            {isFinished ? activeNotes.length : activeIndex + 1} / {activeNotes.length}
+            {isFinished ? activeNotes.length : activeIndex + 1} /{" "}
+            {activeNotes.length}
           </strong>
         </div>
         <div>
