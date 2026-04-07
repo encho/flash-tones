@@ -33,25 +33,37 @@ export default function NoteFlashCardGame({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", padding: "24px" }}>
-      {/* Game state header */}
-      <div style={{
+    <div
+      style={{
         display: "flex",
-        gap: "32px",
+        flexDirection: "column",
         alignItems: "center",
-        padding: "12px 24px",
-        backgroundColor: "#f8f8f8",
-        borderRadius: "12px",
-        border: "1px solid #e5e7eb",
-        fontSize: "0.9rem",
-        color: "#444",
-        width: "100%",
-        maxWidth: "600px",
-        boxSizing: "border-box",
-      }}>
+        gap: "16px",
+        padding: "24px",
+      }}
+    >
+      {/* Game state header */}
+      <div
+        style={{
+          display: "flex",
+          gap: "32px",
+          alignItems: "center",
+          padding: "12px 24px",
+          backgroundColor: "#f8f8f8",
+          borderRadius: "12px",
+          border: "1px solid #e5e7eb",
+          fontSize: "0.9rem",
+          color: "#444",
+          width: "100%",
+          maxWidth: "600px",
+          boxSizing: "border-box",
+        }}
+      >
         <div>
           <span style={{ color: "#888" }}>Note </span>
-          <strong>{isFinished ? notes.length : activeIndex + 1} / {notes.length}</strong>
+          <strong>
+            {isFinished ? notes.length : activeIndex + 1} / {notes.length}
+          </strong>
         </div>
         <div>
           <span style={{ color: "#888" }}>Hit </span>
@@ -69,7 +81,10 @@ export default function NoteFlashCardGame({
               <span style={{ color: "#888" }}>Sing </span>
               <strong style={{ color: "#6366f1" }}>{currentNote.note}</strong>
               {pitch === "Bb" && (
-                <span style={{ color: "#888", fontSize: "0.78rem" }}> (concert: Bb)</span>
+                <span style={{ color: "#888", fontSize: "0.78rem" }}>
+                  {" "}
+                  (concert: Bb)
+                </span>
               )}
             </span>
           )}
@@ -77,7 +92,14 @@ export default function NoteFlashCardGame({
       </div>
 
       {/* Cards */}
-      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
         {notes.map((n, i) => (
           <NoteFlashCard
             key={n.note}
@@ -96,7 +118,10 @@ export default function NoteFlashCardGame({
       {/* Restart */}
       {isFinished && (
         <button
-          onClick={() => { setActiveIndex(0); setHits(0); }}
+          onClick={() => {
+            setActiveIndex(0);
+            setHits(0);
+          }}
           style={{
             marginTop: "8px",
             padding: "10px 28px",
