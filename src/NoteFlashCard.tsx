@@ -10,7 +10,11 @@ interface NoteFlashCardProps {
   displayRange?: number;
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
-  onNoteHit?: (result: { totalTime: number; effectiveTime: number; note: string }) => void;
+  onNoteHit?: (result: {
+    totalTime: number;
+    effectiveTime: number;
+    note: string;
+  }) => void;
 }
 
 const NOTE_SEMITONES: Record<string, number> = {
@@ -292,12 +296,18 @@ function NoteFlashCard({
             setHoldProgress(progress);
             if (progress >= 1 && !firedRef.current) {
               firedRef.current = true;
-              const totalTime = performance.now() - (activatedAtRef.current ?? performance.now());
+              const totalTime =
+                performance.now() -
+                (activatedAtRef.current ?? performance.now());
               const effectiveTime = totalTime - totalPlayTimeRef.current;
               // Render bar at 100% first, then show ✅ and fire callback
               hitTimeoutRef.current = setTimeout(() => {
                 setMatched(true);
-                onNoteHitRef.current?.({ totalTime: Math.round(totalTime), effectiveTime: Math.round(effectiveTime), note });
+                onNoteHitRef.current?.({
+                  totalTime: Math.round(totalTime),
+                  effectiveTime: Math.round(effectiveTime),
+                  note,
+                });
               }, 120);
             }
           } else {
@@ -367,7 +377,8 @@ function NoteFlashCard({
           playStartRef.current = performance.now();
           await playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
           if (playStartRef.current !== null) {
-            totalPlayTimeRef.current += performance.now() - playStartRef.current;
+            totalPlayTimeRef.current +=
+              performance.now() - playStartRef.current;
             playStartRef.current = null;
           }
           isPlayingRef.current = false;

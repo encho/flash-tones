@@ -118,7 +118,7 @@ export default function NoteFlashCardGame({
             displayRange={displayRange}
             holdDuration={holdDuration}
             pitch={pitch}
-          onNoteHit={handleNoteHit}
+            onNoteHit={handleNoteHit}
           />
         ))}
       </div>
