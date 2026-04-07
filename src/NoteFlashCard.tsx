@@ -6,6 +6,7 @@ interface NoteFlashCardProps {
   isActive?: boolean;
   matchCents?: number;
   displayRange?: number;
+  holdDuration?: number;
   onNoteHit?: () => void;
 }
 
@@ -104,11 +105,14 @@ function NoteFlashCard({
   isActive = false,
   matchCents = 50,
   displayRange = 400,
+  holdDuration = 800,
   onNoteHit,
 }: NoteFlashCardProps) {
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
+  const [holdProgress, setHoldProgress] = useState(0);
   const firedRef = useRef(false);
+  const inRangeSinceRef = useRef<number | null>(null);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -154,15 +158,27 @@ function NoteFlashCard({
         if (freq > 0) {
           const c = 1200 * Math.log2(freq / targetFreq!);
           setCents(c);
-          const hit = Math.abs(c) < matchCents;
-          setMatched(hit);
-          if (hit && !firedRef.current) {
-            firedRef.current = true;
-            onNoteHit?.();
+          if (Math.abs(c) < matchCents) {
+            const now = performance.now();
+            if (inRangeSinceRef.current === null) {
+              inRangeSinceRef.current = now;
+            }
+            const elapsed = now - inRangeSinceRef.current;
+            const progress = Math.min(elapsed / holdDuration, 1);
+            setHoldProgress(progress);
+            if (progress >= 1 && !firedRef.current) {
+              firedRef.current = true;
+              setMatched(true);
+              onNoteHit?.();
+            }
+          } else {
+            inRangeSinceRef.current = null;
+            setHoldProgress(0);
           }
         } else {
           setCents(null);
-          setMatched(false);
+          inRangeSinceRef.current = null;
+          setHoldProgress(0);
         }
         rafRef.current = requestAnimationFrame(tick);
       }
@@ -172,11 +188,13 @@ function NoteFlashCard({
     return () => {
       stopped = true;
       firedRef.current = false;
+      inRangeSinceRef.current = null;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamRef.current?.getTracks().forEach((t) => t.stop());
       audioCtxRef.current?.close();
       setCents(null);
       setMatched(false);
+      setHoldProgress(0);
     };
   }, [isActive, targetFreq]);
 
@@ -304,6 +322,29 @@ function NoteFlashCard({
                   ? `${cents > 0 ? "+" : ""}${Math.round(cents)}¢`
                   : "🎤 listening…"}
               </div>
+              {/* Hold progress bar */}
+              {holdProgress > 0 && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    height: "6px",
+                    width: "100%",
+                    backgroundColor: "#e5e7eb",
+                    borderRadius: "3px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${holdProgress * 100}%`,
+                      backgroundColor: "#22c55e",
+                      borderRadius: "3px",
+                      transition: "width 0.05s linear",
+                    }}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
