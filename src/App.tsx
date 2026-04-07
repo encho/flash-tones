@@ -2,19 +2,29 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
-import NoteFlashCardGame from "./NoteFlashCardGame";
+import NoteFlashCardGame, { generateRandomNotes } from "./NoteFlashCardGame";
 import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [notes, setNotes] = useState(() => generateRandomNotes());
+  const [gameKey, setGameKey] = useState(0);
+
+  function newGame() {
+    setNotes(generateRandomNotes());
+    setGameKey((k) => k + 1);
+  }
 
   return (
     <>
       <NoteFlashCardGame
+        key={gameKey}
+        notes={notes}
         matchCents={50}
         displayRange={300}
         holdDuration={300}
         pitch="Bb"
+        onNewGame={newGame}
       />
 
       <section id="center">

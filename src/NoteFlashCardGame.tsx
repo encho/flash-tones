@@ -35,10 +35,12 @@ function generateRandomNotes(count = 5): NoteEntry[] {
     .map((note) => ({ note, type: "NOTE" as const }));
 }
 
-interface NoteEntry {
+export interface NoteEntry {
   note: string;
   type: "INDEX" | "NOTE";
 }
+
+export { generateRandomNotes };
 
 interface HitResult {
   note: string;
@@ -47,21 +49,23 @@ interface HitResult {
 }
 
 interface NoteFlashCardGameProps {
+  notes: NoteEntry[];
   matchCents?: number;
   displayRange?: number;
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
+  onNewGame?: () => void;
 }
 
 export default function NoteFlashCardGame({
+  notes,
   matchCents = 50,
   displayRange = 300,
   holdDuration = 300,
   pitch = "CONCERT",
+  onNewGame,
 }: NoteFlashCardGameProps) {
-  const [activeNotes, setActiveNotes] = useState<NoteEntry[]>(() =>
-    generateRandomNotes(),
-  );
+  const activeNotes = notes;
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
@@ -208,11 +212,7 @@ export default function NoteFlashCardGame({
           while (times.length > 0 && times[0] < cutoff) times.shift();
           setAbortOnsetCount(times.length);
           if (times.length >= 3) {
-            setActiveNotes(generateRandomNotes());
-            setActiveIndex(0);
-            setHits(0);
-            setResults([]);
-            setStarted(false);
+            onNewGame?.();
             stopped = true;
             return;
           }
@@ -390,11 +390,7 @@ export default function NoteFlashCardGame({
       {isFinished && (
         <button
           onClick={() => {
-            setActiveNotes(generateRandomNotes());
-            setActiveIndex(0);
-            setHits(0);
-            setResults([]);
-            setStarted(false);
+            onNewGame?.();
           }}
           style={{
             marginTop: "8px",
