@@ -255,9 +255,8 @@ export default function NoteFlashCardGame({
             gap: "12px",
           }}
         >
-          {started && !isFinished && abortOnsetCount > 0 && (
-            <span style={{ fontSize: "0.75rem", color: "#ef4444" }}>
-              abort{" "}
+          {started && !isFinished && (
+            <span style={{ fontSize: "0.75rem", color: abortOnsetCount > 0 ? "#ef4444" : "#ccc" }}>
               {"●".repeat(abortOnsetCount) +
                 "○".repeat(Math.max(0, 3 - abortOnsetCount))}
             </span>
