@@ -59,40 +59,64 @@ function playNote(note: string) {
 
 // ── Pitch detection ────────────────────────────────────────────────────────
 
-function autoCorrelate(buffer: Float32Array, sampleRate: number): number {
+function autoCorrelate(
+  buffer: Float32Array,
+  sampleRate: number,
+  freqHint?: number,
+): number {
   const SIZE = buffer.length;
-  const MAX_SAMPLES = Math.floor(SIZE / 2);
 
+  // Silence gate
   let rms = 0;
   for (let i = 0; i < SIZE; i++) rms += buffer[i] * buffer[i];
-  rms = Math.sqrt(rms / SIZE);
-  if (rms < 0.01) return -1; // too quiet
+  if (Math.sqrt(rms / SIZE) < 0.01) return -1;
 
-  let bestOffset = -1;
-  let bestCorrelation = 0;
-  let foundGoodCorrelation = false;
-  let lastCorrelation = 1;
+  // Limit search to ±1 octave around the target note (or 60–2000 Hz).
+  // This eliminates octave errors and harmonic confusion.
+  const freqLo = freqHint ? freqHint * 0.5 : 60;
+  const freqHi = freqHint ? freqHint * 2.0 : 2000;
+  const minLag = Math.max(2, Math.floor(sampleRate / freqHi));
+  const maxLag = Math.min(Math.floor(SIZE / 2), Math.ceil(sampleRate / freqLo));
 
-  for (let offset = 0; offset < MAX_SAMPLES; offset++) {
-    let correlation = 0;
-    for (let i = 0; i < MAX_SAMPLES; i++) {
-      correlation += Math.abs(buffer[i] - buffer[i + offset]);
+  // Normalized cross-correlation: r(lag) = Σ x[i]·x[i+lag] / √(Σx[i]² · Σx[i+lag]²)
+  // Range is −1 to +1; a pure sine gives exactly 1.0 at the fundamental period.
+  function r(lag: number): number {
+    let num = 0, d1 = 0, d2 = 0;
+    const n = SIZE - lag;
+    for (let i = 0; i < n; i++) {
+      num += buffer[i] * buffer[i + lag];
+      d1 += buffer[i] * buffer[i];
+      d2 += buffer[i + lag] * buffer[i + lag];
     }
-    correlation = 1 - correlation / MAX_SAMPLES;
-    if (correlation > 0.9 && correlation > lastCorrelation) {
-      foundGoodCorrelation = true;
-      if (correlation > bestCorrelation) {
-        bestCorrelation = correlation;
-        bestOffset = offset;
-      }
-    } else if (foundGoodCorrelation) {
-      break;
-    }
-    lastCorrelation = correlation;
+    const denom = Math.sqrt(d1 * d2);
+    return denom > 0 ? num / denom : 0;
   }
 
-  if (bestOffset === -1) return -1;
-  return sampleRate / bestOffset;
+  // Find the lag that maximises correlation in the search window
+  let bestLag = -1;
+  let bestR = -Infinity;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    const v = r(lag);
+    if (v > bestR) {
+      bestR = v;
+      bestLag = lag;
+    }
+  }
+
+  if (bestLag === -1 || bestR < 0.7) return -1;
+
+  // Parabolic interpolation for sub-sample accuracy
+  if (bestLag > minLag && bestLag < maxLag) {
+    const r0 = r(bestLag - 1);
+    const r2 = r(bestLag + 1);
+    const denom = 2 * (2 * bestR - r0 - r2);
+    if (denom !== 0) {
+      const refinedLag = bestLag + (r2 - r0) / denom;
+      if (isFinite(refinedLag) && refinedLag > 0) return sampleRate / refinedLag;
+    }
+  }
+
+  return sampleRate / bestLag;
 }
 
 // ── TunerBar ────────────────────────────────────────────────────────────────
@@ -228,6 +252,10 @@ function NoteFlashCard({
   const [matched, setMatched] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
   const firedRef = useRef(false);
+  const matchCentsRef = useRef(matchCents);
+  const holdDurationRef = useRef(holdDuration);
+  useEffect(() => { matchCentsRef.current = matchCents; }, [matchCents]);
+  useEffect(() => { holdDurationRef.current = holdDuration; }, [holdDuration]);
   const inRangeSinceRef = useRef<number | null>(null);
   const hitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onNoteHitRef = useRef(onNoteHit);
@@ -275,17 +303,17 @@ function NoteFlashCard({
       function tick() {
         if (stopped) return;
         analyser.getFloatTimeDomainData(buffer);
-        const freq = autoCorrelate(buffer, ctx.sampleRate);
+        const freq = autoCorrelate(buffer, ctx.sampleRate, targetFreq ?? undefined);
         if (freq > 0) {
           const c = 1200 * Math.log2(freq / targetFreq!);
           setCents(c);
-          if (Math.abs(c) < matchCents) {
+          if (Math.abs(c) < matchCentsRef.current) {
             const now = performance.now();
             if (inRangeSinceRef.current === null) {
               inRangeSinceRef.current = now;
             }
             const elapsed = now - inRangeSinceRef.current;
-            const progress = Math.min(elapsed / holdDuration, 1);
+            const progress = Math.min(elapsed / holdDurationRef.current, 1);
             setHoldProgress(progress);
             if (progress >= 1 && !firedRef.current) {
               firedRef.current = true;
