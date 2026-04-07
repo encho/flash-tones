@@ -18,12 +18,12 @@ const NOTE_NAMES = [
   "B",
 ];
 
-// All chromatic notes from F#3 (MIDI 54) to G5 (MIDI 79)
+// All chromatic notes from F#3 (MIDI 54) to C5 (MIDI 72)
 const ALL_NOTES: string[] = [];
 for (let octave = 3; octave <= 5; octave++) {
   for (let si = 0; si < NOTE_NAMES.length; si++) {
     const midi = (octave + 1) * 12 + si;
-    if (midi >= 54 && midi <= 79) {
+    if (midi >= 54 && midi <= 72) {
       ALL_NOTES.push(`${NOTE_NAMES[si]}${octave}`);
     }
   }

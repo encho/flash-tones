@@ -300,13 +300,8 @@ function NoteFlashCard({
         analyser.getFloatTimeDomainData(buffer);
         const [rawFreq, clarity] = detector.findPitch(buffer, ctx.sampleRate);
         if (clarity > 0.9 && rawFreq > 0 && !isPlayingRef.current) {
-          // Octave correction: shift detected frequency by octaves until it is
-          // within ±600¢ (half an octave) of the target. Pitchy can return the
-          // sub-octave or super-octave of a singing voice.
-          let freq = rawFreq;
+          const freq = rawFreq;
           const target = targetFreq!;
-          while (freq < target / Math.SQRT2) freq *= 2;
-          while (freq > target * Math.SQRT2) freq /= 2;
 
           const c = 1200 * Math.log2(freq / target);
           // EMA smoothing for display only (α=0.25 → ~4 frame lag at 60fps)
