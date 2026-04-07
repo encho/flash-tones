@@ -1,7 +1,7 @@
 import { useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
-import { useThreeNoteSignal, onsetDots } from "./signals";
-import { Button3NotesSignal } from "./Buttons";
+import { useThreeNoteSignal } from "./signals";
+import { Button3NotesSignal, OnsetDots } from "./Buttons";
 
 const NOTE_NAMES = [
   "C",
@@ -139,14 +139,7 @@ export default function NoteFlashCardGame({
           }}
         >
           {started && !isFinished && (
-            <span
-              style={{
-                fontSize: "0.75rem",
-                color: abortOnsetCount > 0 ? "#ef4444" : "#ccc",
-              }}
-            >
-              {onsetDots(abortOnsetCount)}
-            </span>
+            <OnsetDots count={abortOnsetCount} activeColor="#ef4444" />
           )}
           <div>
             {isFinished ? (

@@ -1,5 +1,29 @@
 import { onsetDots } from "./signals";
 
+interface OnsetDotsProps {
+  count: number;
+  activeColor?: string;
+  inactiveColor?: string;
+}
+
+export function OnsetDots({
+  count,
+  activeColor = "#fde68a",
+  inactiveColor = "#ccc",
+}: OnsetDotsProps) {
+  return (
+    <span
+      style={{
+        fontSize: "0.75rem",
+        color: count > 0 ? activeColor : inactiveColor,
+        letterSpacing: "0.05em",
+      }}
+    >
+      {onsetDots(count)}
+    </span>
+  );
+}
+
 interface Button3NotesSignalProps {
   label: string;
   onsetCount: number;
@@ -32,17 +56,7 @@ export function Button3NotesSignal({
         gap: "10px",
       }}
     >
-      <span
-        style={{
-          fontSize: "0.75rem",
-          opacity: onsetCount > 0 ? 1 : 0.45,
-          color: onsetCount > 0 ? "#fde68a" : "#fff",
-          letterSpacing: "0.05em",
-          minWidth: "2.2ch",
-        }}
-      >
-        {onsetDots(onsetCount)}
-      </span>
+      <OnsetDots count={onsetCount} />
       <span>{label}</span>
     </button>
   );
