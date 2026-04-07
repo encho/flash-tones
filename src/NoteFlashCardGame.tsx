@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PitchDetector } from "pitchy";
 import NoteFlashCard from "./NoteFlashCard";
 
 interface NoteEntry {
@@ -31,6 +32,90 @@ export default function NoteFlashCardGame({
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
   const [started, setStarted] = useState(false);
+  const [onsetCount, setOnsetCount] = useState(0);
+  const onsetTimesRef = useRef<number[]>([]);
+
+  // ── Auto-start tuning constants ──────────────────────────────────────────
+  // All 3 onsets must fall within this window (ms)
+  const ONSET_WINDOW_MS = 500;
+  // RMS loudness threshold (0–1); notes quieter than this are ignored
+  const ONSET_LOUDNESS_THRESHOLD = 0.08;
+
+  // Listen for 3 quick note onsets to auto-start (so the user keeps hands on instrument)
+  useEffect(() => {
+    if (started) return;
+
+    let stopped = false;
+    let audioCtx: AudioContext | null = null;
+    let stream: MediaStream | null = null;
+    let raf: number | null = null;
+    let prevClarityHigh = false;
+    onsetTimesRef.current = [];
+    setOnsetCount(0);
+
+    (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+      } catch {
+        return;
+      }
+      if (stopped) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
+      audioCtx = new AudioContext();
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      const buffer = new Float32Array(analyser.fftSize);
+      const detector = PitchDetector.forFloat32Array(analyser.fftSize);
+
+      function rms(buf: Float32Array) {
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        return Math.sqrt(sum / buf.length);
+      }
+
+      function tick() {
+        if (stopped) return;
+        analyser.getFloatTimeDomainData(buffer);
+        const [, clarity] = detector.findPitch(buffer, audioCtx!.sampleRate);
+        const loud = rms(buffer) >= ONSET_LOUDNESS_THRESHOLD;
+        const isHigh = clarity > 0.9 && loud;
+
+        if (isHigh && !prevClarityHigh) {
+          // Rising edge = new note onset
+          const now = performance.now();
+          const times = onsetTimesRef.current;
+          times.push(now);
+          // Keep only onsets within the window
+          const cutoff = now - ONSET_WINDOW_MS;
+          while (times.length > 0 && times[0] < cutoff) times.shift();
+          setOnsetCount(times.length);
+          if (times.length >= 3) {
+            setStarted(true);
+            stopped = true;
+            return;
+          }
+        }
+
+        prevClarityHigh = isHigh;
+        raf = requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+
+    return () => {
+      stopped = true;
+      if (raf) cancelAnimationFrame(raf);
+      stream?.getTracks().forEach((t) => t.stop());
+      audioCtx?.close();
+    };
+  }, [started]);
 
   const isFinished = activeIndex >= notes.length;
   const currentNote = notes[activeIndex];
@@ -126,21 +211,39 @@ export default function NoteFlashCardGame({
 
       {/* Start Game */}
       {!started && !isFinished && (
-        <button
-          onClick={() => setStarted(true)}
+        <div
           style={{
-            marginTop: "8px",
-            padding: "10px 28px",
-            fontSize: "1rem",
-            borderRadius: "10px",
-            border: "none",
-            backgroundColor: "#6366f1",
-            color: "#fff",
-            cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          Start Game
-        </button>
+          <button
+            onClick={() => setStarted(true)}
+            style={{
+              marginTop: "8px",
+              padding: "10px 28px",
+              fontSize: "1rem",
+              borderRadius: "10px",
+              border: "none",
+              backgroundColor: "#6366f1",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            Start Game
+          </button>
+          <div style={{ fontSize: "0.78rem", color: "#888" }}>
+            or play 3 notes on your instrument{" "}
+            <span style={{ color: "#6366f1", fontWeight: 700 }}>
+              {onsetCount > 0
+                ? "●".repeat(onsetCount) +
+                  "○".repeat(Math.max(0, 3 - onsetCount))
+                : "○○○"}
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Restart */}
