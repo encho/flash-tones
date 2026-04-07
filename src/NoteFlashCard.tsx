@@ -204,6 +204,7 @@ function NoteFlashCard({
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
+  const [displayTimes, setDisplayTimes] = useState<{ total: number; effective: number } | null>(null);
   const firedRef = useRef(false);
   const matchCentsRef = useRef(matchCents);
   const holdDurationRef = useRef(holdDuration);
@@ -230,6 +231,25 @@ function NoteFlashCard({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
+
+  // Live elapsed time display (100 ms tick)
+  useEffect(() => {
+    if (!isActive) {
+      setDisplayTimes(null);
+      return;
+    }
+    const id = setInterval(() => {
+      if (activatedAtRef.current === null) return;
+      const total = performance.now() - activatedAtRef.current;
+      const playingNow =
+        playStartRef.current !== null
+          ? performance.now() - playStartRef.current
+          : 0;
+      const effective = Math.max(0, total - totalPlayTimeRef.current - playingNow);
+      setDisplayTimes({ total: Math.round(total), effective: Math.round(effective) });
+    }, 100);
+    return () => clearInterval(id);
+  }, [isActive]);
 
   const targetFreq = noteToFrequency(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
 
@@ -338,6 +358,7 @@ function NoteFlashCard({
       setCents(null);
       setMatched(false);
       setHoldProgress(0);
+      setDisplayTimes(null);
     };
   }, [isActive, targetFreq]);
 
@@ -409,6 +430,25 @@ function NoteFlashCard({
               />
               <HoldProgressBar progress={holdProgress} />
             </>
+          )}
+          {displayTimes && (
+            <div
+              style={{
+                marginTop: "6px",
+                fontSize: "0.65rem",
+                color: "#666",
+                lineHeight: 1.6,
+              }}
+            >
+              <div>
+                total:{" "}
+                <strong>{(displayTimes.total / 1000).toFixed(2)}s</strong>
+              </div>
+              <div>
+                eff:{" "}
+                <strong>{(displayTimes.effective / 1000).toFixed(2)}s</strong>
+              </div>
+            </div>
           )}
         </div>
       )}
