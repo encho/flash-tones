@@ -4,6 +4,9 @@ interface NoteFlashCardProps {
   note: string;
   type: "INDEX" | "NOTE";
   isActive?: boolean;
+  matchCents?: number;
+  displayRange?: number;
+  onNoteHit?: () => void;
 }
 
 const NOTE_SEMITONES: Record<string, number> = {
@@ -93,14 +96,19 @@ function autoCorrelate(buffer: Float32Array, sampleRate: number): number {
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
-const MATCH_CENTS = 25; // ±25 ¢ → in tune
-const DISPLAY_RANGE = 50; // ±50 ¢ → full needle travel
-
 // ── Component ───────────────────────────────────────────────────────────────
 
-function NoteFlashCard({ note, type, isActive = false }: NoteFlashCardProps) {
+function NoteFlashCard({
+  note,
+  type,
+  isActive = false,
+  matchCents = 50,
+  displayRange = 400,
+  onNoteHit,
+}: NoteFlashCardProps) {
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
+  const firedRef = useRef(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -146,7 +154,12 @@ function NoteFlashCard({ note, type, isActive = false }: NoteFlashCardProps) {
         if (freq > 0) {
           const c = 1200 * Math.log2(freq / targetFreq!);
           setCents(c);
-          setMatched(Math.abs(c) < MATCH_CENTS);
+          const hit = Math.abs(c) < matchCents;
+          setMatched(hit);
+          if (hit && !firedRef.current) {
+            firedRef.current = true;
+            onNoteHit?.();
+          }
         } else {
           setCents(null);
           setMatched(false);
@@ -158,6 +171,7 @@ function NoteFlashCard({ note, type, isActive = false }: NoteFlashCardProps) {
 
     return () => {
       stopped = true;
+      firedRef.current = false;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamRef.current?.getTracks().forEach((t) => t.stop());
       audioCtxRef.current?.close();
@@ -168,17 +182,15 @@ function NoteFlashCard({ note, type, isActive = false }: NoteFlashCardProps) {
 
   // Needle position: −1 (flat) … 0 (in tune) … +1 (sharp)
   const clamped =
-    cents !== null
-      ? Math.max(-DISPLAY_RANGE, Math.min(DISPLAY_RANGE, cents))
-      : 0;
-  const position = clamped / DISPLAY_RANGE;
+    cents !== null ? Math.max(-displayRange, Math.min(displayRange, cents)) : 0;
+  const position = clamped / displayRange;
 
   const needleColor =
     cents === null
       ? "#9ca3af"
-      : Math.abs(cents) < MATCH_CENTS
+      : Math.abs(cents) < matchCents
         ? "#22c55e"
-        : Math.abs(cents) < 40
+        : Math.abs(cents) < matchCents * 1.5
           ? "#eab308"
           : "#ef4444";
 
@@ -240,6 +252,18 @@ function NoteFlashCard({ note, type, isActive = false }: NoteFlashCardProps) {
                   borderRadius: "5px",
                 }}
               >
+                {/* Tolerance zone */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    height: "100%",
+                    width: `${(matchCents / displayRange) * 100}%`,
+                    left: `${50 - (matchCents / displayRange) * 50}%`,
+                    backgroundColor: "rgba(34,197,94,0.25)",
+                    borderRadius: "3px",
+                  }}
+                />
                 {/* Centre tick */}
                 <div
                   style={{

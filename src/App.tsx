@@ -7,6 +7,15 @@ import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const notes: { note: string; type: "INDEX" | "NOTE" }[] = [
+    { note: "C4", type: "NOTE" },
+    { note: "E4", type: "NOTE" },
+    { note: "G4", type: "NOTE" },
+    { note: "A4", type: "NOTE" },
+    { note: "C5", type: "INDEX" },
+  ];
 
   return (
     <>
@@ -19,11 +28,19 @@ function App() {
           padding: "24px",
         }}
       >
-        <NoteFlashCard note="C4" type="NOTE" isActive />
-        <NoteFlashCard note="E4" type="NOTE" />
-        <NoteFlashCard note="G4" type="NOTE" />
-        <NoteFlashCard note="A4" type="NOTE" />
-        <NoteFlashCard note="C5" type="INDEX" />
+        {notes.map((n, i) => (
+          <NoteFlashCard
+            key={n.note}
+            note={n.note}
+            type={n.type}
+            isActive={activeIndex === i}
+            matchCents={200}
+            displayRange={2500}
+            onNoteHit={() =>
+              setActiveIndex((prev) => Math.min(prev + 1, notes.length - 1))
+            }
+          />
+        ))}
       </div>
 
       <section id="center">
