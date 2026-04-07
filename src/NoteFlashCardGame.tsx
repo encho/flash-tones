@@ -80,7 +80,9 @@ export default function NoteFlashCardGame({
 
   const isFinished = activeIndex >= activeNotes.length;
 
-  const startOnsetCount = useThreeNoteSignal(!started && !showSettings, () => setStarted(true));
+  const startOnsetCount = useThreeNoteSignal(!started && !showSettings, () =>
+    setStarted(true),
+  );
   const abortOnsetCount = useThreeNoteSignal(started && !isFinished, () =>
     onExit?.(),
   );
@@ -106,68 +108,70 @@ export default function NoteFlashCardGame({
     >
       {/* Game state header — only while game is running */}
       {started && !isFinished && (
-      <div
-        style={{
-          display: "flex",
-          gap: "32px",
-          alignItems: "center",
-          padding: "12px 24px",
-          backgroundColor: "#f8f8f8",
-          borderRadius: "12px",
-          border: "1px solid #e5e7eb",
-          fontSize: "0.9rem",
-          color: "#444",
-          width: "100%",
-          maxWidth: "600px",
-          boxSizing: "border-box",
-        }}
-      >
-        <div>
-          <span style={{ color: "#888" }}>Note </span>
-          <strong>
-            {isFinished ? activeNotes.length : activeIndex + 1} /{" "}
-            {activeNotes.length}
-          </strong>
-        </div>
-        <div>
-          <span style={{ color: "#888" }}>Hit </span>
-          <strong style={{ color: "#22c55e" }}>{hits}</strong>
-        </div>
-        <div>
-          <span style={{ color: "#888" }}>Remaining </span>
-          <strong>{Math.max(0, activeNotes.length - activeIndex)}</strong>
-        </div>
         <div
           style={{
-            marginLeft: "auto",
             display: "flex",
+            gap: "32px",
             alignItems: "center",
-            gap: "12px",
+            padding: "12px 24px",
+            backgroundColor: "#f8f8f8",
+            borderRadius: "12px",
+            border: "1px solid #e5e7eb",
+            fontSize: "0.9rem",
+            color: "#444",
+            width: "100%",
+            maxWidth: "600px",
+            boxSizing: "border-box",
           }}
         >
-          {started && !isFinished && (
-            <OnsetDots count={abortOnsetCount} activeColor="#ef4444" />
-          )}
           <div>
-            {isFinished ? (
-              <span style={{ color: "#22c55e", fontWeight: 700 }}>
-                ✅ Done!
-              </span>
-            ) : (
-              <span>
-                <span style={{ color: "#888" }}>Sing </span>
-                <strong style={{ color: "#6366f1" }}>{currentNote.note}</strong>
-                {pitch === "Bb" && (
-                  <span style={{ color: "#888", fontSize: "0.78rem" }}>
-                    {" "}
-                    (concert: Bb)
-                  </span>
-                )}
-              </span>
+            <span style={{ color: "#888" }}>Note </span>
+            <strong>
+              {isFinished ? activeNotes.length : activeIndex + 1} /{" "}
+              {activeNotes.length}
+            </strong>
+          </div>
+          <div>
+            <span style={{ color: "#888" }}>Hit </span>
+            <strong style={{ color: "#22c55e" }}>{hits}</strong>
+          </div>
+          <div>
+            <span style={{ color: "#888" }}>Remaining </span>
+            <strong>{Math.max(0, activeNotes.length - activeIndex)}</strong>
+          </div>
+          <div
+            style={{
+              marginLeft: "auto",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            {started && !isFinished && (
+              <OnsetDots count={abortOnsetCount} activeColor="#ef4444" />
             )}
+            <div>
+              {isFinished ? (
+                <span style={{ color: "#22c55e", fontWeight: 700 }}>
+                  ✅ Done!
+                </span>
+              ) : (
+                <span>
+                  <span style={{ color: "#888" }}>Sing </span>
+                  <strong style={{ color: "#6366f1" }}>
+                    {currentNote.note}
+                  </strong>
+                  {pitch === "Bb" && (
+                    <span style={{ color: "#888", fontSize: "0.78rem" }}>
+                      {" "}
+                      (concert: Bb)
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Cards */}
@@ -197,8 +201,9 @@ export default function NoteFlashCardGame({
       )}
 
       {/* Start Game / Settings */}
-      {!started && !isFinished && (
-        showSettings ? (
+      {!started &&
+        !isFinished &&
+        (showSettings ? (
           <div
             style={{
               display: "flex",
@@ -212,9 +217,20 @@ export default function NoteFlashCardGame({
               minWidth: "260px",
             }}
           >
-            <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#222" }}>⚙ Settings</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
-              <label style={{ fontSize: "0.95rem", color: "#444", fontWeight: 600 }}>
+            <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#222" }}>
+              ⚙ Settings
+            </h3>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+                alignItems: "flex-start",
+              }}
+            >
+              <label
+                style={{ fontSize: "0.95rem", color: "#444", fontWeight: 600 }}
+              >
                 Notes per game
               </label>
               <input
@@ -223,7 +239,9 @@ export default function NoteFlashCardGame({
                 max={19}
                 value={pendingCount}
                 onChange={(e) =>
-                  setPendingCount(Math.min(19, Math.max(1, Number(e.target.value))))
+                  setPendingCount(
+                    Math.min(19, Math.max(1, Number(e.target.value))),
+                  )
                 }
                 style={{
                   fontSize: "1.1rem",
@@ -234,23 +252,41 @@ export default function NoteFlashCardGame({
                   textAlign: "center",
                 }}
               />
-              <span style={{ fontSize: "0.8rem", color: "#888" }}>Range: 1 – 19</span>
+              <span style={{ fontSize: "0.8rem", color: "#888" }}>
+                Range: 1 – 19
+              </span>
             </div>
             <div style={{ display: "flex", gap: "12px" }}>
               <button
-                onClick={() => { setPendingCount(noteCount); setShowSettings(false); }}
+                onClick={() => {
+                  setPendingCount(noteCount);
+                  setShowSettings(false);
+                }}
                 style={{
-                  fontSize: "0.95rem", padding: "8px 20px", borderRadius: "8px",
-                  border: "1px solid #d1d5db", background: "#fff", cursor: "pointer", color: "#555",
+                  fontSize: "0.95rem",
+                  padding: "8px 20px",
+                  borderRadius: "8px",
+                  border: "1px solid #d1d5db",
+                  background: "#fff",
+                  cursor: "pointer",
+                  color: "#555",
                 }}
               >
                 Cancel
               </button>
               <button
-                onClick={() => { onNoteCountChange?.(pendingCount); setShowSettings(false); }}
+                onClick={() => {
+                  onNoteCountChange?.(pendingCount);
+                  setShowSettings(false);
+                }}
                 style={{
-                  fontSize: "0.95rem", padding: "8px 20px", borderRadius: "8px",
-                  border: "none", background: "#6366f1", cursor: "pointer", color: "#fff",
+                  fontSize: "0.95rem",
+                  padding: "8px 20px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: "#6366f1",
+                  cursor: "pointer",
+                  color: "#fff",
                 }}
               >
                 Apply
@@ -272,7 +308,10 @@ export default function NoteFlashCardGame({
               onClick={() => setStarted(true)}
             />
             <button
-              onClick={() => { setPendingCount(noteCount); setShowSettings(true); }}
+              onClick={() => {
+                setPendingCount(noteCount);
+                setShowSettings(true);
+              }}
               style={{
                 fontSize: "0.9rem",
                 padding: "6px 20px",
@@ -286,8 +325,7 @@ export default function NoteFlashCardGame({
               ⚙ Settings
             </button>
           </div>
-        )
-      )}
+        ))}
 
       {/* Close */}
       {isFinished && (
