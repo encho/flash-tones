@@ -49,10 +49,7 @@ function noteToFrequency(note: string, transposeSemitones = 0): number | null {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-async function playNote(
-  note: string,
-  transposeSemitones = 0,
-): Promise<void> {
+async function playNote(note: string, transposeSemitones = 0): Promise<void> {
   await Tone.start();
   const transposedNote = Tone.Frequency(note)
     .transpose(transposeSemitones)
@@ -77,75 +74,80 @@ interface TunerBarProps {
 }
 
 function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
-  const clamped =
-    cents !== null ? Math.max(-displayRange, Math.min(displayRange, cents)) : 0;
-  const position = clamped / displayRange;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const needleColor =
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const W = canvas.width;
+    const H = canvas.height;
+    const ctx = canvas.getContext("2d")!;
+    ctx.clearRect(0, 0, W, H);
+
+    // Track background
+    ctx.fillStyle = "#e5e7eb";
+    ctx.roundRect(0, 0, W, H, 4);
+    ctx.fill();
+
+    // Tolerance zone
+    const toleranceW = (matchCents / displayRange) * W;
+    const toleranceX = W / 2 - toleranceW / 2;
+    ctx.fillStyle = "rgba(34,197,94,0.3)";
+    ctx.fillRect(toleranceX, 0, toleranceW, H);
+
+    // Centre tick
+    ctx.fillStyle = "#9ca3af";
+    ctx.fillRect(W / 2 - 1, 0, 2, H);
+
+    // Needle
+    const clamped =
+      cents !== null
+        ? Math.max(-displayRange, Math.min(displayRange, cents))
+        : 0;
+    const x = ((clamped + displayRange) / (2 * displayRange)) * W;
+
+    const inTolerance = cents !== null && Math.abs(cents) < matchCents;
+    const nearTolerance =
+      cents !== null && Math.abs(cents) < matchCents * 1.5;
+    ctx.fillStyle =
+      cents === null
+        ? "#9ca3af"
+        : inTolerance
+          ? "#22c55e"
+          : nearTolerance
+            ? "#eab308"
+            : "#ef4444";
+
+    const nW = 6;
+    const nH = H + 10;
+    ctx.fillRect(x - nW / 2, (H - nH) / 2, nW, nH);
+  });  // run every render — no transitions, no lag
+
+  const inTolerance = cents !== null && Math.abs(cents) < matchCents;
+  const nearTolerance = cents !== null && Math.abs(cents) < matchCents * 1.5;
+  const labelColor =
     cents === null
       ? "#9ca3af"
-      : Math.abs(cents) < matchCents
+      : inTolerance
         ? "#22c55e"
-        : Math.abs(cents) < matchCents * 1.5
+        : nearTolerance
           ? "#eab308"
           : "#ef4444";
 
   return (
     <>
-      <div
-        style={{
-          position: "relative",
-          height: "10px",
-          backgroundColor: "#e5e7eb",
-          borderRadius: "5px",
-        }}
-      >
-        {/* Tolerance zone */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            height: "100%",
-            width: `${(matchCents / displayRange) * 100}%`,
-            left: `${50 - (matchCents / displayRange) * 50}%`,
-            backgroundColor: "rgba(34,197,94,0.25)",
-            borderRadius: "3px",
-          }}
-        />
-        {/* Centre tick */}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: 0,
-            height: "100%",
-            width: "2px",
-            backgroundColor: "#9ca3af",
-            transform: "translateX(-50%)",
-          }}
-        />
-        {/* Moving needle */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-5px",
-            left: `calc(50% + ${position * 50}%)`,
-            transform: "translateX(-50%)",
-            width: "6px",
-            height: "20px",
-            backgroundColor: needleColor,
-            borderRadius: "3px",
-            transition: "left 0.08s linear, background-color 0.15s",
-          }}
-        />
-      </div>
-      {/* Cents label */}
+      <canvas
+        ref={canvasRef}
+        width={120}
+        height={10}
+        style={{ display: "block", width: "100%", height: "10px" }}
+      />
       <div
         style={{
           marginTop: "8px",
           fontSize: "0.72rem",
           fontWeight: 600,
-          color: needleColor,
+          color: labelColor,
         }}
       >
         {cents !== null
@@ -213,6 +215,7 @@ function NoteFlashCard({
   const inRangeSinceRef = useRef<number | null>(null);
   const hitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPlayingRef = useRef(false);
+  const smoothedCentsRef = useRef<number | null>(null);
   const onNoteHitRef = useRef(onNoteHit);
   useEffect(() => {
     onNoteHitRef.current = onNoteHit;
@@ -259,10 +262,23 @@ function NoteFlashCard({
       function tick() {
         if (stopped) return;
         analyser.getFloatTimeDomainData(buffer);
-        const [freq, clarity] = detector.findPitch(buffer, ctx.sampleRate);
-        if (clarity > 0.9 && freq > 0 && !isPlayingRef.current) {
-          const c = 1200 * Math.log2(freq / targetFreq!);
-          setCents(c);
+        const [rawFreq, clarity] = detector.findPitch(buffer, ctx.sampleRate);
+        if (clarity > 0.9 && rawFreq > 0 && !isPlayingRef.current) {
+          // Octave correction: shift detected frequency by octaves until it is
+          // within ±600¢ (half an octave) of the target. Pitchy can return the
+          // sub-octave or super-octave of a singing voice.
+          let freq = rawFreq;
+          const target = targetFreq!;
+          while (freq < target / Math.SQRT2) freq *= 2;
+          while (freq > target * Math.SQRT2) freq /= 2;
+
+          const c = 1200 * Math.log2(freq / target);
+          // EMA smoothing for display only (α=0.25 → ~4 frame lag at 60fps)
+          // Matching uses raw c so responsiveness is not affected.
+          const prev = smoothedCentsRef.current;
+          const smoothed = prev === null ? c : 0.25 * c + 0.75 * prev;
+          smoothedCentsRef.current = smoothed;
+          setCents(smoothed);
           if (Math.abs(c) < matchCentsRef.current) {
             const now = performance.now();
             if (inRangeSinceRef.current === null) {
@@ -284,6 +300,7 @@ function NoteFlashCard({
             setHoldProgress(0);
           }
         } else {
+          smoothedCentsRef.current = null;
           setCents(null);
           inRangeSinceRef.current = null;
           setHoldProgress(0);
@@ -337,12 +354,12 @@ function NoteFlashCard({
       </span>
       <button
         onClick={async () => {
-            isPlayingRef.current = true;
-            inRangeSinceRef.current = null;
-            setHoldProgress(0);
-            await playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
-            isPlayingRef.current = false;
-          }}
+          isPlayingRef.current = true;
+          inRangeSinceRef.current = null;
+          setHoldProgress(0);
+          await playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
+          isPlayingRef.current = false;
+        }}
         style={{
           marginTop: "4px",
           padding: "6px 18px",
