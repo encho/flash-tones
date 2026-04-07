@@ -95,7 +95,123 @@ function autoCorrelate(buffer: Float32Array, sampleRate: number): number {
   return sampleRate / bestOffset;
 }
 
-// ── Constants ───────────────────────────────────────────────────────────────
+// ── TunerBar ────────────────────────────────────────────────────────────────
+
+interface TunerBarProps {
+  cents: number | null;
+  matchCents: number;
+  displayRange: number;
+}
+
+function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
+  const clamped =
+    cents !== null ? Math.max(-displayRange, Math.min(displayRange, cents)) : 0;
+  const position = clamped / displayRange;
+
+  const needleColor =
+    cents === null
+      ? "#9ca3af"
+      : Math.abs(cents) < matchCents
+        ? "#22c55e"
+        : Math.abs(cents) < matchCents * 1.5
+          ? "#eab308"
+          : "#ef4444";
+
+  return (
+    <>
+      <div
+        style={{
+          position: "relative",
+          height: "10px",
+          backgroundColor: "#e5e7eb",
+          borderRadius: "5px",
+        }}
+      >
+        {/* Tolerance zone */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            height: "100%",
+            width: `${(matchCents / displayRange) * 100}%`,
+            left: `${50 - (matchCents / displayRange) * 50}%`,
+            backgroundColor: "rgba(34,197,94,0.25)",
+            borderRadius: "3px",
+          }}
+        />
+        {/* Centre tick */}
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            height: "100%",
+            width: "2px",
+            backgroundColor: "#9ca3af",
+            transform: "translateX(-50%)",
+          }}
+        />
+        {/* Moving needle */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-5px",
+            left: `calc(50% + ${position * 50}%)`,
+            transform: "translateX(-50%)",
+            width: "6px",
+            height: "20px",
+            backgroundColor: needleColor,
+            borderRadius: "3px",
+            transition: "left 0.08s linear, background-color 0.15s",
+          }}
+        />
+      </div>
+      {/* Cents label */}
+      <div
+        style={{
+          marginTop: "8px",
+          fontSize: "0.72rem",
+          fontWeight: 600,
+          color: needleColor,
+        }}
+      >
+        {cents !== null
+          ? `${cents > 0 ? "+" : ""}${Math.round(cents)}¢`
+          : "🎤 listening…"}
+      </div>
+    </>
+  );
+}
+
+// ── HoldProgressBar ─────────────────────────────────────────────────────────
+
+interface HoldProgressBarProps {
+  progress: number;
+}
+
+function HoldProgressBar({ progress }: HoldProgressBarProps) {
+  return (
+    <div
+      style={{
+        marginTop: "8px",
+        height: "6px",
+        width: "100%",
+        backgroundColor: "#e5e7eb",
+        borderRadius: "3px",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${progress * 100}%`,
+          backgroundColor: progress > 0 ? "#22c55e" : "#d1d5db",
+          borderRadius: "3px",
+        }}
+      />
+    </div>
+  );
+}
 
 // ── Component ───────────────────────────────────────────────────────────────
 
@@ -207,20 +323,6 @@ function NoteFlashCard({
     };
   }, [isActive, targetFreq]);
 
-  // Needle position: −1 (flat) … 0 (in tune) … +1 (sharp)
-  const clamped =
-    cents !== null ? Math.max(-displayRange, Math.min(displayRange, cents)) : 0;
-  const position = clamped / displayRange;
-
-  const needleColor =
-    cents === null
-      ? "#9ca3af"
-      : Math.abs(cents) < matchCents
-        ? "#22c55e"
-        : Math.abs(cents) < matchCents * 1.5
-          ? "#eab308"
-          : "#ef4444";
-
   return (
     <div
       style={{
@@ -270,87 +372,12 @@ function NoteFlashCard({
             <div style={{ fontSize: "2rem" }}>✅</div>
           ) : (
             <>
-              {/* Tuner bar */}
-              <div
-                style={{
-                  position: "relative",
-                  height: "10px",
-                  backgroundColor: "#e5e7eb",
-                  borderRadius: "5px",
-                }}
-              >
-                {/* Tolerance zone */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    height: "100%",
-                    width: `${(matchCents / displayRange) * 100}%`,
-                    left: `${50 - (matchCents / displayRange) * 50}%`,
-                    backgroundColor: "rgba(34,197,94,0.25)",
-                    borderRadius: "3px",
-                  }}
-                />
-                {/* Centre tick */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "50%",
-                    top: 0,
-                    height: "100%",
-                    width: "2px",
-                    backgroundColor: "#9ca3af",
-                    transform: "translateX(-50%)",
-                  }}
-                />
-                {/* Moving needle */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "-5px",
-                    left: `calc(50% + ${position * 50}%)`,
-                    transform: "translateX(-50%)",
-                    width: "6px",
-                    height: "20px",
-                    backgroundColor: needleColor,
-                    borderRadius: "3px",
-                    transition: "left 0.08s linear, background-color 0.15s",
-                  }}
-                />
-              </div>
-              {/* Cents label */}
-              <div
-                style={{
-                  marginTop: "8px",
-                  fontSize: "0.72rem",
-                  fontWeight: 600,
-                  color: needleColor,
-                }}
-              >
-                {cents !== null
-                  ? `${cents > 0 ? "+" : ""}${Math.round(cents)}¢`
-                  : "🎤 listening…"}
-              </div>
-              {/* Hold progress bar */}
-              <div
-                style={{
-                  marginTop: "8px",
-                  height: "6px",
-                  width: "100%",
-                  backgroundColor: "#e5e7eb",
-                  borderRadius: "3px",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${holdProgress * 100}%`,
-                    backgroundColor: holdProgress > 0 ? "#22c55e" : "#d1d5db",
-                    borderRadius: "3px",
-                  }}
-                />
-              </div>
+              <TunerBar
+                cents={cents}
+                matchCents={matchCents}
+                displayRange={displayRange}
+              />
+              <HoldProgressBar progress={holdProgress} />
             </>
           )}
         </div>
