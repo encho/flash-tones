@@ -324,28 +324,30 @@ export default function NoteFlashCardGame({
       </div>
 
       {/* Cards */}
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          flexWrap: "wrap",
-          justifyContent: "center",
-        }}
-      >
-        {activeNotes.map((n, i) => (
-          <NoteFlashCard
-            key={n.note}
-            note={n.note}
-            type={n.type}
-            isActive={started && activeIndex === i}
-            matchCents={matchCents}
-            displayRange={displayRange}
-            holdDuration={holdDuration}
-            pitch={pitch}
-            onNoteHit={handleNoteHit}
-          />
-        ))}
-      </div>
+      {started && !isFinished && (
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          {activeNotes.map((n, i) => (
+            <NoteFlashCard
+              key={n.note}
+              note={n.note}
+              type={n.type}
+              isActive={started && activeIndex === i}
+              matchCents={matchCents}
+              displayRange={displayRange}
+              holdDuration={holdDuration}
+              pitch={pitch}
+              onNoteHit={handleNoteHit}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Start Game */}
       {!started && !isFinished && (
