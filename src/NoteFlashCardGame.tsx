@@ -2,6 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "pitchy";
 import NoteFlashCard from "./NoteFlashCard";
 
+const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+// All chromatic notes from F#3 (MIDI 54) to G5 (MIDI 79)
+const ALL_NOTES: string[] = [];
+for (let octave = 3; octave <= 5; octave++) {
+  for (let si = 0; si < NOTE_NAMES.length; si++) {
+    const midi = (octave + 1) * 12 + si;
+    if (midi >= 54 && midi <= 79) {
+      ALL_NOTES.push(`${NOTE_NAMES[si]}${octave}`);
+    }
+  }
+}
+
+function generateRandomNotes(count = 5): NoteEntry[] {
+  const shuffled = [...ALL_NOTES].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count).map((note) => ({ note, type: "NOTE" as const }));
+}
+
 interface NoteEntry {
   note: string;
   type: "INDEX" | "NOTE";
@@ -14,7 +32,6 @@ interface HitResult {
 }
 
 interface NoteFlashCardGameProps {
-  notes: NoteEntry[];
   matchCents?: number;
   displayRange?: number;
   holdDuration?: number;
@@ -22,12 +39,12 @@ interface NoteFlashCardGameProps {
 }
 
 export default function NoteFlashCardGame({
-  notes,
   matchCents = 50,
   displayRange = 300,
   holdDuration = 300,
   pitch = "CONCERT",
 }: NoteFlashCardGameProps) {
+  const [activeNotes, setActiveNotes] = useState<NoteEntry[]>(() => generateRandomNotes());
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
@@ -120,7 +137,7 @@ export default function NoteFlashCardGame({
   }, [started]);
 
   // Listen for 3 quick onsets while in-game to abort
-  const isFinished = activeIndex >= notes.length;
+  const isFinished = activeIndex >= activeNotes.length;
   useEffect(() => {
     if (!started || isFinished) return;
 
@@ -174,6 +191,7 @@ export default function NoteFlashCardGame({
           while (times.length > 0 && times[0] < cutoff) times.shift();
           setAbortOnsetCount(times.length);
           if (times.length >= 3) {
+            setActiveNotes(generateRandomNotes());
             setActiveIndex(0);
             setHits(0);
             setResults([]);
@@ -198,7 +216,7 @@ export default function NoteFlashCardGame({
     };
   }, [started, isFinished]);
 
-  const currentNote = notes[activeIndex];
+  const currentNote = activeNotes[activeIndex];
 
   function handleNoteHit(result: HitResult) {
     setHits((h) => h + 1);
@@ -236,7 +254,7 @@ export default function NoteFlashCardGame({
         <div>
           <span style={{ color: "#888" }}>Note </span>
           <strong>
-            {isFinished ? notes.length : activeIndex + 1} / {notes.length}
+            {isFinished ? activeNotes.length : activeIndex + 1} / {activeNotes.length}
           </strong>
         </div>
         <div>
@@ -245,7 +263,7 @@ export default function NoteFlashCardGame({
         </div>
         <div>
           <span style={{ color: "#888" }}>Remaining </span>
-          <strong>{Math.max(0, notes.length - activeIndex)}</strong>
+          <strong>{Math.max(0, activeNotes.length - activeIndex)}</strong>
         </div>
         <div
           style={{
@@ -296,7 +314,7 @@ export default function NoteFlashCardGame({
           justifyContent: "center",
         }}
       >
-        {notes.map((n, i) => (
+        {activeNotes.map((n, i) => (
           <NoteFlashCard
             key={n.note}
             note={n.note}
@@ -352,6 +370,7 @@ export default function NoteFlashCardGame({
       {isFinished && (
         <button
           onClick={() => {
+            setActiveNotes(generateRandomNotes());
             setActiveIndex(0);
             setHits(0);
             setResults([]);

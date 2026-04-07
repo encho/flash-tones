@@ -8,18 +8,9 @@ import "./App.css";
 function App() {
   const [count, setCount] = useState(0);
 
-  const notes: { note: string; type: "INDEX" | "NOTE" }[] = [
-    { note: "C4", type: "NOTE" },
-    { note: "E4", type: "NOTE" },
-    { note: "G4", type: "NOTE" },
-    { note: "A4", type: "NOTE" },
-    { note: "C5", type: "INDEX" },
-  ];
-
   return (
     <>
       <NoteFlashCardGame
-        notes={notes}
         matchCents={50}
         displayRange={300}
         holdDuration={300}
