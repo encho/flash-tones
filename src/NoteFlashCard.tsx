@@ -75,9 +75,7 @@ interface TunerBarProps {
 
 function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
   const clamped =
-    cents !== null
-      ? Math.max(-displayRange, Math.min(displayRange, cents))
-      : 0;
+    cents !== null ? Math.max(-displayRange, Math.min(displayRange, cents)) : 0;
   // 0% = far left, 50% = centre, 100% = far right
   const needlePct = ((clamped + displayRange) / (2 * displayRange)) * 100;
   const toleranceHalfPct = (matchCents / displayRange) * 50;
@@ -96,36 +94,59 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
   return (
     <>
       {/* Track */}
-      <div style={{ position: "relative", height: "10px", backgroundColor: "#e5e7eb", borderRadius: "5px" }}>
+      <div
+        style={{
+          position: "relative",
+          height: "10px",
+          backgroundColor: "#e5e7eb",
+          borderRadius: "5px",
+        }}
+      >
         {/* Tolerance zone */}
-        <div style={{
-          position: "absolute",
-          top: 0, bottom: 0,
-          left: `${50 - toleranceHalfPct}%`,
-          width: `${toleranceHalfPct * 2}%`,
-          backgroundColor: "rgba(34,197,94,0.3)",
-        }} />
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: `${50 - toleranceHalfPct}%`,
+            width: `${toleranceHalfPct * 2}%`,
+            backgroundColor: "rgba(34,197,94,0.3)",
+          }}
+        />
         {/* Centre tick */}
-        <div style={{
-          position: "absolute",
-          top: 0, bottom: 0,
-          left: "calc(50% - 1px)",
-          width: "2px",
-          backgroundColor: "#9ca3af",
-        }} />
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: "calc(50% - 1px)",
+            width: "2px",
+            backgroundColor: "#9ca3af",
+          }}
+        />
         {/* Needle */}
-        <div style={{
-          position: "absolute",
-          top: "-5px", bottom: "-5px",
-          left: `${needlePct}%`,
-          width: "4px",
-          marginLeft: "-2px",
-          backgroundColor: color,
-          borderRadius: "2px",
-        }} />
+        <div
+          style={{
+            position: "absolute",
+            top: "-5px",
+            bottom: "-5px",
+            left: `${needlePct}%`,
+            width: "4px",
+            marginLeft: "-2px",
+            backgroundColor: color,
+            borderRadius: "2px",
+          }}
+        />
       </div>
       {/* Cents label */}
-      <div style={{ marginTop: "8px", fontSize: "0.72rem", fontWeight: 600, color }}>
+      <div
+        style={{
+          marginTop: "8px",
+          fontSize: "0.72rem",
+          fontWeight: 600,
+          color,
+        }}
+      >
         {cents !== null
           ? `${cents > 0 ? "+" : ""}${Math.round(cents)}¢`
           : "🎤 listening…"}

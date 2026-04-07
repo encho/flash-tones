@@ -2,12 +2,11 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
-import NoteFlashCard from "./NoteFlashCard";
+import NoteFlashCardGame from "./NoteFlashCardGame";
 import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const notes: { note: string; type: "INDEX" | "NOTE" }[] = [
     { note: "C4", type: "NOTE" },
@@ -19,31 +18,13 @@ function App() {
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          padding: "24px",
-        }}
-      >
-        {notes.map((n, i) => (
-          <NoteFlashCard
-            key={n.note}
-            note={n.note}
-            type={n.type}
-            isActive={activeIndex === i}
-            matchCents={50}
-            displayRange={300}
-            onNoteHit={() =>
-              setActiveIndex((prev) => Math.min(prev + 1, notes.length - 1))
-            }
-            holdDuration={300}
-            pitch="Bb"
-          />
-        ))}
-      </div>
+      <NoteFlashCardGame
+        notes={notes}
+        matchCents={50}
+        displayRange={300}
+        holdDuration={300}
+        pitch="Bb"
+      />
 
       <section id="center">
         <div className="hero">
