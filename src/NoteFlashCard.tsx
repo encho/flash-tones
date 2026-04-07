@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "pitchy";
+import * as Tone from "tone";
 
 interface NoteFlashCardProps {
   note: string;
@@ -48,20 +49,16 @@ function noteToFrequency(note: string, transposeSemitones = 0): number | null {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function playNote(note: string, transposeSemitones = 0) {
-  const freq = noteToFrequency(note, transposeSemitones);
-  if (!freq) return;
-  const ctx = new AudioContext();
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(freq, ctx.currentTime);
-  gain.gain.setValueAtTime(0.6, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
-  oscillator.start();
-  oscillator.stop(ctx.currentTime + 1.5);
+async function playNote(note: string, transposeSemitones = 0) {
+  await Tone.start();
+  const transposedNote = Tone.Frequency(note)
+    .transpose(transposeSemitones)
+    .toNote();
+  const synth = new Tone.Synth({
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 1.2 },
+  }).toDestination();
+  synth.triggerAttackRelease(transposedNote, "2n");
 }
 
 // ── TunerBar ────────────────────────────────────────────────────────────────
