@@ -3,9 +3,9 @@ import { PitchDetector } from "pitchy";
 
 // ── Tuning constants ─────────────────────────────────────────────────────────
 /** All 3 onsets must arrive within this window (ms) to fire the signal. */
-export const ONSET_WINDOW_MS = 350;
+export const ONSET_WINDOW_MS = 400;
 /** RMS loudness gate (0–1). Onsets quieter than this are ignored. */
-export const ONSET_LOUDNESS_THRESHOLD = 0.15;
+export const ONSET_LOUDNESS_THRESHOLD = 0.1;
 
 /**
  * Detects 3 loud note onsets within ONSET_WINDOW_MS and calls `onSignal`.

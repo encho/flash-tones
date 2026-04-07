@@ -1,7 +1,7 @@
 import { useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal } from "./signals";
-import { Button3NotesSignal, OnsetDots } from "./Buttons";
+import { Button3NotesSignal } from "./Buttons";
 
 const NOTE_NAMES = [
   "C",
@@ -83,9 +83,6 @@ export default function NoteFlashCardGame({
   const startOnsetCount = useThreeNoteSignal(!started && !showSettings, () =>
     setStarted(true),
   );
-  const abortOnsetCount = useThreeNoteSignal(started && !isFinished, () =>
-    onExit?.(),
-  );
   const closeOnsetCount = useThreeNoteSignal(isFinished, () => onExit?.());
 
   const currentNote = activeNotes[activeIndex];
@@ -147,9 +144,20 @@ export default function NoteFlashCardGame({
               gap: "12px",
             }}
           >
-            {started && !isFinished && (
-              <OnsetDots count={abortOnsetCount} activeColor="#ef4444" />
-            )}
+            <button
+              onClick={() => onExit?.()}
+              style={{
+                fontSize: "0.8rem",
+                padding: "4px 14px",
+                borderRadius: "8px",
+                border: "1px solid #fca5a5",
+                background: "#fff",
+                cursor: "pointer",
+                color: "#ef4444",
+              }}
+            >
+              Abort
+            </button>
             <div>
               {isFinished ? (
                 <span style={{ color: "#22c55e", fontWeight: 700 }}>
