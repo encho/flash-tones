@@ -247,7 +247,14 @@ export default function NoteFlashCardGame({
           <span style={{ color: "#888" }}>Remaining </span>
           <strong>{Math.max(0, notes.length - activeIndex)}</strong>
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
           {started && !isFinished && abortOnsetCount > 0 && (
             <span style={{ fontSize: "0.75rem", color: "#ef4444" }}>
               abort{" "}
@@ -256,20 +263,22 @@ export default function NoteFlashCardGame({
             </span>
           )}
           <div>
-          {isFinished ? (
-            <span style={{ color: "#22c55e", fontWeight: 700 }}>✅ Done!</span>
-          ) : (
-            <span>
-              <span style={{ color: "#888" }}>Sing </span>
-              <strong style={{ color: "#6366f1" }}>{currentNote.note}</strong>
-              {pitch === "Bb" && (
-                <span style={{ color: "#888", fontSize: "0.78rem" }}>
-                  {" "}
-                  (concert: Bb)
-                </span>
-              )}
-            </span>
-          )}
+            {isFinished ? (
+              <span style={{ color: "#22c55e", fontWeight: 700 }}>
+                ✅ Done!
+              </span>
+            ) : (
+              <span>
+                <span style={{ color: "#888" }}>Sing </span>
+                <strong style={{ color: "#6366f1" }}>{currentNote.note}</strong>
+                {pitch === "Bb" && (
+                  <span style={{ color: "#888", fontSize: "0.78rem" }}>
+                    {" "}
+                    (concert: Bb)
+                  </span>
+                )}
+              </span>
+            )}
           </div>
         </div>
       </div>
