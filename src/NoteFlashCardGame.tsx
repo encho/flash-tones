@@ -34,6 +34,8 @@ export default function NoteFlashCardGame({
   const [started, setStarted] = useState(false);
   const [onsetCount, setOnsetCount] = useState(0);
   const onsetTimesRef = useRef<number[]>([]);
+  const [abortOnsetCount, setAbortOnsetCount] = useState(0);
+  const abortOnsetTimesRef = useRef<number[]>([]);
 
   // ── Auto-start tuning constants ──────────────────────────────────────────
   // All 3 onsets must fall within this window (ms)
@@ -117,7 +119,85 @@ export default function NoteFlashCardGame({
     };
   }, [started]);
 
+  // Listen for 3 quick onsets while in-game to abort
   const isFinished = activeIndex >= notes.length;
+  useEffect(() => {
+    if (!started || isFinished) return;
+
+    let stopped = false;
+    let audioCtx: AudioContext | null = null;
+    let stream: MediaStream | null = null;
+    let raf: number | null = null;
+    let prevClarityHigh = false;
+    abortOnsetTimesRef.current = [];
+    setAbortOnsetCount(0);
+
+    (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+      } catch {
+        return;
+      }
+      if (stopped) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
+      audioCtx = new AudioContext();
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      const buffer = new Float32Array(analyser.fftSize);
+      const detector = PitchDetector.forFloat32Array(analyser.fftSize);
+
+      function rms(buf: Float32Array) {
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        return Math.sqrt(sum / buf.length);
+      }
+
+      function tick() {
+        if (stopped) return;
+        analyser.getFloatTimeDomainData(buffer);
+        const [, clarity] = detector.findPitch(buffer, audioCtx!.sampleRate);
+        const loud = rms(buffer) >= ONSET_LOUDNESS_THRESHOLD;
+        const isHigh = clarity > 0.9 && loud;
+
+        if (isHigh && !prevClarityHigh) {
+          const now = performance.now();
+          const times = abortOnsetTimesRef.current;
+          times.push(now);
+          const cutoff = now - ONSET_WINDOW_MS;
+          while (times.length > 0 && times[0] < cutoff) times.shift();
+          setAbortOnsetCount(times.length);
+          if (times.length >= 3) {
+            setActiveIndex(0);
+            setHits(0);
+            setResults([]);
+            setStarted(false);
+            stopped = true;
+            return;
+          }
+        }
+
+        prevClarityHigh = isHigh;
+        raf = requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+
+    return () => {
+      stopped = true;
+      if (raf) cancelAnimationFrame(raf);
+      stream?.getTracks().forEach((t) => t.stop());
+      audioCtx?.close();
+      setAbortOnsetCount(0);
+    };
+  }, [started, isFinished]);
+
   const currentNote = notes[activeIndex];
 
   function handleNoteHit(result: HitResult) {
@@ -167,7 +247,15 @@ export default function NoteFlashCardGame({
           <span style={{ color: "#888" }}>Remaining </span>
           <strong>{Math.max(0, notes.length - activeIndex)}</strong>
         </div>
-        <div style={{ marginLeft: "auto" }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
+          {started && !isFinished && abortOnsetCount > 0 && (
+            <span style={{ fontSize: "0.75rem", color: "#ef4444" }}>
+              abort{" "}
+              {"●".repeat(abortOnsetCount) +
+                "○".repeat(Math.max(0, 3 - abortOnsetCount))}
+            </span>
+          )}
+          <div>
           {isFinished ? (
             <span style={{ color: "#22c55e", fontWeight: 700 }}>✅ Done!</span>
           ) : (
@@ -182,6 +270,7 @@ export default function NoteFlashCardGame({
               )}
             </span>
           )}
+          </div>
         </div>
       </div>
 
