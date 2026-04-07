@@ -49,16 +49,23 @@ function noteToFrequency(note: string, transposeSemitones = 0): number | null {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-async function playNote(note: string, transposeSemitones = 0) {
+async function playNote(
+  note: string,
+  transposeSemitones = 0,
+): Promise<void> {
   await Tone.start();
   const transposedNote = Tone.Frequency(note)
     .transpose(transposeSemitones)
     .toNote();
+  const durationSec = Tone.Time("2n").toSeconds();
   const synth = new Tone.Synth({
     oscillator: { type: "triangle" },
     envelope: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 1.2 },
   }).toDestination();
   synth.triggerAttackRelease(transposedNote, "2n");
+  return new Promise((resolve) =>
+    setTimeout(resolve, (durationSec + 1.2) * 1000),
+  );
 }
 
 // ── TunerBar ────────────────────────────────────────────────────────────────
@@ -205,6 +212,7 @@ function NoteFlashCard({
   }, [holdDuration]);
   const inRangeSinceRef = useRef<number | null>(null);
   const hitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPlayingRef = useRef(false);
   const onNoteHitRef = useRef(onNoteHit);
   useEffect(() => {
     onNoteHitRef.current = onNoteHit;
@@ -252,7 +260,7 @@ function NoteFlashCard({
         if (stopped) return;
         analyser.getFloatTimeDomainData(buffer);
         const [freq, clarity] = detector.findPitch(buffer, ctx.sampleRate);
-        if (clarity > 0.9 && freq > 0) {
+        if (clarity > 0.9 && freq > 0 && !isPlayingRef.current) {
           const c = 1200 * Math.log2(freq / targetFreq!);
           setCents(c);
           if (Math.abs(c) < matchCentsRef.current) {
@@ -328,7 +336,13 @@ function NoteFlashCard({
         {type}
       </span>
       <button
-        onClick={() => playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0)}
+        onClick={async () => {
+            isPlayingRef.current = true;
+            inRangeSinceRef.current = null;
+            setHoldProgress(0);
+            await playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
+            isPlayingRef.current = false;
+          }}
         style={{
           marginTop: "4px",
           padding: "6px 18px",
