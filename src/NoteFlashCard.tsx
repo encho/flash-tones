@@ -113,6 +113,9 @@ function NoteFlashCard({
   const [holdProgress, setHoldProgress] = useState(0);
   const firedRef = useRef(false);
   const inRangeSinceRef = useRef<number | null>(null);
+  const hitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onNoteHitRef = useRef(onNoteHit);
+  useEffect(() => { onNoteHitRef.current = onNoteHit; }, [onNoteHit]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -168,8 +171,11 @@ function NoteFlashCard({
             setHoldProgress(progress);
             if (progress >= 1 && !firedRef.current) {
               firedRef.current = true;
-              setMatched(true);
-              onNoteHit?.();
+              // Render bar at 100% first, then show ✅ and fire callback
+              hitTimeoutRef.current = setTimeout(() => {
+                setMatched(true);
+                onNoteHitRef.current?.();
+              }, 120);
             }
           } else {
             inRangeSinceRef.current = null;
@@ -189,6 +195,7 @@ function NoteFlashCard({
       stopped = true;
       firedRef.current = false;
       inRangeSinceRef.current = null;
+      if (hitTimeoutRef.current) clearTimeout(hitTimeoutRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamRef.current?.getTracks().forEach((t) => t.stop());
       audioCtxRef.current?.close();
@@ -340,7 +347,6 @@ function NoteFlashCard({
                       width: `${holdProgress * 100}%`,
                       backgroundColor: "#22c55e",
                       borderRadius: "3px",
-                      transition: "width 0.05s linear",
                     }}
                   />
                 </div>
