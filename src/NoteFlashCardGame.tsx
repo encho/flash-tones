@@ -30,6 +30,7 @@ export default function NoteFlashCardGame({
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
+  const [started, setStarted] = useState(false);
 
   const isFinished = activeIndex >= notes.length;
   const currentNote = notes[activeIndex];
@@ -113,7 +114,7 @@ export default function NoteFlashCardGame({
             key={n.note}
             note={n.note}
             type={n.type}
-            isActive={activeIndex === i}
+            isActive={started && activeIndex === i}
             matchCents={matchCents}
             displayRange={displayRange}
             holdDuration={holdDuration}
@@ -123,6 +124,25 @@ export default function NoteFlashCardGame({
         ))}
       </div>
 
+      {/* Start Game */}
+      {!started && !isFinished && (
+        <button
+          onClick={() => setStarted(true)}
+          style={{
+            marginTop: "8px",
+            padding: "10px 28px",
+            fontSize: "1rem",
+            borderRadius: "10px",
+            border: "none",
+            backgroundColor: "#6366f1",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Start Game
+        </button>
+      )}
+
       {/* Restart */}
       {isFinished && (
         <button
@@ -130,6 +150,7 @@ export default function NoteFlashCardGame({
             setActiveIndex(0);
             setHits(0);
             setResults([]);
+            setStarted(false);
           }}
           style={{
             marginTop: "8px",

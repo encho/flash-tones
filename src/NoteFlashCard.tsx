@@ -204,7 +204,10 @@ function NoteFlashCard({
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
-  const [displayTimes, setDisplayTimes] = useState<{ total: number; effective: number } | null>(null);
+  const [displayTimes, setDisplayTimes] = useState<{
+    total: number;
+    effective: number;
+  } | null>(null);
   const firedRef = useRef(false);
   const matchCentsRef = useRef(matchCents);
   const holdDurationRef = useRef(holdDuration);
@@ -245,8 +248,14 @@ function NoteFlashCard({
         playStartRef.current !== null
           ? performance.now() - playStartRef.current
           : 0;
-      const effective = Math.max(0, total - totalPlayTimeRef.current - playingNow);
-      setDisplayTimes({ total: Math.round(total), effective: Math.round(effective) });
+      const effective = Math.max(
+        0,
+        total - totalPlayTimeRef.current - playingNow,
+      );
+      setDisplayTimes({
+        total: Math.round(total),
+        effective: Math.round(effective),
+      });
     }, 100);
     return () => clearInterval(id);
   }, [isActive]);
