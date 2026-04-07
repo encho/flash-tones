@@ -34,12 +34,12 @@ function App() {
             note={n.note}
             type={n.type}
             isActive={activeIndex === i}
-            matchCents={800}
-            displayRange={4000}
+            matchCents={1000}
+            displayRange={5000}
             onNoteHit={() =>
               setActiveIndex((prev) => Math.min(prev + 1, notes.length - 1))
             }
-            holdDuration={600}
+            holdDuration={300}
           />
         ))}
       </div>
