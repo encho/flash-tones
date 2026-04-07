@@ -54,7 +54,7 @@ interface NoteFlashCardGameProps {
   displayRange?: number;
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
-  onNewGame?: () => void;
+  onExit?: () => void;
 }
 
 export default function NoteFlashCardGame({
@@ -63,7 +63,7 @@ export default function NoteFlashCardGame({
   displayRange = 300,
   holdDuration = 300,
   pitch = "CONCERT",
-  onNewGame,
+  onExit,
 }: NoteFlashCardGameProps) {
   const activeNotes = notes;
   const [activeIndex, setActiveIndex] = useState(0);
@@ -212,7 +212,7 @@ export default function NoteFlashCardGame({
           while (times.length > 0 && times[0] < cutoff) times.shift();
           setAbortOnsetCount(times.length);
           if (times.length >= 3) {
-            onNewGame?.();
+            onExit?.();
             stopped = true;
             return;
           }
@@ -386,11 +386,11 @@ export default function NoteFlashCardGame({
         </div>
       )}
 
-      {/* Restart */}
+      {/* Exit */}
       {isFinished && (
         <button
           onClick={() => {
-            onNewGame?.();
+            onExit?.();
           }}
           style={{
             marginTop: "8px",
@@ -403,7 +403,7 @@ export default function NoteFlashCardGame({
             cursor: "pointer",
           }}
         >
-          Restart
+          Exit
         </button>
       )}
       {/* Results table */}
