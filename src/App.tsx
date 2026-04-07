@@ -2,6 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
+import NoteFlashCard from './NoteFlashCard'
 import './App.css'
 
 function App() {
@@ -9,6 +10,14 @@ function App() {
 
   return (
     <>
+      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', padding: '24px' }}>
+        <NoteFlashCard note="C4" type="NOTE" isActive />
+        <NoteFlashCard note="E4" type="NOTE" />
+        <NoteFlashCard note="G4" type="NOTE" />
+        <NoteFlashCard note="A4" type="NOTE" />
+        <NoteFlashCard note="C5" type="INDEX" />
+      </div>
+
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
