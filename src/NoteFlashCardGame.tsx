@@ -72,7 +72,10 @@ export default function NoteFlashCardGame({
   onStart,
 }: NoteFlashCardGameProps) {
   const [noteCount, setNoteCount] = useState(5);
-  const activeNotes = useMemo(() => generateRandomNotes(noteCount), [noteCount]);
+  const activeNotes = useMemo(
+    () => generateRandomNotes(noteCount),
+    [noteCount],
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
@@ -245,49 +248,49 @@ export default function NoteFlashCardGame({
             onClick={startGame}
           />
           <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              alignItems: "flex-start",
+              backgroundColor: "#f8f8f8",
+              border: "1px solid #e5e7eb",
+              borderRadius: "12px",
+              padding: "16px 24px",
+              minWidth: "220px",
+            }}
+          >
+            <label
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                alignItems: "flex-start",
-                backgroundColor: "#f8f8f8",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "16px 24px",
-                minWidth: "220px",
+                fontSize: "0.9rem",
+                color: "#444",
+                fontWeight: 600,
               }}
             >
-              <label
-                style={{
-                  fontSize: "0.9rem",
-                  color: "#444",
-                  fontWeight: 600,
-                }}
-              >
-                Notes per game
-              </label>
-              <div style={{ display: "flex", gap: "8px" }}>
-                {[5, 10, 20].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setNoteCount(n)}
-                    style={{
-                      fontSize: "0.95rem",
-                      padding: "6px 16px",
-                      borderRadius: "8px",
-                      border: `2px solid ${noteCount === n ? "#6366f1" : "#d1d5db"}`,
-                      background: noteCount === n ? "#6366f1" : "#fff",
-                      color: noteCount === n ? "#fff" : "#444",
-                      cursor: "pointer",
-                      fontWeight: noteCount === n ? 700 : 400,
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    {n} Notes
-                  </button>
-                ))}
-              </div>
+              Notes per game
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              {[5, 10, 20].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setNoteCount(n)}
+                  style={{
+                    fontSize: "0.95rem",
+                    padding: "6px 16px",
+                    borderRadius: "8px",
+                    border: `2px solid ${noteCount === n ? "#6366f1" : "#d1d5db"}`,
+                    background: noteCount === n ? "#6366f1" : "#fff",
+                    color: noteCount === n ? "#fff" : "#444",
+                    cursor: "pointer",
+                    fontWeight: noteCount === n ? 700 : 400,
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {n} Notes
+                </button>
+              ))}
             </div>
+          </div>
         </div>
       )}
 
