@@ -443,7 +443,13 @@ function NoteFlashCard({
         boxSizing: "border-box",
       }}
     >
-      <span style={{ fontSize: "clamp(2.5rem, 7vh, 5rem)", fontWeight: "bold", color: "#222" }}>
+      <span
+        style={{
+          fontSize: "clamp(2.5rem, 7vh, 5rem)",
+          fontWeight: "bold",
+          color: "#222",
+        }}
+      >
         {note}
       </span>
       <span
@@ -453,7 +459,15 @@ function NoteFlashCard({
       </span>
 
       {isActive && (
-        <div style={{ width: "100%", marginTop: "4px", textAlign: "center", padding: "0 12px", boxSizing: "border-box" }}>
+        <div
+          style={{
+            width: "100%",
+            marginTop: "4px",
+            textAlign: "center",
+            padding: "0 12px",
+            boxSizing: "border-box",
+          }}
+        >
           {matched ? (
             <div style={{ fontSize: "2rem" }}>✅</div>
           ) : (
