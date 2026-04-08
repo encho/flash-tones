@@ -192,6 +192,47 @@ function HoldProgressBar({ progress }: HoldProgressBarProps) {
   );
 }
 
+// ── TimerDonut ─────────────────────────────────────────────────────────────
+
+function TimerDonut({ progress }: { progress: number }) {
+  const r = 13;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - Math.min(progress, 1));
+  const color =
+    progress < 0.6 ? "#6366f1" : progress < 0.85 ? "#eab308" : "#ef4444";
+
+  return (
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      style={{ display: "block" }}
+    >
+      <circle
+        cx="16"
+        cy="16"
+        r={r}
+        fill="none"
+        stroke="#e5e7eb"
+        strokeWidth="4"
+      />
+      <circle
+        cx="16"
+        cy="16"
+        r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth="4"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform="rotate(-90 16 16)"
+        style={{ transition: "stroke-dashoffset 0.1s linear, stroke 0.3s" }}
+      />
+    </svg>
+  );
+}
+
 // ── Component ───────────────────────────────────────────────────────────────
 
 function NoteFlashCard({
@@ -429,6 +470,7 @@ function NoteFlashCard({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        position: "relative",
         width: "100%",
         height: "100%",
         padding: "clamp(16px, 3vh, 28px) 12px",
@@ -457,6 +499,18 @@ function NoteFlashCard({
       >
         {type}
       </span>
+
+      {isActive && !matched && displayTimes && (
+        <div
+          style={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+          }}
+        >
+          <TimerDonut progress={displayTimes.total / timeLimitMs} />
+        </div>
+      )}
 
       {isActive && (
         <div
