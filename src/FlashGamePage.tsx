@@ -6,14 +6,12 @@ interface FlashGamePageProps {
   matchCents?: number;
   displayRange?: number;
   holdDuration?: number;
-  pitch?: "CONCERT" | "Bb";
 }
 
 export default function FlashGamePage({
   matchCents = 50,
   displayRange = 300,
   holdDuration = 300,
-  pitch = "CONCERT",
 }: FlashGamePageProps) {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
@@ -22,6 +20,7 @@ export default function FlashGamePage({
   const [noteCount, setNoteCount] = useState(5);
   const [scale, setScale] = useState<ScaleKey>("chromatic");
   const [displayType, setDisplayType] = useState<"note" | "index">("note");
+  const [pitch, setPitch] = useState<"CONCERT" | "Bb">("Bb");
 
   function handleStart() {
     const id = crypto.randomUUID();
@@ -39,6 +38,7 @@ export default function FlashGamePage({
       displayRange={displayRange}
       holdDuration={holdDuration}
       pitch={pitch}
+      onPitchChange={setPitch}
       onExit={handleExit}
       initialStarted={!!gameId}
       onStart={handleStart}

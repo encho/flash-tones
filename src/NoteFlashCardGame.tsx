@@ -91,6 +91,7 @@ interface NoteFlashCardGameProps {
   displayRange?: number;
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
+  onPitchChange?: (p: "CONCERT" | "Bb") => void;
   onExit?: () => void;
   timeLimitMs?: number;
   initialStarted?: boolean;
@@ -108,6 +109,7 @@ export default function NoteFlashCardGame({
   displayRange = 300,
   holdDuration = 300,
   pitch = "CONCERT",
+  onPitchChange,
   onExit,
   timeLimitMs = 10000,
   initialStarted = false,
@@ -371,6 +373,7 @@ export default function NoteFlashCardGame({
 
       {/* Start Game + Settings */}
       {!started && !isFinished && (
+        <>
         <div
           style={{
             flex: 1,
@@ -381,6 +384,7 @@ export default function NoteFlashCardGame({
             gap: "20px",
             width: "100%",
             marginTop: "-15vh",
+            paddingBottom: "90px",
           }}
         >
           <div
@@ -480,23 +484,67 @@ export default function NoteFlashCardGame({
                   fontWeight: 600,
                 }}
               >
-                Display
+                Pitch
               </label>
               <UIButtonGroup
                 items={[
-                  { label: "Note Name", onClick: () => onDisplayTypeChange?.("note"), active: displayType === "note" },
-                  { label: "Valve Index", onClick: () => onDisplayTypeChange?.("index"), active: displayType === "index" },
+                  { label: "Bb", onClick: () => onPitchChange?.("Bb"), active: pitch === "Bb" },
+                  { label: "Concert", onClick: () => onPitchChange?.("CONCERT"), active: pitch === "CONCERT" },
                 ]}
               />
             </div>
-            <Button3NotesSignal
-              label="Start Game"
-              onsetCount={startOnsetCount}
-              onClick={startGame}
-              width="100%"
-            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                alignItems: "flex-start",
+                backgroundColor: "#f8f8f8",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "16px 24px",
+              }}
+            >
+              <label
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#444",
+                  fontWeight: 600,
+                }}
+              >
+                Note Display
+              </label>
+              <UIButtonGroup
+                items={[
+                  { label: "Name", onClick: () => onDisplayTypeChange?.("note"), active: displayType === "note" },
+                  { label: "Index", onClick: () => onDisplayTypeChange?.("index"), active: displayType === "index" },
+                ]}
+              />
+            </div>
           </div>
         </div>
+        {/* Fixed Start Game button */}
+        <div
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: "16px",
+            backgroundColor: "#fff",
+            borderTop: "1px solid #e5e7eb",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Button3NotesSignal
+            label="Start Game"
+            onsetCount={startOnsetCount}
+            onClick={startGame}
+            width="min(420px, calc(92vw))"              padding="18px 28px"
+              fontSize="1.1rem"          />
+        </div>
+      </>
       )}
 
       {/* Close */}
