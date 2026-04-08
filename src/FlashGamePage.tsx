@@ -38,15 +38,34 @@ export default function FlashGamePage({
 
   const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
   const [scale, setScaleState] = useState<ScaleKey>(saved.scale ?? "chromatic");
-  const [displayType, setDisplayTypeState] = useState<"note" | "index">(saved.displayType ?? "note");
-  const [pitch, setPitchState] = useState<"CONCERT" | "Bb">(saved.pitch ?? "Bb");
+  const [displayType, setDisplayTypeState] = useState<"note" | "index">(
+    saved.displayType ?? "note",
+  );
+  const [pitch, setPitchState] = useState<"CONCERT" | "Bb">(
+    saved.pitch ?? "Bb",
+  );
   const [prehear, setPrehearState] = useState<boolean>(saved.prehear ?? true);
 
-  function setNoteCount(v: number) { setNoteCountState(v); saveSettings({ noteCount: v }); }
-  function setScale(v: ScaleKey) { setScaleState(v); saveSettings({ scale: v }); }
-  function setDisplayType(v: "note" | "index") { setDisplayTypeState(v); saveSettings({ displayType: v }); }
-  function setPitch(v: "CONCERT" | "Bb") { setPitchState(v); saveSettings({ pitch: v }); }
-  function setPrehear(v: boolean) { setPrehearState(v); saveSettings({ prehear: v }); }
+  function setNoteCount(v: number) {
+    setNoteCountState(v);
+    saveSettings({ noteCount: v });
+  }
+  function setScale(v: ScaleKey) {
+    setScaleState(v);
+    saveSettings({ scale: v });
+  }
+  function setDisplayType(v: "note" | "index") {
+    setDisplayTypeState(v);
+    saveSettings({ displayType: v });
+  }
+  function setPitch(v: "CONCERT" | "Bb") {
+    setPitchState(v);
+    saveSettings({ pitch: v });
+  }
+  function setPrehear(v: boolean) {
+    setPrehearState(v);
+    saveSettings({ prehear: v });
+  }
 
   function handleStart() {
     const id = crypto.randomUUID();
