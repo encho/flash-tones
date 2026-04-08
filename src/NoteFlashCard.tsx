@@ -98,9 +98,9 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
       <div
         style={{
           position: "relative",
-          height: "10px",
+          height: "20px",
           backgroundColor: "#e5e7eb",
-          borderRadius: "5px",
+          borderRadius: "10px",
         }}
       >
         {/* Tolerance zone */}
@@ -129,28 +129,15 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
         <div
           style={{
             position: "absolute",
-            top: "-5px",
-            bottom: "-5px",
+            top: "2px",
+            bottom: "2px",
             left: `${needlePct}%`,
-            width: "4px",
-            marginLeft: "-2px",
+            width: "6px",
+            marginLeft: "-3px",
             backgroundColor: color,
-            borderRadius: "2px",
+            borderRadius: "3px",
           }}
         />
-      </div>
-      {/* Cents label */}
-      <div
-        style={{
-          marginTop: "8px",
-          fontSize: "0.72rem",
-          fontWeight: 600,
-          color,
-        }}
-      >
-        {cents !== null
-          ? `${cents > 0 ? "+" : ""}${Math.round(cents)}¢`
-          : "🎤 listening…"}
       </div>
     </>
   );
@@ -474,27 +461,21 @@ function NoteFlashCard({
         boxShadow: isActive
           ? "0 0 14px rgba(99,102,241,0.35)"
           : "0 2px 8px rgba(0,0,0,0.15)",
-        gap: "clamp(6px, 1.5vh, 16px)",
+        gap: "1rem",
         transition: "border-color 0.2s, box-shadow 0.2s",
         boxSizing: "border-box",
       }}
     >
       <span
         style={{
-          fontSize: "clamp(2.5rem, 7vh, 5rem)",
+          fontSize: "clamp(4rem, 16vh, 10rem)",
+          lineHeight: "1",
           fontWeight: "bold",
           color: "#222",
         }}
       >
         {displayType === "index" ? (noteToIndex(note) ?? note) : note}
       </span>
-      {displayType === "note" && (
-        <span
-          style={{ fontSize: "0.85rem", color: "#888", letterSpacing: "0.1em" }}
-        >
-          NOTE
-        </span>
-      )}
 
       {isActive && !matched && displayTimes && (
         <div
@@ -511,43 +492,21 @@ function NoteFlashCard({
       {isActive && (
         <div
           style={{
-            width: "100%",
-            marginTop: "4px",
+            position: "absolute",
+            bottom: "12px",
+            left: "12px",
+            right: "12px",
             textAlign: "center",
-            padding: "0 12px",
-            boxSizing: "border-box",
           }}
         >
           {matched ? (
             <div style={{ fontSize: "2rem" }}>✅</div>
           ) : (
-            <>
-              <TunerBar
-                cents={cents}
-                matchCents={matchCents}
-                displayRange={displayRange}
-              />
-              <HoldProgressBar progress={holdProgress} />
-            </>
-          )}
-          {displayTimes && (
-            <div
-              style={{
-                marginTop: "6px",
-                fontSize: "0.65rem",
-                color: "#666",
-                lineHeight: 1.6,
-              }}
-            >
-              <div>
-                total:{" "}
-                <strong>{(displayTimes.total / 1000).toFixed(2)}s</strong>
-              </div>
-              <div>
-                eff:{" "}
-                <strong>{(displayTimes.effective / 1000).toFixed(2)}s</strong>
-              </div>
-            </div>
+            <TunerBar
+              cents={cents}
+              matchCents={matchCents}
+              displayRange={displayRange}
+            />
           )}
         </div>
       )}
