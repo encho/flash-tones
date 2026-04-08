@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import NoteFlashCardGame from "./NoteFlashCardGame";
 
 interface FlashGamePageProps {
@@ -16,6 +16,7 @@ export default function FlashGamePage({
 }: FlashGamePageProps) {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
+  const location = useLocation();
 
   function handleStart() {
     const id = crypto.randomUUID();
@@ -23,11 +24,12 @@ export default function FlashGamePage({
   }
 
   function handleExit() {
-    navigate("/");
+    navigate("/flash-game");
   }
 
   return (
     <NoteFlashCardGame
+      key={location.key}
       matchCents={matchCents}
       displayRange={displayRange}
       holdDuration={holdDuration}

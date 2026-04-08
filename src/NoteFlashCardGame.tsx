@@ -483,8 +483,7 @@ export default function NoteFlashCardGame({
             <tr style={{ backgroundColor: "#f3f4f6" }}>
               <th style={thStyle}>#</th>
               <th style={thStyle}>Note</th>
-              <th style={thStyle}>Total time (s)</th>
-              <th style={thStyle}>Effective time (s)</th>
+              <th style={thStyle}>Time (s)</th>
               <th style={thStyle}>Result</th>
             </tr>
           </thead>
@@ -498,7 +497,6 @@ export default function NoteFlashCardGame({
                 <td style={{ ...tdStyle, fontWeight: 700, color: "#6366f1" }}>
                   {r.note}
                 </td>
-                <td style={tdStyle}>{(r.totalTime / 1000).toFixed(2)}</td>
                 <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
                 <td style={tdStyle}>
                   {r.timedOut ? (
