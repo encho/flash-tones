@@ -396,9 +396,13 @@ export default function NoteFlashCardGame({
                 <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
                 <td style={tdStyle}>
                   {r.timedOut ? (
-                    <span style={{ color: "#ef4444", fontWeight: 600 }}>⏱ Time limit</span>
+                    <span style={{ color: "#ef4444", fontWeight: 600 }}>
+                      ⏱ Time limit
+                    </span>
                   ) : (
-                    <span style={{ color: "#22c55e", fontWeight: 600 }}>✅ Hit</span>
+                    <span style={{ color: "#22c55e", fontWeight: 600 }}>
+                      ✅ Hit
+                    </span>
                   )}
                 </td>
               </tr>
