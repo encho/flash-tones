@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal } from "./signals";
 import { Button3NotesSignal, UIButtonGroup } from "./Buttons";
@@ -97,7 +97,7 @@ export default function NoteFlashCardGame({
   holdDuration = 300,
   pitch = "CONCERT",
   onExit,
-  timeLimitMs = 5000,
+  timeLimitMs = 10000,
   initialStarted = false,
   onStart,
 }: NoteFlashCardGameProps) {
@@ -112,6 +112,16 @@ export default function NoteFlashCardGame({
   const [results, setResults] = useState<HitResult[]>([]);
   const [started, setStarted] = useState(initialStarted);
   const [failed, setFailed] = useState(false);
+  // Slide animation: track exiting card separately
+  const [exitingIndex, setExitingIndex] = useState<number | null>(null);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+    },
+    [],
+  );
 
   function startGame() {
     setStarted(true);
@@ -126,9 +136,14 @@ export default function NoteFlashCardGame({
   const currentNote = activeNotes[activeIndex];
 
   function handleNoteHit(result: HitResult) {
+    const leaving = activeIndex;
+    setExitingIndex(leaving);
     setHits((h) => h + 1);
     setResults((prev) => [...prev, result]);
-    setActiveIndex((i) => i + 1);
+    exitTimerRef.current = setTimeout(() => {
+      setExitingIndex(null);
+      setActiveIndex((i) => i + 1);
+    }, 320);
   }
 
   function handleTimeLimit() {
@@ -173,6 +188,11 @@ export default function NoteFlashCardGame({
             boxSizing: "border-box",
           }}
         >
+          <style>{`
+            @media (max-width: 480px) {
+              .game-header-extra { display: none !important; }
+            }
+          `}</style>
           <div>
             <span style={{ color: "#888" }}>Note </span>
             <strong>
@@ -180,11 +200,11 @@ export default function NoteFlashCardGame({
               {activeNotes.length}
             </strong>
           </div>
-          <div>
+          <div className="game-header-extra">
             <span style={{ color: "#888" }}>Hit </span>
             <strong style={{ color: "#22c55e" }}>{hits}</strong>
           </div>
-          <div>
+          <div className="game-header-extra">
             <span style={{ color: "#888" }}>Remaining </span>
             <strong>{Math.max(0, activeNotes.length - activeIndex)}</strong>
           </div>
@@ -210,7 +230,7 @@ export default function NoteFlashCardGame({
             >
               Abort
             </button>
-            <div>
+            <div className="game-header-extra">
               {isFinished ? (
                 <span style={{ color: "#22c55e", fontWeight: 700 }}>
                   ✅ Done!
@@ -238,28 +258,91 @@ export default function NoteFlashCardGame({
       {started && !isFinished && (
         <div
           style={{
+            backgroundColor: "#f3f4f6",
+            borderRadius: "16px",
+            padding: "32px 40px",
             display: "flex",
-            gap: "16px",
-            flexWrap: "wrap",
+            alignItems: "center",
             justifyContent: "center",
           }}
         >
-          {activeNotes.map((n, i) => (
-            <NoteFlashCard
-              key={n.note}
-              note={n.note}
-              type={n.type}
-              isActive={started && activeIndex === i}
-              matchCents={matchCents}
-              displayRange={displayRange}
-              holdDuration={holdDuration}
-              pitch={pitch}
-              onNoteHit={handleNoteHit}
-              timeLimitMs={timeLimitMs}
-              onTimeLimit={handleTimeLimit}
-              autoPlayMs={500}
-            />
-          ))}
+          <div
+            style={{
+              position: "relative",
+              width: "196px",
+              height: "280px",
+              overflow: "hidden",
+              padding: "8px",
+              boxSizing: "border-box",
+            }}
+          >
+            <style>{`
+            @keyframes slideInRight {
+              from { transform: translateX(110%); opacity: 0; }
+              to   { transform: translateX(0);    opacity: 1; }
+            }
+            @keyframes slideOutLeft {
+              from { transform: translateX(0);     opacity: 1; }
+              to   { transform: translateX(-110%); opacity: 0; }
+            }
+          `}</style>
+            {/* Exiting card */}
+            {exitingIndex !== null && activeNotes[exitingIndex] && (
+              <div
+                key={`exit-${exitingIndex}`}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  animation: "slideOutLeft 0.3s ease forwards",
+                }}
+              >
+                <NoteFlashCard
+                  note={activeNotes[exitingIndex].note}
+                  type={activeNotes[exitingIndex].type}
+                  isActive={false}
+                  matchCents={matchCents}
+                  displayRange={displayRange}
+                  holdDuration={holdDuration}
+                  pitch={pitch}
+                  timeLimitMs={timeLimitMs}
+                />
+              </div>
+            )}
+            {/* Active card */}
+            {exitingIndex === null && activeNotes[activeIndex] && (
+              <div
+                key={`card-${activeIndex}`}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  animation:
+                    activeIndex > 0
+                      ? "slideInRight 0.3s ease forwards"
+                      : "none",
+                }}
+              >
+                <NoteFlashCard
+                  note={activeNotes[activeIndex].note}
+                  type={activeNotes[activeIndex].type}
+                  isActive={true}
+                  matchCents={matchCents}
+                  displayRange={displayRange}
+                  holdDuration={holdDuration}
+                  pitch={pitch}
+                  onNoteHit={handleNoteHit}
+                  timeLimitMs={timeLimitMs}
+                  onTimeLimit={handleTimeLimit}
+                  autoPlayMs={500}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 
