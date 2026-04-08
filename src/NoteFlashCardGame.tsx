@@ -217,7 +217,7 @@ export default function NoteFlashCardGame({
         alignItems: "center",
         gap: "16px",
         padding: "16px",
-        paddingBottom: (isFinished || (started && !isFinished)) ? "90px" : "16px",
+        paddingBottom: isFinished || (started && !isFinished) ? "90px" : "16px",
         height: "100%",
         boxSizing: "border-box",
         overflowY: "auto",
@@ -264,7 +264,14 @@ export default function NoteFlashCardGame({
             <span style={{ color: "#888" }}>Remaining </span>
             <strong>{Math.max(0, activeNotes.length - activeIndex)}</strong>
           </div>
-          <div className="game-header-extra" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+          <div
+            className="game-header-extra"
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
             <span style={{ color: "#888" }}>Play </span>
             <strong style={{ color: "#111" }}>{currentNote.note}</strong>
           </div>
@@ -300,7 +307,14 @@ export default function NoteFlashCardGame({
           }}
         >
           {/* Clip wrapper: padding gives shadow room; App-level overflow:hidden catches flying cards */}
-          <div style={{ position: "relative", padding: "16px", boxSizing: "border-box", width: "clamp(200px, 75vw, 364px)" }}>
+          <div
+            style={{
+              position: "relative",
+              padding: "16px",
+              boxSizing: "border-box",
+              width: "clamp(200px, 75vw, 364px)",
+            }}
+          >
             <div
               style={{
                 position: "relative",
@@ -308,7 +322,7 @@ export default function NoteFlashCardGame({
                 height: "clamp(248px, 68vh, 560px)",
               }}
             >
-            <style>{`
+              <style>{`
             @keyframes slideInRight {
               from { transform: translateX(60%); opacity: 0; }
               to   { transform: translateX(0);   opacity: 1; }
@@ -318,62 +332,62 @@ export default function NoteFlashCardGame({
               to   { transform: translateX(-60%); opacity: 0; }
             }
           `}</style>
-            {/* Exiting card */}
-            {exitingIndex !== null && activeNotes[exitingIndex] && (
-              <div
-                key={`exit-${exitingIndex}`}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  animation: "slideOutLeft 0.4s ease forwards",
-                }}
-              >
-                <NoteFlashCard
-                  note={activeNotes[exitingIndex].note}
-                  displayType={displayType}
-                  isActive={false}
-                  matchCents={matchCents}
-                  displayRange={displayRange}
-                  holdDuration={holdDuration}
-                  pitch={pitch}
-                  timeLimitMs={timeLimitMs}
-                />
-              </div>
-            )}
-            {/* Active card */}
-            {exitingIndex === null && activeNotes[activeIndex] && (
-              <div
-                key={`card-${activeIndex}`}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  animation:
-                    activeIndex > 0
-                      ? "slideInRight 0.4s ease forwards"
-                      : "none",
-                }}
-              >
-                <NoteFlashCard
-                  note={activeNotes[activeIndex].note}
-                  displayType={displayType}
-                  isActive={true}
-                  matchCents={matchCents}
-                  displayRange={displayRange}
-                  holdDuration={holdDuration}
-                  pitch={pitch}
-                  onNoteHit={handleNoteHit}
-                  timeLimitMs={timeLimitMs}
-                  onTimeLimit={handleTimeLimit}
-                  autoPlayMs={prehear ? 500 : 0}
-                />
-              </div>
-            )}
+              {/* Exiting card */}
+              {exitingIndex !== null && activeNotes[exitingIndex] && (
+                <div
+                  key={`exit-${exitingIndex}`}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    animation: "slideOutLeft 0.4s ease forwards",
+                  }}
+                >
+                  <NoteFlashCard
+                    note={activeNotes[exitingIndex].note}
+                    displayType={displayType}
+                    isActive={false}
+                    matchCents={matchCents}
+                    displayRange={displayRange}
+                    holdDuration={holdDuration}
+                    pitch={pitch}
+                    timeLimitMs={timeLimitMs}
+                  />
+                </div>
+              )}
+              {/* Active card */}
+              {exitingIndex === null && activeNotes[activeIndex] && (
+                <div
+                  key={`card-${activeIndex}`}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    animation:
+                      activeIndex > 0
+                        ? "slideInRight 0.4s ease forwards"
+                        : "none",
+                  }}
+                >
+                  <NoteFlashCard
+                    note={activeNotes[activeIndex].note}
+                    displayType={displayType}
+                    isActive={true}
+                    matchCents={matchCents}
+                    displayRange={displayRange}
+                    holdDuration={holdDuration}
+                    pitch={pitch}
+                    onNoteHit={handleNoteHit}
+                    timeLimitMs={timeLimitMs}
+                    onTimeLimit={handleTimeLimit}
+                    autoPlayMs={prehear ? 500 : 0}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -647,43 +661,58 @@ export default function NoteFlashCardGame({
         </div>
       )}
       {/* Summary stats */}
-      {isFinished && results.length > 0 && (() => {
-        const hit = results.filter((r) => !r.timedOut);
-        const timedOut = results.filter((r) => r.timedOut);
-        const avg = hit.length > 0
-          ? hit.reduce((s, r) => s + r.effectiveTime, 0) / hit.length / 1000
-          : null;
-        return (
-          <div
-            style={{
-              width: "min(420px, 92vw)",
-              fontSize: "0.95rem",
-              color: "#333",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-            }}
-          >
-            <p style={{ margin: 0 }}>
-              You <strong style={{ color: "#22c55e" }}>hit</strong> <strong style={{ color: "#22c55e" }}>{hit.length}</strong> out of <strong>{results.length}</strong> {results.length === 1 ? "note" : "notes"}.
-            </p>
-            {timedOut.length > 0 ? (
+      {isFinished &&
+        results.length > 0 &&
+        (() => {
+          const hit = results.filter((r) => !r.timedOut);
+          const timedOut = results.filter((r) => r.timedOut);
+          const avg =
+            hit.length > 0
+              ? hit.reduce((s, r) => s + r.effectiveTime, 0) / hit.length / 1000
+              : null;
+          return (
+            <div
+              style={{
+                width: "min(420px, 92vw)",
+                fontSize: "0.95rem",
+                color: "#333",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+              }}
+            >
               <p style={{ margin: 0 }}>
-                You <strong style={{ color: "#ef4444" }}>exceeded</strong> the timer on <strong style={{ color: "#ef4444" }}>{timedOut.length}</strong> {timedOut.length === 1 ? "note" : "notes"}.
+                You <strong style={{ color: "#22c55e" }}>hit</strong>{" "}
+                <strong style={{ color: "#22c55e" }}>{hit.length}</strong> out
+                of <strong>{results.length}</strong>{" "}
+                {results.length === 1 ? "note" : "notes"}.
               </p>
-            ) : (
-              <p style={{ margin: 0 }}>
-                You <strong style={{ color: "#22c55e" }}>beat</strong> the timer on all <strong style={{ color: "#22c55e" }}>{results.length}</strong> notes.
-              </p>
-            )}
-            {avg !== null && (
-              <p style={{ margin: 0 }}>
-                Your average time is <strong>{avg.toFixed(2)}s</strong> per note.
-              </p>
-            )}
-          </div>
-        );
-      })()}
+              {timedOut.length > 0 ? (
+                <p style={{ margin: 0 }}>
+                  You <strong style={{ color: "#ef4444" }}>exceeded</strong> the
+                  timer on{" "}
+                  <strong style={{ color: "#ef4444" }}>
+                    {timedOut.length}
+                  </strong>{" "}
+                  {timedOut.length === 1 ? "note" : "notes"}.
+                </p>
+              ) : (
+                <p style={{ margin: 0 }}>
+                  You <strong style={{ color: "#22c55e" }}>beat</strong> the
+                  timer on all{" "}
+                  <strong style={{ color: "#22c55e" }}>{results.length}</strong>{" "}
+                  notes.
+                </p>
+              )}
+              {avg !== null && (
+                <p style={{ margin: 0 }}>
+                  Your average time is <strong>{avg.toFixed(2)}s</strong> per
+                  note.
+                </p>
+              )}
+            </div>
+          );
+        })()}
       {/* Results table */}
       {isFinished && results.length > 0 && (
         <table
