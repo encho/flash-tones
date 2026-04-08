@@ -658,6 +658,42 @@ export default function NoteFlashCardGame({
             : `🎉 Success! All ${hits} notes hit!`}
         </div>
       )}
+      {/* Summary stats */}
+      {isFinished && results.length > 0 && (() => {
+        const hit = results.filter((r) => !r.timedOut);
+        const timedOut = results.filter((r) => r.timedOut);
+        const avg = hit.length > 0
+          ? hit.reduce((s, r) => s + r.effectiveTime, 0) / hit.length / 1000
+          : null;
+        return (
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "600px",
+              fontSize: "0.95rem",
+              color: "#333",
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
+            }}
+          >
+            {avg !== null && (
+              <p style={{ margin: 0 }}>
+                Your average time is <strong>{avg.toFixed(2)}s</strong> per note.
+              </p>
+            )}
+            {timedOut.length > 0 ? (
+              <p style={{ margin: 0 }}>
+                You <strong style={{ color: "#ef4444" }}>exceeded</strong> the timer on <strong>{timedOut.length}</strong> {timedOut.length === 1 ? "note" : "notes"}.
+              </p>
+            ) : (
+              <p style={{ margin: 0 }}>
+                You <strong style={{ color: "#22c55e" }}>beat</strong> the timer on all <strong>{results.length}</strong> notes.
+              </p>
+            )}
+          </div>
+        );
+      })()}
       {/* Results table */}
       {isFinished && results.length > 0 && (
         <table
