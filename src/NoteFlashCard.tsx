@@ -510,11 +510,11 @@ function NoteFlashCard({
         width: "100%",
         height: "100%",
         padding: "clamp(16px, 3vh, 28px) 12px",
-        border: `2px solid ${isActive ? "#111" : "#ccc"}`,
+        border: `1px solid ${isActive ? "#ddd" : "#ccc"}`,
         borderRadius: "12px",
         backgroundColor: "#fff",
         boxShadow: isActive
-          ? "0 8px 32px rgba(0,0,0,0.22)"
+          ? "0 8px 32px rgba(0, 0, 0, 0.4)"
           : "0 2px 12px rgba(0,0,0,0.10)",
         gap: "1rem",
         transition: "border-color 0.2s, box-shadow 0.2s",
@@ -526,7 +526,10 @@ function NoteFlashCard({
       ) : (
         <span
           style={{
-            fontSize: "clamp(4rem, 16vh, 10rem)",
+            fontSize:
+              displayType === "index"
+                ? "clamp(5.2rem, 20.8vh, 13rem)"
+                : "clamp(4rem, 16vh, 10rem)",
             lineHeight: "1",
             fontWeight: "bold",
             color: "#222",
