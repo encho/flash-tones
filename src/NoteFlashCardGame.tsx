@@ -39,9 +39,9 @@ const SCALE_SEMITONES: Record<string, number[]> = {
 type ScaleKey = keyof typeof SCALE_SEMITONES;
 
 const SCALE_LABELS: Record<ScaleKey, string> = {
-  chromatic: "Chromatic",
-  cMajor: "C Major",
-  dMajor: "D Major",
+  chromatic: "Chrom.",
+  cMajor: "C Maj.",
+  dMajor: "D Maj.",
 };
 
 function getNotesForScale(scale: ScaleKey): string[] {
@@ -168,7 +168,7 @@ export default function NoteFlashCardGame({
         alignItems: "center",
         gap: "16px",
         padding: "16px",
-        height: "100dvh",
+        height: "100%",
         boxSizing: "border-box",
         overflowY: "auto",
       }}
@@ -392,7 +392,7 @@ export default function NoteFlashCardGame({
             </label>
             <UIButtonGroup
               items={[5, 10, 20].map((n) => ({
-                label: `${n} Notes`,
+                label: `${n}`,
                 onClick: () => setNoteCount(n),
                 active: noteCount === n,
               }))}

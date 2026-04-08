@@ -55,6 +55,7 @@ export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
             cursor: "pointer",
             fontWeight: item.active ? 700 : 400,
             transition: "all 0.15s",
+            minWidth: "100px",
           }}
         >
           {item.label}

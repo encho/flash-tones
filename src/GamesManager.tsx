@@ -27,15 +27,10 @@ export default function GamesManager({}: GamesManagerProps) {
         justifyContent: "center",
         gap: "20px",
         padding: "48px 24px",
+        height: "100%",
+        boxSizing: "border-box",
       }}
     >
-      <h2 style={{ margin: 0, fontSize: "1.8rem", color: "#222" }}>
-        🎵 Flash Tones
-      </h2>
-      <p style={{ margin: 0, color: "#666", fontSize: "0.95rem" }}>
-        Sing the displayed notes to complete each round.
-      </p>
-
       <Button3NotesSignal
         label="New Game"
         onsetCount={onsetCount}
