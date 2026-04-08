@@ -93,7 +93,10 @@ export default function NoteFlashCardGame({
 
   const isFinished = activeIndex >= activeNotes.length || failed;
 
-  const startOnsetCount = useThreeNoteSignal(!started && !showSettings, startGame);
+  const startOnsetCount = useThreeNoteSignal(
+    !started && !showSettings,
+    startGame,
+  );
   const closeOnsetCount = useThreeNoteSignal(isFinished, () => onExit?.());
 
   const currentNote = activeNotes[activeIndex];
