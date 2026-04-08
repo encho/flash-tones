@@ -540,6 +540,17 @@ export default function NoteFlashCardGame({
                   gap: "12px",
                 }}
               >
+                <label
+                  htmlFor="prehear-checkbox"
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Prehear Note
+                </label>
                 <input
                   id="prehear-checkbox"
                   type="checkbox"
@@ -552,17 +563,6 @@ export default function NoteFlashCardGame({
                     accentColor: "#111",
                   }}
                 />
-                <label
-                  htmlFor="prehear-checkbox"
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Prehear Note
-                </label>
               </div>
             </div>
           </div>
