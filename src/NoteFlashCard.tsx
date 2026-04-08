@@ -303,7 +303,8 @@ function NoteFlashCard({
         synth.triggerAttackRelease(transposedNote, autoPlayMs / 1000);
         setTimeout(() => {
           if (playStartRef.current !== null) {
-            totalPlayTimeRef.current += performance.now() - playStartRef.current;
+            totalPlayTimeRef.current +=
+              performance.now() - playStartRef.current;
             playStartRef.current = null;
           }
           isPlayingRef.current = false;
