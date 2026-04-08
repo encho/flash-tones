@@ -99,21 +99,11 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
         style={{
           position: "relative",
           height: "20px",
-          backgroundColor: "#e5e7eb",
+          background:
+            "linear-gradient(to right, #ef4444, #f97316 25%, #22c55e 50%, #f97316 75%, #ef4444)",
           borderRadius: "3px",
         }}
       >
-        {/* Tolerance zone */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: `${50 - toleranceHalfPct}%`,
-            width: `${toleranceHalfPct * 2}%`,
-            backgroundColor: "rgba(34,197,94,0.25)",
-          }}
-        />
         {/* Centre tick */}
         <div
           style={{
@@ -122,22 +112,47 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
             bottom: 0,
             left: "calc(50% - 1px)",
             width: "1px",
-            backgroundColor: "#111",
+            backgroundColor: "rgba(0,0,0,0.65)",
           }}
         />
-        {/* Needle */}
+        {/* Left match boundary */}
         <div
           style={{
             position: "absolute",
             top: 0,
             bottom: 0,
-            left: `${needlePct}%`,
-            width: "6px",
-            marginLeft: "-3px",
-            backgroundColor: color,
-            borderRadius: 0,
+            left: `${50 - toleranceHalfPct}%`,
+            width: "1px",
+            backgroundColor: "rgba(0,0,0,0.2)",
           }}
         />
+        {/* Right match boundary */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: `${50 + toleranceHalfPct}%`,
+            width: "1px",
+            backgroundColor: "rgba(0,0,0,0.2)",
+          }}
+        />
+        {/* Needle — hidden when idle */}
+        {cents !== null && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: `${needlePct}%`,
+              width: "4px",
+              marginLeft: "-2px",
+              backgroundColor: "#111",
+              borderRadius: 0,
+              opacity: 1,
+            }}
+          />
+        )}
       </div>
     </>
   );
