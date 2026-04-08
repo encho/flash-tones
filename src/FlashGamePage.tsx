@@ -1,5 +1,6 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import NoteFlashCardGame from "./NoteFlashCardGame";
+import { useState } from "react";
+import NoteFlashCardGame, { type ScaleKey } from "./NoteFlashCardGame";
 
 interface FlashGamePageProps {
   matchCents?: number;
@@ -17,6 +18,10 @@ export default function FlashGamePage({
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
   const location = useLocation();
+
+  const [noteCount, setNoteCount] = useState(5);
+  const [scale, setScale] = useState<ScaleKey>("chromatic");
+  const [displayType, setDisplayType] = useState<"note" | "index">("note");
 
   function handleStart() {
     const id = crypto.randomUUID();
@@ -37,6 +42,12 @@ export default function FlashGamePage({
       onExit={handleExit}
       initialStarted={!!gameId}
       onStart={handleStart}
+      noteCount={noteCount}
+      onNoteCountChange={setNoteCount}
+      scale={scale}
+      onScaleChange={setScale}
+      displayType={displayType}
+      onDisplayTypeChange={setDisplayType}
     />
   );
 }

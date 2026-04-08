@@ -4,7 +4,7 @@ import * as Tone from "tone";
 
 interface NoteFlashCardProps {
   note: string;
-  type: "INDEX" | "NOTE";
+  displayType?: "note" | "index";
   isActive?: boolean;
   matchCents?: number;
   displayRange?: number;
@@ -56,20 +56,14 @@ function noteToFrequency(note: string, transposeSemitones = 0): number | null {
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-async function playNote(note: string, transposeSemitones = 0): Promise<void> {
-  await Tone.start();
-  const transposedNote = Tone.Frequency(note)
-    .transpose(transposeSemitones)
-    .toNote();
-  const durationSec = Tone.Time("2n").toSeconds();
-  const synth = new Tone.Synth({
-    oscillator: { type: "triangle" },
-    envelope: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 1.2 },
-  }).toDestination();
-  synth.triggerAttackRelease(transposedNote, "2n");
-  return new Promise((resolve) =>
-    setTimeout(resolve, (durationSec + 1.2) * 1000),
-  );
+// F#3 (MIDI 54) = index 1, G3 (MIDI 55) = index 2, …
+function noteToIndex(note: string): number | null {
+  const match = note.match(/^([A-G][#b]?)(\d)$/);
+  if (!match) return null;
+  const semitone = NOTE_SEMITONES[match[1]];
+  if (semitone === undefined) return null;
+  const midi = (parseInt(match[2], 10) + 1) * 12 + semitone;
+  return midi - 53;
 }
 
 // ── TunerBar ────────────────────────────────────────────────────────────────
@@ -237,7 +231,7 @@ function TimerDonut({ progress }: { progress: number }) {
 
 function NoteFlashCard({
   note,
-  type,
+  displayType = "note",
   isActive = false,
   matchCents = 50,
   displayRange = 400,
@@ -492,13 +486,15 @@ function NoteFlashCard({
           color: "#222",
         }}
       >
-        {note}
+        {displayType === "index" ? (noteToIndex(note) ?? note) : note}
       </span>
-      <span
-        style={{ fontSize: "0.85rem", color: "#888", letterSpacing: "0.1em" }}
-      >
-        {type}
-      </span>
+      {displayType === "note" && (
+        <span
+          style={{ fontSize: "0.85rem", color: "#888", letterSpacing: "0.1em" }}
+        >
+          NOTE
+        </span>
+      )}
 
       {isActive && !matched && displayTimes && (
         <div

@@ -36,7 +36,7 @@ const SCALE_SEMITONES: Record<string, number[]> = {
   dMajor: [2, 4, 6, 7, 9, 11, 1], // D E F# G A B C#
 };
 
-type ScaleKey = keyof typeof SCALE_SEMITONES;
+export type ScaleKey = keyof typeof SCALE_SEMITONES;
 
 const SCALE_LABELS: Record<ScaleKey, string> = {
   chromatic: "Chrom.",
@@ -63,12 +63,11 @@ function generateRandomNotes(
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled
     .slice(0, Math.min(count, shuffled.length))
-    .map((note) => ({ note, type: "NOTE" as const }));
+    .map((note) => ({ note }));
 }
 
 export interface NoteEntry {
   note: string;
-  type: "INDEX" | "NOTE";
 }
 
 export { generateRandomNotes };
@@ -89,6 +88,12 @@ interface NoteFlashCardGameProps {
   timeLimitMs?: number;
   initialStarted?: boolean;
   onStart?: () => void;
+  noteCount?: number;
+  onNoteCountChange?: (n: number) => void;
+  scale?: ScaleKey;
+  onScaleChange?: (s: ScaleKey) => void;
+  displayType?: "note" | "index";
+  onDisplayTypeChange?: (d: "note" | "index") => void;
 }
 
 export default function NoteFlashCardGame({
@@ -100,9 +105,13 @@ export default function NoteFlashCardGame({
   timeLimitMs = 10000,
   initialStarted = false,
   onStart,
+  noteCount = 5,
+  onNoteCountChange,
+  scale = "chromatic",
+  onScaleChange,
+  displayType = "note",
+  onDisplayTypeChange,
 }: NoteFlashCardGameProps) {
-  const [noteCount, setNoteCount] = useState(5);
-  const [scale, setScale] = useState<ScaleKey>("chromatic");
   const activeNotes = useMemo(
     () => generateRandomNotes(noteCount, scale),
     [noteCount, scale],
@@ -308,7 +317,7 @@ export default function NoteFlashCardGame({
               >
                 <NoteFlashCard
                   note={activeNotes[exitingIndex].note}
-                  type={activeNotes[exitingIndex].type}
+                  displayType={displayType}
                   isActive={false}
                   matchCents={matchCents}
                   displayRange={displayRange}
@@ -336,7 +345,7 @@ export default function NoteFlashCardGame({
               >
                 <NoteFlashCard
                   note={activeNotes[activeIndex].note}
-                  type={activeNotes[activeIndex].type}
+                  displayType={displayType}
                   isActive={true}
                   matchCents={matchCents}
                   displayRange={displayRange}
@@ -411,7 +420,7 @@ export default function NoteFlashCardGame({
               <UIButtonGroup
                 items={[5, 10, 20].map((n) => ({
                   label: `${n}`,
-                  onClick: () => setNoteCount(n),
+                  onClick: () => onNoteCountChange?.(n),
                   active: noteCount === n,
                 }))}
               />
@@ -440,9 +449,37 @@ export default function NoteFlashCardGame({
               <UIButtonGroup
                 items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
                   label: SCALE_LABELS[s],
-                  onClick: () => setScale(s),
+                  onClick: () => onScaleChange?.(s),
                   active: scale === s,
                 }))}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                alignItems: "flex-start",
+                backgroundColor: "#f8f8f8",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "16px 24px",
+              }}
+            >
+              <label
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#444",
+                  fontWeight: 600,
+                }}
+              >
+                Display
+              </label>
+              <UIButtonGroup
+                items={[
+                  { label: "Note Name", onClick: () => onDisplayTypeChange?.("note"), active: displayType === "note" },
+                  { label: "Valve Index", onClick: () => onDisplayTypeChange?.("index"), active: displayType === "index" },
+                ]}
               />
             </div>
             <Button3NotesSignal
