@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal } from "./signals";
 import { Button3NotesSignal } from "./Buttons";
@@ -51,38 +51,32 @@ interface HitResult {
 }
 
 interface NoteFlashCardGameProps {
-  notes: NoteEntry[];
   matchCents?: number;
   displayRange?: number;
   holdDuration?: number;
   pitch?: "CONCERT" | "Bb";
   onExit?: () => void;
-  noteCount?: number;
-  onNoteCountChange?: (count: number) => void;
   timeLimitMs?: number;
   initialStarted?: boolean;
   onStart?: () => void;
 }
 
 export default function NoteFlashCardGame({
-  notes,
   matchCents = 50,
   displayRange = 300,
   holdDuration = 300,
   pitch = "CONCERT",
   onExit,
-  noteCount = 5,
-  onNoteCountChange,
   timeLimitMs = 5000,
   initialStarted = false,
   onStart,
 }: NoteFlashCardGameProps) {
-  const activeNotes = notes;
+  const [noteCount, setNoteCount] = useState(5);
+  const activeNotes = useMemo(() => generateRandomNotes(noteCount), [noteCount]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
   const [started, setStarted] = useState(initialStarted);
-  const [pendingCount, setPendingCount] = useState(noteCount);
   const [failed, setFailed] = useState(false);
 
   function startGame() {
@@ -250,12 +244,11 @@ export default function NoteFlashCardGame({
             onsetCount={startOnsetCount}
             onClick={startGame}
           />
-          {onNoteCountChange && (
-            <div
+          <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "6px",
+                gap: "8px",
                 alignItems: "flex-start",
                 backgroundColor: "#f8f8f8",
                 border: "1px solid #e5e7eb",
@@ -273,33 +266,28 @@ export default function NoteFlashCardGame({
               >
                 Notes per game
               </label>
-              <input
-                type="number"
-                min={1}
-                max={19}
-                value={pendingCount}
-                onChange={(e) => {
-                  const count = Math.min(
-                    19,
-                    Math.max(1, Number(e.target.value)),
-                  );
-                  setPendingCount(count);
-                  onNoteCountChange(count);
-                }}
-                style={{
-                  fontSize: "1.1rem",
-                  padding: "6px 12px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "8px",
-                  width: "80px",
-                  textAlign: "center",
-                }}
-              />
-              <span style={{ fontSize: "0.8rem", color: "#888" }}>
-                Range: 1 – 19
-              </span>
+              <div style={{ display: "flex", gap: "8px" }}>
+                {[5, 10, 20].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setNoteCount(n)}
+                    style={{
+                      fontSize: "0.95rem",
+                      padding: "6px 16px",
+                      borderRadius: "8px",
+                      border: `2px solid ${noteCount === n ? "#6366f1" : "#d1d5db"}`,
+                      background: noteCount === n ? "#6366f1" : "#fff",
+                      color: noteCount === n ? "#fff" : "#444",
+                      cursor: "pointer",
+                      fontWeight: noteCount === n ? 700 : 400,
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {n} Notes
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
         </div>
       )}
 

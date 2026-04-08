@@ -1,6 +1,5 @@
-import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import NoteFlashCardGame, { generateRandomNotes } from "./NoteFlashCardGame";
+import NoteFlashCardGame from "./NoteFlashCardGame";
 
 interface FlashGamePageProps {
   matchCents?: number;
@@ -18,9 +17,6 @@ export default function FlashGamePage({
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
 
-  const [noteCount, setNoteCount] = useState(3);
-  const notes = useMemo(() => generateRandomNotes(noteCount), [noteCount]);
-
   function handleStart() {
     const id = crypto.randomUUID();
     navigate(`/flash-game/${id}`);
@@ -30,20 +26,13 @@ export default function FlashGamePage({
     navigate("/");
   }
 
-  function handleNoteCountChange(count: number) {
-    setNoteCount(count);
-  }
-
   return (
     <NoteFlashCardGame
-      notes={notes}
       matchCents={matchCents}
       displayRange={displayRange}
       holdDuration={holdDuration}
       pitch={pitch}
       onExit={handleExit}
-      noteCount={noteCount}
-      onNoteCountChange={gameId ? undefined : handleNoteCountChange}
       initialStarted={!!gameId}
       onStart={handleStart}
     />
