@@ -38,7 +38,7 @@ export default function Navbar() {
           style={{
             fontSize: "1.1rem",
             fontWeight: 700,
-            color: "#6366f1",
+            color: "#111",
             letterSpacing: "0.03em",
           }}
         >

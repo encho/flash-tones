@@ -228,7 +228,7 @@ export default function NoteFlashCardGame({
           </div>
           <div className="game-header-extra">
             <span style={{ color: "#888" }}>Hit </span>
-            <strong style={{ color: "#22c55e" }}>{hits}</strong>
+            <strong style={{ color: "#222" }}>{hits}</strong>
           </div>
           <div className="game-header-extra">
             <span style={{ color: "#888" }}>Remaining </span>
@@ -248,23 +248,23 @@ export default function NoteFlashCardGame({
                 fontSize: "0.8rem",
                 padding: "4px 14px",
                 borderRadius: "8px",
-                border: "1px solid #fca5a5",
+                border: "1px solid #ccc",
                 background: "#fff",
                 cursor: "pointer",
-                color: "#ef4444",
+                color: "#333",
               }}
             >
               Abort
             </button>
             <div className="game-header-extra">
               {isFinished ? (
-                <span style={{ color: "#22c55e", fontWeight: 700 }}>
+                <span style={{ color: "#222", fontWeight: 700 }}>
                   ✅ Done!
                 </span>
               ) : (
                 <span>
                   <span style={{ color: "#888" }}>Sing </span>
-                  <strong style={{ color: "#6366f1" }}>
+                  <strong style={{ color: "#111" }}>
                     {currentNote.note}
                   </strong>
                   {pitch === "Bb" && (
@@ -521,7 +521,7 @@ export default function NoteFlashCardGame({
                 type="checkbox"
                 checked={prehear}
                 onChange={(e) => onPrehearChange?.(e.target.checked)}
-                style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#6366f1" }}
+                style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#111" }}
               />
               <label
                 htmlFor="prehear-checkbox"
@@ -636,7 +636,7 @@ export default function NoteFlashCardGame({
                 style={{ backgroundColor: i % 2 === 0 ? "#fff" : "#f9fafb" }}
               >
                 <td style={tdStyle}>{i + 1}</td>
-                <td style={{ ...tdStyle, fontWeight: 700, color: "#6366f1" }}>
+                <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
                   {r.note}
                 </td>
                 <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>

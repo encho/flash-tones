@@ -150,7 +150,7 @@ function TimerDonut({ progress }: { progress: number }) {
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - Math.min(progress, 1));
   const color =
-    progress < 0.6 ? "#6366f1" : progress < 0.85 ? "#eab308" : "#ef4444";
+    progress < 0.6 ? "#22c55e" : progress < 0.85 ? "#eab308" : "#ef4444";
 
   return (
     <svg
@@ -425,12 +425,12 @@ function NoteFlashCard({
         width: "100%",
         height: "100%",
         padding: "clamp(16px, 3vh, 28px) 12px",
-        border: `2px solid ${isActive ? "#6366f1" : "#ccc"}`,
+        border: `2px solid ${isActive ? "#111" : "#ccc"}`,
         borderRadius: "12px",
         backgroundColor: "#fff",
         boxShadow: isActive
-          ? "0 0 14px rgba(99,102,241,0.35)"
-          : "0 2px 8px rgba(0,0,0,0.15)",
+          ? "0 0 14px rgba(0,0,0,0.18)"
+          : "0 2px 8px rgba(0,0,0,0.10)",
         gap: "1rem",
         transition: "border-color 0.2s, box-shadow 0.2s",
         boxSizing: "border-box",

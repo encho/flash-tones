@@ -8,8 +8,8 @@ interface OnsetDotsProps {
 
 export function OnsetDots({
   count,
-  activeColor = "#fde68a",
-  inactiveColor = "#ccc",
+  activeColor = "#bbb",
+  inactiveColor = "#ddd",
 }: OnsetDotsProps) {
   return (
     <span
@@ -52,9 +52,9 @@ export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
             fontSize: "0.95rem",
             padding: "6px 16px",
             borderRadius: "8px",
-            border: `2px solid ${item.active ? "#6366f1" : "#d1d5db"}`,
-            background: item.active ? "#6366f1" : "#fff",
-            color: item.active ? "#fff" : "#444",
+            border: `2px solid ${item.active ? "#111" : "#d1d5db"}`,
+            background: item.active ? "#fff" : "#f0f0f0",
+            color: item.active ? "#111" : "#666",
             cursor: "pointer",
             fontWeight: item.active ? 700 : 400,
             transition: "all 0.15s",
@@ -85,7 +85,7 @@ export function Button3NotesSignal({
         width,
         borderRadius: "10px",
         border: "none",
-        backgroundColor: "#6366f1",
+        backgroundColor: "#111",
         color: "#fff",
         cursor: "pointer",
         fontWeight: 600,
