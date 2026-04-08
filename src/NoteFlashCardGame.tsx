@@ -581,7 +581,7 @@ export default function NoteFlashCardGame({
             }}
           >
             <Button3NotesSignal
-              label="Start Game"
+              label="Start Challenge"
               onsetCount={startOnsetCount}
               onClick={startGame}
               width="min(420px, calc(92vw))"

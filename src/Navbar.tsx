@@ -42,7 +42,7 @@ export default function Navbar() {
             letterSpacing: "0.03em",
           }}
         >
-          FlashTones
+          Notes Trainer
         </span>
       </button>
     </header>
