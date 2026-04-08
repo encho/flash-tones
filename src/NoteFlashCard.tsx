@@ -100,7 +100,7 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
           position: "relative",
           height: "20px",
           backgroundColor: "#e5e7eb",
-          borderRadius: "10px",
+          borderRadius: "3px",
         }}
       >
         {/* Tolerance zone */}
@@ -135,7 +135,7 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
             width: "6px",
             marginLeft: "-3px",
             backgroundColor: color,
-            borderRadius: "3px",
+            borderRadius: "2px",
           }}
         />
       </div>

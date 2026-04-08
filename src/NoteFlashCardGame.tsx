@@ -395,7 +395,7 @@ export default function NoteFlashCardGame({
               display: "flex",
               flexDirection: "column",
               alignItems: "stretch",
-              gap: "20px",
+              gap: "32px",
               width: "min(420px, 92vw)",
             }}
           >
@@ -416,15 +416,11 @@ export default function NoteFlashCardGame({
                 flexDirection: "column",
                 gap: "8px",
                 alignItems: "flex-start",
-                backgroundColor: "#f8f8f8",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "16px 24px",
               }}
             >
               <label
                 style={{
-                  fontSize: "0.9rem",
+                  fontSize: "1rem",
                   color: "#444",
                   fontWeight: 600,
                 }}
@@ -445,15 +441,11 @@ export default function NoteFlashCardGame({
                 flexDirection: "column",
                 gap: "8px",
                 alignItems: "flex-start",
-                backgroundColor: "#f8f8f8",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "16px 24px",
               }}
             >
               <label
                 style={{
-                  fontSize: "0.9rem",
+                  fontSize: "1rem",
                   color: "#444",
                   fontWeight: 600,
                 }}
@@ -474,15 +466,11 @@ export default function NoteFlashCardGame({
                 flexDirection: "column",
                 gap: "8px",
                 alignItems: "flex-start",
-                backgroundColor: "#f8f8f8",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "16px 24px",
               }}
             >
               <label
                 style={{
-                  fontSize: "0.9rem",
+                  fontSize: "1rem",
                   color: "#444",
                   fontWeight: 600,
                 }}
@@ -502,15 +490,11 @@ export default function NoteFlashCardGame({
                 flexDirection: "column",
                 gap: "8px",
                 alignItems: "flex-start",
-                backgroundColor: "#f8f8f8",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "16px 24px",
               }}
             >
               <label
                 style={{
-                  fontSize: "0.9rem",
+                  fontSize: "1rem",
                   color: "#444",
                   fontWeight: 600,
                 }}
@@ -530,10 +514,6 @@ export default function NoteFlashCardGame({
                 flexDirection: "row",
                 alignItems: "center",
                 gap: "12px",
-                backgroundColor: "#f8f8f8",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                padding: "16px 24px",
               }}
             >
               <input
@@ -545,7 +525,7 @@ export default function NoteFlashCardGame({
               />
               <label
                 htmlFor="prehear-checkbox"
-                style={{ fontSize: "0.9rem", color: "#444", fontWeight: 600, cursor: "pointer" }}
+                style={{ fontSize: "1rem", color: "#444", fontWeight: 600, cursor: "pointer" }}
               >
                 Prehear Note
               </label>
