@@ -298,7 +298,7 @@ function NoteFlashCard({
           .toNote();
         const synth = new Tone.Synth({
           oscillator: { type: "triangle" },
-          envelope: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 1.2 },
+          envelope: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 0.01 },
         }).toDestination();
         synth.triggerAttackRelease(transposedNote, autoPlayMs / 1000);
         setTimeout(() => {
