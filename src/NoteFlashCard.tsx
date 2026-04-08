@@ -9,6 +9,7 @@ import {
   Voice,
   Accidental,
 } from "vexflow";
+import { useMicStream } from "./MicContext";
 
 interface NoteFlashCardProps {
   note: string;
@@ -283,6 +284,7 @@ function NoteFlashCard({
   onTimeLimit,
   autoPlayMs = 0,
 }: NoteFlashCardProps) {
+  const micStream = useMicStream();
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
   const [, setHoldProgress] = useState(0);
@@ -400,16 +402,22 @@ function NoteFlashCard({
 
     (async () => {
       let stream: MediaStream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false,
-        });
-      } catch {
-        return; // mic denied
+      let streamIsOwned = false;
+      if (micStream) {
+        stream = micStream;
+      } else {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false,
+          });
+          streamIsOwned = true;
+        } catch {
+          return; // mic denied
+        }
       }
       if (stopped) {
-        stream.getTracks().forEach((t) => t.stop());
+        if (streamIsOwned) stream.getTracks().forEach((t) => t.stop());
         return;
       }
 
@@ -489,7 +497,10 @@ function NoteFlashCard({
       if (timeLimitTimeoutRef.current)
         clearTimeout(timeLimitTimeoutRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      // Only stop stream if we own it (no external micStream was passed)
+      if (!micStream) {
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+      }
       audioCtxRef.current?.close();
       setCents(null);
       setMatched(false);
