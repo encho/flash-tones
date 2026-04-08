@@ -156,7 +156,6 @@ export default function NoteFlashCardGame({
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
   const [started, setStarted] = useState(initialStarted);
-  const [failed, setFailed] = useState(false);
   // Slide animation: track exiting card separately
   const [exitingIndex, setExitingIndex] = useState<number | null>(null);
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -173,7 +172,7 @@ export default function NoteFlashCardGame({
     onStart?.();
   }
 
-  const isFinished = activeIndex >= activeNotes.length || failed;
+  const isFinished = activeIndex >= activeNotes.length;
 
   const startOnsetCount = useThreeNoteSignal(!started, startGame);
   const closeOnsetCount = useThreeNoteSignal(isFinished, () => onExit?.());
@@ -193,6 +192,8 @@ export default function NoteFlashCardGame({
 
   function handleTimeLimit() {
     const note = activeNotes[activeIndex]?.note ?? "?";
+    const leaving = activeIndex;
+    setExitingIndex(leaving);
     setResults((prev) => [
       ...prev,
       {
@@ -202,7 +203,10 @@ export default function NoteFlashCardGame({
         timedOut: true,
       },
     ]);
-    setFailed(true);
+    exitTimerRef.current = setTimeout(() => {
+      setExitingIndex(null);
+      setActiveIndex((i) => i + 1);
+    }, 320);
   }
 
   return (
@@ -640,7 +644,7 @@ export default function NoteFlashCardGame({
             fontWeight: 700,
             fontSize: "1.1rem",
             boxSizing: "border-box",
-            ...(failed
+            ...(results.some((r) => r.timedOut)
               ? {
                   backgroundColor: "#fef2f2",
                   border: "1px solid #fca5a5",
@@ -653,8 +657,8 @@ export default function NoteFlashCardGame({
                 }),
           }}
         >
-          {failed
-            ? `❌ Failed — time limit reached on ${results.find((r) => r.timedOut)?.note ?? "a note"}`
+          {results.some((r) => r.timedOut)
+            ? `⏱ ${results.filter((r) => r.timedOut).length} note${results.filter((r) => r.timedOut).length === 1 ? "" : "s"} timed out`
             : `🎉 Success! All ${hits} notes hit!`}
         </div>
       )}
@@ -677,18 +681,21 @@ export default function NoteFlashCardGame({
               gap: "6px",
             }}
           >
-            {avg !== null && (
-              <p style={{ margin: 0 }}>
-                Your average time is <strong>{avg.toFixed(2)}s</strong> per note.
-              </p>
-            )}
+            <p style={{ margin: 0 }}>
+              You <strong style={{ color: "#22c55e" }}>hit</strong> <strong style={{ color: "#22c55e" }}>{hit.length}</strong> out of <strong>{results.length}</strong> {results.length === 1 ? "note" : "notes"}.
+            </p>
             {timedOut.length > 0 ? (
               <p style={{ margin: 0 }}>
-                You <strong style={{ color: "#ef4444" }}>exceeded</strong> the timer on <strong>{timedOut.length}</strong> {timedOut.length === 1 ? "note" : "notes"}.
+                You <strong style={{ color: "#ef4444" }}>exceeded</strong> the timer on <strong style={{ color: "#ef4444" }}>{timedOut.length}</strong> {timedOut.length === 1 ? "note" : "notes"}.
               </p>
             ) : (
               <p style={{ margin: 0 }}>
-                You <strong style={{ color: "#22c55e" }}>beat</strong> the timer on all <strong>{results.length}</strong> notes.
+                You <strong style={{ color: "#22c55e" }}>beat</strong> the timer on all <strong style={{ color: "#22c55e" }}>{results.length}</strong> notes.
+              </p>
+            )}
+            {avg !== null && (
+              <p style={{ margin: 0 }}>
+                Your average time is <strong>{avg.toFixed(2)}s</strong> per note.
               </p>
             )}
           </div>
