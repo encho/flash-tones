@@ -220,7 +220,7 @@ export default function NoteFlashCardGame({
         paddingBottom: isFinished || (started && !isFinished) ? "90px" : "16px",
         height: "100%",
         boxSizing: "border-box",
-        overflowY: "auto",
+        overflowY: started && !isFinished ? "hidden" : "auto",
         backgroundColor: "#f3f4f6",
       }}
     >
@@ -298,6 +298,7 @@ export default function NoteFlashCardGame({
         <div
           style={{
             flex: 1,
+            minHeight: 0,
             width: "100%",
             maxWidth: "600px",
             display: "flex",
@@ -308,6 +309,7 @@ export default function NoteFlashCardGame({
         >
           {/* Clip wrapper: padding gives shadow room; App-level overflow:hidden catches flying cards */}
           <div
+            className="card-clip-wrapper"
             style={{
               position: "relative",
               padding: "16px",
@@ -316,10 +318,10 @@ export default function NoteFlashCardGame({
             }}
           >
             <div
+              className="card-height-wrapper"
               style={{
                 position: "relative",
                 width: "100%",
-                height: "clamp(248px, 68vh, 560px)",
               }}
             >
               <style>{`
@@ -330,6 +332,12 @@ export default function NoteFlashCardGame({
             @keyframes slideOutLeft {
               from { transform: translateX(0);    opacity: 1; }
               to   { transform: translateX(-60%); opacity: 0; }
+            }
+            .card-clip-wrapper { height: 100%; }
+            .card-height-wrapper { height: 100%; }
+            @media (min-width: 768px) {
+              .card-clip-wrapper { height: auto; }
+              .card-height-wrapper { height: clamp(248px, 68vh, 560px); }
             }
           `}</style>
               {/* Exiting card */}
