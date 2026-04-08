@@ -24,7 +24,7 @@ export function MicProvider({ children }: { children: React.ReactNode }) {
       // Keep the stream alive across the app lifetime; only stop on unmount
       stream?.getTracks().forEach((t) => t.stop());
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <MicContext.Provider value={stream}>{children}</MicContext.Provider>;
