@@ -85,7 +85,7 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
   const nearTolerance = cents !== null && Math.abs(cents) < matchCents * 1.5;
   const color =
     cents === null
-      ? "#9ca3af"
+      ? "#111"
       : inTolerance
         ? "#22c55e"
         : nearTolerance
@@ -111,7 +111,7 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
             bottom: 0,
             left: `${50 - toleranceHalfPct}%`,
             width: `${toleranceHalfPct * 2}%`,
-            backgroundColor: "rgba(34,197,94,0.3)",
+            backgroundColor: "rgba(34,197,94,0.25)",
           }}
         />
         {/* Centre tick */}
@@ -121,21 +121,21 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
             top: 0,
             bottom: 0,
             left: "calc(50% - 1px)",
-            width: "2px",
-            backgroundColor: "#9ca3af",
+            width: "1px",
+            backgroundColor: "#111",
           }}
         />
         {/* Needle */}
         <div
           style={{
             position: "absolute",
-            top: "2px",
-            bottom: "2px",
+            top: 0,
+            bottom: 0,
             left: `${needlePct}%`,
             width: "6px",
             marginLeft: "-3px",
             backgroundColor: color,
-            borderRadius: "2px",
+            borderRadius: 0,
           }}
         />
       </div>
