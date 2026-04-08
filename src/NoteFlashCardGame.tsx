@@ -86,6 +86,19 @@ interface HitResult {
   timedOut?: boolean;
 }
 
+const NOTE_SEMITONES_GAME: Record<string, number> = {
+  C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5,
+  "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11,
+};
+function noteToIndexGame(note: string): number | null {
+  const match = note.match(/^([A-G][#b]?)(\d)$/);
+  if (!match) return null;
+  const semitone = NOTE_SEMITONES_GAME[match[1]];
+  if (semitone === undefined) return null;
+  const midi = (parseInt(match[2], 10) + 1) * 12 + semitone;
+  return midi - 53;
+}
+
 interface NoteFlashCardGameProps {
   matchCents?: number;
   displayRange?: number;
@@ -638,6 +651,11 @@ export default function NoteFlashCardGame({
                 <td style={tdStyle}>{i + 1}</td>
                 <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
                   {r.note}
+                  {displayType === "index" && pitch === "Bb" && (
+                    <span style={{ fontWeight: 400, color: "#888", marginLeft: "4px" }}>
+                      [{noteToIndexGame(r.note)}]
+                    </span>
+                  )}
                 </td>
                 <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
                 <td style={tdStyle}>
