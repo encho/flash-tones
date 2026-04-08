@@ -715,15 +715,23 @@ export default function NoteFlashCardGame({
         })()}
       {/* Results table */}
       {isFinished && results.length > 0 && (
+        <div
+          style={{
+            width: "min(420px, 92vw)",
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid #e5e7eb",
+          }}
+        >
         <table
           style={{
             borderCollapse: "collapse",
-            width: "min(420px, 92vw)",
+            width: "100%",
             fontSize: "0.85rem",
           }}
         >
           <thead>
-            <tr style={{ backgroundColor: "#f3f4f6" }}>
+            <tr style={{ backgroundColor: "#fff" }}>
               <th style={thStyle}>#</th>
               <th style={thStyle}>Note</th>
               <th style={thStyle}>Time (s)</th>
@@ -734,7 +742,7 @@ export default function NoteFlashCardGame({
             {results.map((r, i) => (
               <tr
                 key={i}
-                style={{ backgroundColor: i % 2 === 0 ? "#fff" : "#f9fafb" }}
+                style={{ backgroundColor: "#fff" }}
               >
                 <td style={tdStyle}>{i + 1}</td>
                 <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
@@ -767,6 +775,7 @@ export default function NoteFlashCardGame({
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );
