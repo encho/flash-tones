@@ -71,7 +71,7 @@ export default function NoteFlashCardGame({
   onExit,
   noteCount = 5,
   onNoteCountChange,
-  timeLimitMs = 30000,
+  timeLimitMs = 5000,
 }: NoteFlashCardGameProps) {
   const activeNotes = notes;
   const [activeIndex, setActiveIndex] = useState(0);
@@ -80,8 +80,9 @@ export default function NoteFlashCardGame({
   const [started, setStarted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [pendingCount, setPendingCount] = useState(noteCount);
+  const [failed, setFailed] = useState(false);
 
-  const isFinished = activeIndex >= activeNotes.length;
+  const isFinished = activeIndex >= activeNotes.length || failed;
 
   const startOnsetCount = useThreeNoteSignal(!started && !showSettings, () =>
     setStarted(true),
@@ -107,7 +108,7 @@ export default function NoteFlashCardGame({
         timedOut: true,
       },
     ]);
-    setActiveIndex((i) => i + 1);
+    setFailed(true);
   }
 
   return (
@@ -362,6 +363,35 @@ export default function NoteFlashCardGame({
           onClick={() => onExit?.()}
           padding="10px 28px"
         />
+      )}
+      {/* Game status banner */}
+      {isFinished && (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "600px",
+            padding: "14px 20px",
+            borderRadius: "12px",
+            textAlign: "center",
+            fontWeight: 700,
+            fontSize: "1.1rem",
+            ...(failed
+              ? {
+                  backgroundColor: "#fef2f2",
+                  border: "1px solid #fca5a5",
+                  color: "#dc2626",
+                }
+              : {
+                  backgroundColor: "#f0fdf4",
+                  border: "1px solid #86efac",
+                  color: "#16a34a",
+                }),
+          }}
+        >
+          {failed
+            ? `❌ Failed — time limit reached on ${results.find((r) => r.timedOut)?.note ?? "a note"}`
+            : `🎉 Success! All ${hits} notes hit!`}
+        </div>
       )}
       {/* Results table */}
       {results.length > 0 && (
