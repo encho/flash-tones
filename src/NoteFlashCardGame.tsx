@@ -29,10 +29,37 @@ for (let octave = 3; octave <= 5; octave++) {
   }
 }
 
-function generateRandomNotes(count = 5): NoteEntry[] {
-  const shuffled = [...ALL_NOTES].sort(() => Math.random() - 0.5);
+// Scale semitone patterns (intervals from root)
+const SCALE_SEMITONES: Record<string, number[]> = {
+  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  cMajor: [0, 2, 4, 5, 7, 9, 11],   // C D E F G A B
+  dMajor: [2, 4, 6, 7, 9, 11, 1],   // D E F# G A B C#
+};
+
+type ScaleKey = keyof typeof SCALE_SEMITONES;
+
+const SCALE_LABELS: Record<ScaleKey, string> = {
+  chromatic: "Chromatic",
+  cMajor: "C Major",
+  dMajor: "D Major",
+};
+
+function getNotesForScale(scale: ScaleKey): string[] {
+  const allowed = new Set(SCALE_SEMITONES[scale]);
+  return ALL_NOTES.filter((note) => {
+    const match = note.match(/^([A-G][#b]?)\d$/);
+    if (!match) return false;
+    const name = match[1];
+    const si = NOTE_NAMES.indexOf(name);
+    return si !== -1 && allowed.has(si % 12);
+  });
+}
+
+function generateRandomNotes(count = 5, scale: ScaleKey = "chromatic"): NoteEntry[] {
+  const pool = getNotesForScale(scale);
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled
-    .slice(0, count)
+    .slice(0, Math.min(count, shuffled.length))
     .map((note) => ({ note, type: "NOTE" as const }));
 }
 
@@ -72,9 +99,10 @@ export default function NoteFlashCardGame({
   onStart,
 }: NoteFlashCardGameProps) {
   const [noteCount, setNoteCount] = useState(5);
+  const [scale, setScale] = useState<ScaleKey>("chromatic");
   const activeNotes = useMemo(
-    () => generateRandomNotes(noteCount),
-    [noteCount],
+    () => generateRandomNotes(noteCount, scale),
+    [noteCount, scale],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
@@ -274,6 +302,36 @@ export default function NoteFlashCardGame({
                 label: `${n} Notes`,
                 onClick: () => setNoteCount(n),
                 active: noteCount === n,
+              }))}
+            />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              alignItems: "flex-start",
+              backgroundColor: "#f8f8f8",
+              border: "1px solid #e5e7eb",
+              borderRadius: "12px",
+              padding: "16px 24px",
+              minWidth: "220px",
+            }}
+          >
+            <label
+              style={{
+                fontSize: "0.9rem",
+                color: "#444",
+                fontWeight: 600,
+              }}
+            >
+              Scale
+            </label>
+            <UIButtonGroup
+              items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
+                label: SCALE_LABELS[s],
+                onClick: () => setScale(s),
+                active: scale === s,
               }))}
             />
           </div>
