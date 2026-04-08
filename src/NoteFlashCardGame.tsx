@@ -47,6 +47,7 @@ interface HitResult {
   note: string;
   totalTime: number;
   effectiveTime: number;
+  timedOut?: boolean;
 }
 
 interface NoteFlashCardGameProps {
@@ -58,6 +59,7 @@ interface NoteFlashCardGameProps {
   onExit?: () => void;
   noteCount?: number;
   onNoteCountChange?: (count: number) => void;
+  timeLimitMs?: number;
 }
 
 export default function NoteFlashCardGame({
@@ -69,6 +71,7 @@ export default function NoteFlashCardGame({
   onExit,
   noteCount = 5,
   onNoteCountChange,
+  timeLimitMs = 30000,
 }: NoteFlashCardGameProps) {
   const activeNotes = notes;
   const [activeIndex, setActiveIndex] = useState(0);
@@ -90,6 +93,20 @@ export default function NoteFlashCardGame({
   function handleNoteHit(result: HitResult) {
     setHits((h) => h + 1);
     setResults((prev) => [...prev, result]);
+    setActiveIndex((i) => i + 1);
+  }
+
+  function handleTimeLimit() {
+    const note = activeNotes[activeIndex]?.note ?? "?";
+    setResults((prev) => [
+      ...prev,
+      {
+        note,
+        totalTime: timeLimitMs,
+        effectiveTime: timeLimitMs,
+        timedOut: true,
+      },
+    ]);
     setActiveIndex((i) => i + 1);
   }
 
@@ -203,6 +220,8 @@ export default function NoteFlashCardGame({
               holdDuration={holdDuration}
               pitch={pitch}
               onNoteHit={handleNoteHit}
+              timeLimitMs={timeLimitMs}
+              onTimeLimit={handleTimeLimit}
             />
           ))}
         </div>
@@ -360,6 +379,7 @@ export default function NoteFlashCardGame({
               <th style={thStyle}>Note</th>
               <th style={thStyle}>Total time (s)</th>
               <th style={thStyle}>Effective time (s)</th>
+              <th style={thStyle}>Result</th>
             </tr>
           </thead>
           <tbody>
@@ -374,6 +394,13 @@ export default function NoteFlashCardGame({
                 </td>
                 <td style={tdStyle}>{(r.totalTime / 1000).toFixed(2)}</td>
                 <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
+                <td style={tdStyle}>
+                  {r.timedOut ? (
+                    <span style={{ color: "#ef4444", fontWeight: 600 }}>⏱ Time limit</span>
+                  ) : (
+                    <span style={{ color: "#22c55e", fontWeight: 600 }}>✅ Hit</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

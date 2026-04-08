@@ -15,6 +15,8 @@ interface NoteFlashCardProps {
     effectiveTime: number;
     note: string;
   }) => void;
+  timeLimitMs?: number;
+  onTimeLimit?: () => void;
 }
 
 const NOTE_SEMITONES: Record<string, number> = {
@@ -200,6 +202,8 @@ function NoteFlashCard({
   holdDuration = 800,
   pitch = "CONCERT",
   onNoteHit,
+  timeLimitMs,
+  onTimeLimit,
 }: NoteFlashCardProps) {
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
@@ -225,6 +229,18 @@ function NoteFlashCard({
   useEffect(() => {
     onNoteHitRef.current = onNoteHit;
   }, [onNoteHit]);
+  const onTimeLimitRef = useRef(onTimeLimit);
+  useEffect(() => {
+    onTimeLimitRef.current = onTimeLimit;
+  }, [onTimeLimit]);
+  const timeLimitMsRef = useRef(timeLimitMs);
+  useEffect(() => {
+    timeLimitMsRef.current = timeLimitMs;
+  }, [timeLimitMs]);
+  const timeLimitFiredRef = useRef(false);
+  const timeLimitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   // Timing: when this card became active, and total time spent playing the example
   const activatedAtRef = useRef<number | null>(null);
   const totalPlayTimeRef = useRef(0);
@@ -267,7 +283,18 @@ function NoteFlashCard({
 
     activatedAtRef.current = performance.now();
     totalPlayTimeRef.current = 0;
+    timeLimitFiredRef.current = false;
     let stopped = false;
+
+    // Time-limit countdown
+    if (timeLimitMsRef.current != null) {
+      timeLimitTimeoutRef.current = setTimeout(() => {
+        if (!timeLimitFiredRef.current && !firedRef.current) {
+          timeLimitFiredRef.current = true;
+          onTimeLimitRef.current?.();
+        }
+      }, timeLimitMsRef.current);
+    }
 
     (async () => {
       let stream: MediaStream;
@@ -352,10 +379,13 @@ function NoteFlashCard({
     return () => {
       stopped = true;
       firedRef.current = false;
+      timeLimitFiredRef.current = false;
       activatedAtRef.current = null;
       totalPlayTimeRef.current = 0;
       inRangeSinceRef.current = null;
       if (hitTimeoutRef.current) clearTimeout(hitTimeoutRef.current);
+      if (timeLimitTimeoutRef.current)
+        clearTimeout(timeLimitTimeoutRef.current);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamRef.current?.getTracks().forEach((t) => t.stop());
       audioCtxRef.current?.close();
