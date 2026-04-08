@@ -731,58 +731,55 @@ export default function NoteFlashCardGame({
             border: "1px solid #e5e7eb",
           }}
         >
-        <table
-          style={{
-            borderCollapse: "collapse",
-            width: "100%",
-            fontSize: "0.85rem",
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#fff" }}>
-              <th style={thStyle}>#</th>
-              <th style={thStyle}>Note</th>
-              <th style={thStyle}>Time (s)</th>
-              <th style={thStyle}>Result</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((r, i) => (
-              <tr
-                key={i}
-                style={{ backgroundColor: "#fff" }}
-              >
-                <td style={tdStyle}>{i + 1}</td>
-                <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
-                  {r.note}
-                  {displayType === "index" && pitch === "Bb" && (
-                    <span
-                      style={{
-                        fontWeight: 400,
-                        color: "#888",
-                        marginLeft: "4px",
-                      }}
-                    >
-                      [{noteToIndexGame(r.note)}]
-                    </span>
-                  )}
-                </td>
-                <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
-                <td style={tdStyle}>
-                  {r.timedOut ? (
-                    <span style={{ color: "#ef4444", fontWeight: 600 }}>
-                      ⏱ Time limit
-                    </span>
-                  ) : (
-                    <span style={{ color: "#22c55e", fontWeight: 600 }}>
-                      ✅ Hit
-                    </span>
-                  )}
-                </td>
+          <table
+            style={{
+              borderCollapse: "collapse",
+              width: "100%",
+              fontSize: "0.85rem",
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: "#fff" }}>
+                <th style={thStyle}>#</th>
+                <th style={thStyle}>Note</th>
+                <th style={thStyle}>Time (s)</th>
+                <th style={thStyle}>Result</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {results.map((r, i) => (
+                <tr key={i} style={{ backgroundColor: "#fff" }}>
+                  <td style={tdStyle}>{i + 1}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
+                    {r.note}
+                    {displayType === "index" && pitch === "Bb" && (
+                      <span
+                        style={{
+                          fontWeight: 400,
+                          color: "#888",
+                          marginLeft: "4px",
+                        }}
+                      >
+                        [{noteToIndexGame(r.note)}]
+                      </span>
+                    )}
+                  </td>
+                  <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
+                  <td style={tdStyle}>
+                    {r.timedOut ? (
+                      <span style={{ color: "#ef4444", fontWeight: 600 }}>
+                        ⏱ Time limit
+                      </span>
+                    ) : (
+                      <span style={{ color: "#22c55e", fontWeight: 600 }}>
+                        ✅ Hit
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
