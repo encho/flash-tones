@@ -187,7 +187,7 @@ export default function NoteFlashCardGame({
     exitTimerRef.current = setTimeout(() => {
       setExitingIndex(null);
       setActiveIndex((i) => i + 1);
-    }, 320);
+    }, 400);
   }
 
   function handleTimeLimit() {
@@ -206,7 +206,7 @@ export default function NoteFlashCardGame({
     exitTimerRef.current = setTimeout(() => {
       setExitingIndex(null);
       setActiveIndex((i) => i + 1);
-    }, 320);
+    }, 400);
   }
 
   return (
@@ -217,27 +217,31 @@ export default function NoteFlashCardGame({
         alignItems: "center",
         gap: "16px",
         padding: "16px",
-        paddingBottom: isFinished ? "90px" : "16px",
+        paddingBottom: (isFinished || (started && !isFinished)) ? "90px" : "16px",
         height: "100%",
         boxSizing: "border-box",
         overflowY: "auto",
+        backgroundColor: "#fff",
       }}
     >
       {/* Game state header — only while game is running */}
+      {/* Fixed game footer bar */}
       {started && !isFinished && (
         <div
           style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: "12px 16px",
+            backgroundColor: "#fff",
+            borderTop: "1px solid #e5e7eb",
             display: "flex",
-            gap: "32px",
             alignItems: "center",
-            padding: "12px 24px",
-            backgroundColor: "#f8f8f8",
-            borderRadius: "12px",
-            border: "1px solid #e5e7eb",
+            gap: "16px",
             fontSize: "0.9rem",
             color: "#444",
-            width: "100%",
-            maxWidth: "600px",
+            zIndex: 50,
             boxSizing: "border-box",
           }}
         >
@@ -249,8 +253,7 @@ export default function NoteFlashCardGame({
           <div>
             <span style={{ color: "#888" }}>Note </span>
             <strong>
-              {isFinished ? activeNotes.length : activeIndex + 1} /{" "}
-              {activeNotes.length}
+              {activeIndex + 1} / {activeNotes.length}
             </strong>
           </div>
           <div className="game-header-extra">
@@ -261,45 +264,30 @@ export default function NoteFlashCardGame({
             <span style={{ color: "#888" }}>Remaining </span>
             <strong>{Math.max(0, activeNotes.length - activeIndex)}</strong>
           </div>
-          <div
+          <div className="game-header-extra" style={{ marginLeft: "auto" }}>
+            <span style={{ color: "#888" }}>Sing </span>
+            <strong style={{ color: "#111" }}>{currentNote.note}</strong>
+            {pitch === "Bb" && (
+              <span style={{ color: "#888", fontSize: "0.78rem" }}>
+                {" "}(concert: Bb)
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => onExit?.()}
             style={{
               marginLeft: "auto",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
+              fontSize: "0.8rem",
+              padding: "4px 14px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              background: "#fff",
+              cursor: "pointer",
+              color: "#333",
             }}
           >
-            <button
-              onClick={() => onExit?.()}
-              style={{
-                fontSize: "0.8rem",
-                padding: "4px 14px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-                background: "#fff",
-                cursor: "pointer",
-                color: "#333",
-              }}
-            >
-              Abort
-            </button>
-            <div className="game-header-extra">
-              {isFinished ? (
-                <span style={{ color: "#222", fontWeight: 700 }}>✅ Done!</span>
-              ) : (
-                <span>
-                  <span style={{ color: "#888" }}>Sing </span>
-                  <strong style={{ color: "#111" }}>{currentNote.note}</strong>
-                  {pitch === "Bb" && (
-                    <span style={{ color: "#888", fontSize: "0.78rem" }}>
-                      {" "}
-                      (concert: Bb)
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
+            Abort
+          </button>
         </div>
       )}
 
@@ -310,33 +298,29 @@ export default function NoteFlashCardGame({
             flex: 1,
             width: "100%",
             maxWidth: "600px",
-            backgroundColor: "#f3f4f6",
-            borderRadius: "16px",
-            padding: "16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             boxSizing: "border-box",
           }}
         >
-          <div
-            style={{
-              position: "relative",
-              width: "clamp(176px, 75vw, 340px)",
-              height: "clamp(248px, 68vh, 560px)",
-              overflow: "hidden",
-              padding: "8px",
-              boxSizing: "border-box",
-            }}
-          >
+          {/* Clip wrapper: padding gives shadow room; App-level overflow:hidden catches flying cards */}
+          <div style={{ position: "relative", padding: "16px", boxSizing: "border-box", width: "clamp(200px, 75vw, 364px)" }}>
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "clamp(248px, 68vh, 560px)",
+              }}
+            >
             <style>{`
             @keyframes slideInRight {
-              from { transform: translateX(110%); opacity: 0; }
-              to   { transform: translateX(0);    opacity: 1; }
+              from { transform: translateX(60%); opacity: 0; }
+              to   { transform: translateX(0);   opacity: 1; }
             }
             @keyframes slideOutLeft {
-              from { transform: translateX(0);     opacity: 1; }
-              to   { transform: translateX(-110%); opacity: 0; }
+              from { transform: translateX(0);    opacity: 1; }
+              to   { transform: translateX(-60%); opacity: 0; }
             }
           `}</style>
             {/* Exiting card */}
@@ -349,7 +333,7 @@ export default function NoteFlashCardGame({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  animation: "slideOutLeft 0.3s ease forwards",
+                  animation: "slideOutLeft 0.4s ease forwards",
                 }}
               >
                 <NoteFlashCard
@@ -376,7 +360,7 @@ export default function NoteFlashCardGame({
                   justifyContent: "center",
                   animation:
                     activeIndex > 0
-                      ? "slideInRight 0.3s ease forwards"
+                      ? "slideInRight 0.4s ease forwards"
                       : "none",
                 }}
               >
@@ -395,6 +379,7 @@ export default function NoteFlashCardGame({
                 />
               </div>
             )}
+            </div>
           </div>
         </div>
       )}

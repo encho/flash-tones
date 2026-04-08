@@ -429,8 +429,8 @@ function NoteFlashCard({
         borderRadius: "12px",
         backgroundColor: "#fff",
         boxShadow: isActive
-          ? "0 0 14px rgba(0,0,0,0.18)"
-          : "0 2px 8px rgba(0,0,0,0.10)",
+          ? "0 8px 32px rgba(0,0,0,0.22)"
+          : "0 2px 12px rgba(0,0,0,0.10)",
         gap: "1rem",
         transition: "border-color 0.2s, box-shadow 0.2s",
         boxSizing: "border-box",
