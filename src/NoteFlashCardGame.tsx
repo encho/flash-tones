@@ -186,6 +186,7 @@ export default function NoteFlashCardGame({
         alignItems: "center",
         gap: "16px",
         padding: "16px",
+        paddingBottom: isFinished ? "90px" : "16px",
         height: "100%",
         boxSizing: "border-box",
         overflowY: "auto",
@@ -547,14 +548,30 @@ export default function NoteFlashCardGame({
       </>
       )}
 
-      {/* Close */}
+      {/* Back */}
       {isFinished && (
-        <Button3NotesSignal
-          label="Close"
-          onsetCount={closeOnsetCount}
-          onClick={() => onExit?.()}
-          padding="10px 28px"
-        />
+        <div
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: "16px",
+            backgroundColor: "#fff",
+            borderTop: "1px solid #e5e7eb",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Button3NotesSignal
+            label="Back"
+            onsetCount={closeOnsetCount}
+            onClick={() => onExit?.()}
+            width="min(420px, calc(92vw))"
+            padding="18px 28px"
+            fontSize="1.1rem"
+          />
+        </div>
       )}
       {/* Game status banner */}
       {isFinished && (
