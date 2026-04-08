@@ -82,7 +82,6 @@ export default function NoteFlashCardGame({
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
   const [started, setStarted] = useState(initialStarted);
-  const [showSettings, setShowSettings] = useState(false);
   const [pendingCount, setPendingCount] = useState(noteCount);
   const [failed, setFailed] = useState(false);
 
@@ -93,10 +92,7 @@ export default function NoteFlashCardGame({
 
   const isFinished = activeIndex >= activeNotes.length || failed;
 
-  const startOnsetCount = useThreeNoteSignal(
-    !started && !showSettings,
-    startGame,
-  );
+  const startOnsetCount = useThreeNoteSignal(!started, startGame);
   const closeOnsetCount = useThreeNoteSignal(isFinished, () => onExit?.());
 
   const currentNote = activeNotes[activeIndex];
@@ -239,36 +235,41 @@ export default function NoteFlashCardGame({
         </div>
       )}
 
-      {/* Start Game / Settings */}
-      {!started &&
-        !isFinished &&
-        (showSettings ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "20px",
-              backgroundColor: "#f8f8f8",
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              padding: "24px 32px",
-              minWidth: "260px",
-            }}
-          >
-            <h3 style={{ margin: 0, fontSize: "1.2rem", color: "#222" }}>
-              ⚙ Settings
-            </h3>
+      {/* Start Game + Settings */}
+      {!started && !isFinished && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "20px",
+          }}
+        >
+          <Button3NotesSignal
+            label="Start Game"
+            onsetCount={startOnsetCount}
+            onClick={startGame}
+          />
+          {onNoteCountChange && (
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
                 gap: "6px",
                 alignItems: "flex-start",
+                backgroundColor: "#f8f8f8",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "16px 24px",
+                minWidth: "220px",
               }}
             >
               <label
-                style={{ fontSize: "0.95rem", color: "#444", fontWeight: 600 }}
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#444",
+                  fontWeight: 600,
+                }}
               >
                 Notes per game
               </label>
@@ -277,11 +278,14 @@ export default function NoteFlashCardGame({
                 min={1}
                 max={19}
                 value={pendingCount}
-                onChange={(e) =>
-                  setPendingCount(
-                    Math.min(19, Math.max(1, Number(e.target.value))),
-                  )
-                }
+                onChange={(e) => {
+                  const count = Math.min(
+                    19,
+                    Math.max(1, Number(e.target.value)),
+                  );
+                  setPendingCount(count);
+                  onNoteCountChange(count);
+                }}
                 style={{
                   fontSize: "1.1rem",
                   padding: "6px 12px",
@@ -295,76 +299,9 @@ export default function NoteFlashCardGame({
                 Range: 1 – 19
               </span>
             </div>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <button
-                onClick={() => {
-                  setPendingCount(noteCount);
-                  setShowSettings(false);
-                }}
-                style={{
-                  fontSize: "0.95rem",
-                  padding: "8px 20px",
-                  borderRadius: "8px",
-                  border: "1px solid #d1d5db",
-                  background: "#fff",
-                  cursor: "pointer",
-                  color: "#555",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  onNoteCountChange?.(pendingCount);
-                  setShowSettings(false);
-                }}
-                style={{
-                  fontSize: "0.95rem",
-                  padding: "8px 20px",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: "#6366f1",
-                  cursor: "pointer",
-                  color: "#fff",
-                }}
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <Button3NotesSignal
-              label="Start Game"
-              onsetCount={startOnsetCount}
-              onClick={startGame}
-            />
-            <button
-              onClick={() => {
-                setPendingCount(noteCount);
-                setShowSettings(true);
-              }}
-              style={{
-                fontSize: "0.9rem",
-                padding: "6px 20px",
-                borderRadius: "8px",
-                border: "1px solid #d1d5db",
-                background: "#fff",
-                cursor: "pointer",
-                color: "#555",
-              }}
-            >
-              ⚙ Settings
-            </button>
-          </div>
-        ))}
+          )}
+        </div>
+      )}
 
       {/* Close */}
       {isFinished && (
