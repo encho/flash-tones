@@ -32,8 +32,8 @@ for (let octave = 3; octave <= 5; octave++) {
 // Scale semitone patterns (intervals from root)
 const SCALE_SEMITONES: Record<string, number[]> = {
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-  cMajor: [0, 2, 4, 5, 7, 9, 11],   // C D E F G A B
-  dMajor: [2, 4, 6, 7, 9, 11, 1],   // D E F# G A B C#
+  cMajor: [0, 2, 4, 5, 7, 9, 11], // C D E F G A B
+  dMajor: [2, 4, 6, 7, 9, 11, 1], // D E F# G A B C#
 };
 
 type ScaleKey = keyof typeof SCALE_SEMITONES;
@@ -55,7 +55,10 @@ function getNotesForScale(scale: ScaleKey): string[] {
   });
 }
 
-function generateRandomNotes(count = 5, scale: ScaleKey = "chromatic"): NoteEntry[] {
+function generateRandomNotes(
+  count = 5,
+  scale: ScaleKey = "chromatic",
+): NoteEntry[] {
   const pool = getNotesForScale(scale);
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return shuffled
