@@ -87,8 +87,18 @@ interface HitResult {
 }
 
 const NOTE_SEMITONES_GAME: Record<string, number> = {
-  C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5,
-  "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11,
+  C: 0,
+  "C#": 1,
+  D: 2,
+  "D#": 3,
+  E: 4,
+  F: 5,
+  "F#": 6,
+  G: 7,
+  "G#": 8,
+  A: 9,
+  "A#": 10,
+  B: 11,
 };
 function noteToIndexGame(note: string): number | null {
   const match = note.match(/^([A-G][#b]?)(\d)$/);
@@ -271,15 +281,11 @@ export default function NoteFlashCardGame({
             </button>
             <div className="game-header-extra">
               {isFinished ? (
-                <span style={{ color: "#222", fontWeight: 700 }}>
-                  ✅ Done!
-                </span>
+                <span style={{ color: "#222", fontWeight: 700 }}>✅ Done!</span>
               ) : (
                 <span>
                   <span style={{ color: "#888" }}>Sing </span>
-                  <strong style={{ color: "#111" }}>
-                    {currentNote.note}
-                  </strong>
+                  <strong style={{ color: "#111" }}>{currentNote.note}</strong>
                   {pitch === "Bb" && (
                     <span style={{ color: "#888", fontSize: "0.78rem" }}>
                       {" "}
@@ -392,181 +398,209 @@ export default function NoteFlashCardGame({
       {/* Start Game + Settings */}
       {!started && !isFinished && (
         <>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "20px",
-            width: "100%",
-            paddingTop: "8px",
-            paddingBottom: "90px",
-          }}
-        >
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "stretch",
-              gap: "32px",
-              width: "min(420px, 92vw)",
+              alignItems: "center",
+              gap: "20px",
+              width: "100%",
+              paddingTop: "8px",
+              paddingBottom: "90px",
             }}
           >
-            <h2
-              style={{
-                margin: 0,
-                fontSize: "1.8rem",
-                fontWeight: 700,
-                color: "#222",
-                textAlign: "center",
-              }}
-            >
-              Note Flash Cards
-            </h2>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "8px",
-                alignItems: "flex-start",
+                alignItems: "stretch",
+                gap: "32px",
+                width: "min(420px, 92vw)",
               }}
             >
-              <label
+              <h2
                 style={{
-                  fontSize: "1rem",
-                  color: "#444",
-                  fontWeight: 600,
+                  margin: 0,
+                  fontSize: "1.8rem",
+                  fontWeight: 700,
+                  color: "#222",
+                  textAlign: "center",
                 }}
               >
-                Notes per game
-              </label>
-              <UIButtonGroup
-                items={[5, 10, 20].map((n) => ({
-                  label: `${n}`,
-                  onClick: () => onNoteCountChange?.(n),
-                  active: noteCount === n,
-                }))}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                alignItems: "flex-start",
-              }}
-            >
-              <label
+                Note Flash Cards
+              </h2>
+              <div
                 style={{
-                  fontSize: "1rem",
-                  color: "#444",
-                  fontWeight: 600,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
                 }}
               >
-                Scale
-              </label>
-              <UIButtonGroup
-                items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
-                  label: SCALE_LABELS[s],
-                  onClick: () => onScaleChange?.(s),
-                  active: scale === s,
-                }))}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                alignItems: "flex-start",
-              }}
-            >
-              <label
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Notes per game
+                </label>
+                <UIButtonGroup
+                  items={[5, 10, 20].map((n) => ({
+                    label: `${n}`,
+                    onClick: () => onNoteCountChange?.(n),
+                    active: noteCount === n,
+                  }))}
+                />
+              </div>
+              <div
                 style={{
-                  fontSize: "1rem",
-                  color: "#444",
-                  fontWeight: 600,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
                 }}
               >
-                Pitch
-              </label>
-              <UIButtonGroup
-                items={[
-                  { label: "Bb", onClick: () => onPitchChange?.("Bb"), active: pitch === "Bb" },
-                  { label: "Concert", onClick: () => onPitchChange?.("CONCERT"), active: pitch === "CONCERT" },
-                ]}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                alignItems: "flex-start",
-              }}
-            >
-              <label
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Scale
+                </label>
+                <UIButtonGroup
+                  items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
+                    label: SCALE_LABELS[s],
+                    onClick: () => onScaleChange?.(s),
+                    active: scale === s,
+                  }))}
+                />
+              </div>
+              <div
                 style={{
-                  fontSize: "1rem",
-                  color: "#444",
-                  fontWeight: 600,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
                 }}
               >
-                Note Display
-              </label>
-              <UIButtonGroup
-                items={[
-                  { label: "Name", onClick: () => onDisplayTypeChange?.("note"), active: displayType === "note" },
-                  { label: "Index", onClick: () => onDisplayTypeChange?.("index"), active: displayType === "index" },
-                ]}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: "12px",
-              }}
-            >
-              <input
-                id="prehear-checkbox"
-                type="checkbox"
-                checked={prehear}
-                onChange={(e) => onPrehearChange?.(e.target.checked)}
-                style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#111" }}
-              />
-              <label
-                htmlFor="prehear-checkbox"
-                style={{ fontSize: "1rem", color: "#444", fontWeight: 600, cursor: "pointer" }}
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Pitch
+                </label>
+                <UIButtonGroup
+                  items={[
+                    {
+                      label: "Bb",
+                      onClick: () => onPitchChange?.("Bb"),
+                      active: pitch === "Bb",
+                    },
+                    {
+                      label: "Concert",
+                      onClick: () => onPitchChange?.("CONCERT"),
+                      active: pitch === "CONCERT",
+                    },
+                  ]}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
+                }}
               >
-                Prehear Note
-              </label>
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Note Display
+                </label>
+                <UIButtonGroup
+                  items={[
+                    {
+                      label: "Name",
+                      onClick: () => onDisplayTypeChange?.("note"),
+                      active: displayType === "note",
+                    },
+                    {
+                      label: "Index",
+                      onClick: () => onDisplayTypeChange?.("index"),
+                      active: displayType === "index",
+                    },
+                  ]}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <input
+                  id="prehear-checkbox"
+                  type="checkbox"
+                  checked={prehear}
+                  onChange={(e) => onPrehearChange?.(e.target.checked)}
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    cursor: "pointer",
+                    accentColor: "#111",
+                  }}
+                />
+                <label
+                  htmlFor="prehear-checkbox"
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Prehear Note
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-        {/* Fixed Start Game button */}
-        <div
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: "16px",
-            backgroundColor: "#fff",
-            borderTop: "1px solid #e5e7eb",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Button3NotesSignal
-            label="Start Game"
-            onsetCount={startOnsetCount}
-            onClick={startGame}
-            width="min(420px, calc(92vw))"              padding="18px 28px"
-              fontSize="1.1rem"          />
-        </div>
-      </>
+          {/* Fixed Start Game button */}
+          <div
+            style={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: "16px",
+              backgroundColor: "#fff",
+              borderTop: "1px solid #e5e7eb",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Button3NotesSignal
+              label="Start Game"
+              onsetCount={startOnsetCount}
+              onClick={startGame}
+              width="min(420px, calc(92vw))"
+              padding="18px 28px"
+              fontSize="1.1rem"
+            />
+          </div>
+        </>
       )}
 
       {/* Back */}
@@ -652,7 +686,13 @@ export default function NoteFlashCardGame({
                 <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
                   {r.note}
                   {displayType === "index" && pitch === "Bb" && (
-                    <span style={{ fontWeight: 400, color: "#888", marginLeft: "4px" }}>
+                    <span
+                      style={{
+                        fontWeight: 400,
+                        color: "#888",
+                        marginLeft: "4px",
+                      }}
+                    >
                       [{noteToIndexGame(r.note)}]
                     </span>
                   )}
