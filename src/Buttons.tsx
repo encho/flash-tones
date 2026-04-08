@@ -41,7 +41,9 @@ export interface UIButtonGroupItem {
 
 export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
   return (
-    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }}>
+    <div
+      style={{ display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }}
+    >
       {items.map((item) => (
         <button
           key={item.label}
