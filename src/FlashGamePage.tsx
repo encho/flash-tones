@@ -38,7 +38,7 @@ export default function FlashGamePage({
 
   const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
   const [scale, setScaleState] = useState<ScaleKey>(saved.scale ?? "chromatic");
-  const [displayType, setDisplayTypeState] = useState<"note" | "index">(
+  const [displayType, setDisplayTypeState] = useState<"note" | "index" | "visual_note">(
     saved.displayType ?? "note",
   );
   const [pitch, setPitchState] = useState<"CONCERT" | "Bb">(
@@ -54,7 +54,7 @@ export default function FlashGamePage({
     setScaleState(v);
     saveSettings({ scale: v });
   }
-  function setDisplayType(v: "note" | "index") {
+  function setDisplayType(v: "note" | "index" | "visual_note") {
     setDisplayTypeState(v);
     saveSettings({ displayType: v });
   }

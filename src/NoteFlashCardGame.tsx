@@ -123,8 +123,8 @@ interface NoteFlashCardGameProps {
   onNoteCountChange?: (n: number) => void;
   scale?: ScaleKey;
   onScaleChange?: (s: ScaleKey) => void;
-  displayType?: "note" | "index";
-  onDisplayTypeChange?: (d: "note" | "index") => void;
+  displayType?: "note" | "index" | "visual_note";
+  onDisplayTypeChange?: (d: "note" | "index" | "visual_note") => void;
   prehear?: boolean;
   onPrehearChange?: (v: boolean) => void;
 }
@@ -528,6 +528,11 @@ export default function NoteFlashCardGame({
                       label: "Index",
                       onClick: () => onDisplayTypeChange?.("index"),
                       active: displayType === "index",
+                    },
+                    {
+                      label: "Staff",
+                      onClick: () => onDisplayTypeChange?.("visual_note"),
+                      active: displayType === "visual_note",
                     },
                   ]}
                 />

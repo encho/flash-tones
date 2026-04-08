@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "pitchy";
 import * as Tone from "tone";
+import { Renderer, Stave, StaveNote, Formatter, Voice, Accidental } from "vexflow";
 
 interface NoteFlashCardProps {
   note: string;
-  displayType?: "note" | "index";
+  displayType?: "note" | "index" | "visual_note";
   isActive?: boolean;
   matchCents?: number;
   displayRange?: number;
@@ -66,6 +67,79 @@ function noteToIndex(note: string): number | null {
   return midi - 53;
 }
 
+// ── NoteStaff ───────────────────────────────────────────────────────────────
+
+/** Convert a note string like "F#3", "G3", "Bb4" to VexFlow key format: "f#/3", "g/3", "bb/4" */
+function toVexKey(note: string): string {
+  const m = note.match(/^([A-G][#b]?)(\.?\d)$/);
+  if (!m) return "c/4";
+  const name = m[1].toLowerCase().replace("#", "#");
+  return `${name}/${m[2]}`;
+}
+
+function NoteStaff({ note }: { note: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.innerHTML = "";
+
+    const W = container.clientWidth || 280;
+    const H = container.clientHeight || 160;
+
+    const renderer = new Renderer(container, Renderer.Backends.SVG);
+    renderer.resize(W, H);
+    const context = renderer.getContext();
+
+    // Centre the stave horizontally; leave room for clef
+    const staveX = 10;
+    const staveWidth = W - 20;
+    const staveY = H / 2 - 40;
+
+    const stave = new Stave(staveX, staveY, staveWidth);
+    stave.addClef("treble");
+    stave.setContext(context).draw();
+
+    const vexKey = toVexKey(note);
+    const accidental = note.match(/([#b])/);
+    const staveNote = new StaveNote({
+      keys: [vexKey],
+      duration: "w",
+    });
+    if (accidental) {
+      staveNote.addModifier(new Accidental(accidental[1]));
+    }
+
+    const voice = new Voice({ numBeats: 4, beatValue: 4 });
+    voice.setStrict(false);
+    voice.addTickable(staveNote);
+
+    new Formatter().joinVoices([voice]).format([voice], staveWidth - 80);
+    voice.draw(context, stave);
+
+    // Style: thinner lines, no fill on note head
+    const svg = container.querySelector("svg");
+    if (svg) {
+      svg.style.overflow = "visible";
+    }
+  }, [note]);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    />
+  );
+}
+
 // ── TunerBar ────────────────────────────────────────────────────────────────
 
 interface TunerBarProps {
@@ -80,17 +154,6 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
   // 0% = far left, 50% = centre, 100% = far right
   const needlePct = ((clamped + displayRange) / (2 * displayRange)) * 100;
   const toleranceHalfPct = (matchCents / displayRange) * 50;
-
-  const inTolerance = cents !== null && Math.abs(cents) < matchCents;
-  const nearTolerance = cents !== null && Math.abs(cents) < matchCents * 1.5;
-  const color =
-    cents === null
-      ? "#111"
-      : inTolerance
-        ? "#22c55e"
-        : nearTolerance
-          ? "#eab308"
-          : "#ef4444";
 
   return (
     <>
@@ -216,7 +279,7 @@ function NoteFlashCard({
 }: NoteFlashCardProps) {
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
-  const [holdProgress, setHoldProgress] = useState(0);
+  const [, setHoldProgress] = useState(0);
   const [displayTimes, setDisplayTimes] = useState<{
     total: number;
     effective: number;
@@ -451,16 +514,20 @@ function NoteFlashCard({
         boxSizing: "border-box",
       }}
     >
-      <span
-        style={{
-          fontSize: "clamp(4rem, 16vh, 10rem)",
-          lineHeight: "1",
-          fontWeight: "bold",
-          color: "#222",
-        }}
-      >
-        {displayType === "index" ? (noteToIndex(note) ?? note) : note}
-      </span>
+      {displayType === "visual_note" ? (
+        <NoteStaff note={note} />
+      ) : (
+        <span
+          style={{
+            fontSize: "clamp(4rem, 16vh, 10rem)",
+            lineHeight: "1",
+            fontWeight: "bold",
+            color: "#222",
+          }}
+        >
+          {displayType === "index" ? (noteToIndex(note) ?? note) : note}
+        </span>
+      )}
 
       {isActive && !matched && displayTimes && (
         <div
