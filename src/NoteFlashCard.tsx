@@ -93,16 +93,15 @@ function NoteStaff({ note }: { note: string }) {
     container.innerHTML = "";
 
     const W = container.clientWidth || 280;
-    const H = container.clientHeight || 160;
+    const H = 120;
 
     const renderer = new Renderer(container, Renderer.Backends.SVG);
     renderer.resize(W, H);
     const context = renderer.getContext();
 
-    // Centre the stave horizontally; leave room for clef
     const staveX = 10;
     const staveWidth = W - 20;
-    const staveY = H / 2 - 40;
+    const staveY = 20;
 
     const stave = new Stave(staveX, staveY, staveWidth);
     stave.addClef("treble");
@@ -125,10 +124,10 @@ function NoteStaff({ note }: { note: string }) {
     new Formatter().joinVoices([voice]).format([voice], staveWidth - 80);
     voice.draw(context, stave);
 
-    // Style: thinner lines, no fill on note head
     const svg = container.querySelector("svg");
     if (svg) {
       svg.style.overflow = "visible";
+      svg.style.display = "block";
     }
   }, [note]);
 
