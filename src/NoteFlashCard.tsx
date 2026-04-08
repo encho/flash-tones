@@ -182,7 +182,7 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
             bottom: 0,
             left: "calc(50% - 1px)",
             width: "1px",
-            backgroundColor: "rgba(0,0,0,0.65)",
+            backgroundColor: "rgba(0,0,0,0.38)",
           }}
         />
         {/* Left match boundary */}
