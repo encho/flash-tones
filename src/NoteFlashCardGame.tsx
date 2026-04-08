@@ -167,7 +167,10 @@ export default function NoteFlashCardGame({
         flexDirection: "column",
         alignItems: "center",
         gap: "16px",
-        padding: "24px",
+        padding: "16px",
+        height: "100dvh",
+        boxSizing: "border-box",
+        overflowY: "auto",
       }}
     >
       {/* Game state header — only while game is running */}
@@ -258,19 +261,23 @@ export default function NoteFlashCardGame({
       {started && !isFinished && (
         <div
           style={{
+            flex: 1,
+            width: "100%",
+            maxWidth: "600px",
             backgroundColor: "#f3f4f6",
             borderRadius: "16px",
-            padding: "32px 40px",
+            padding: "16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            boxSizing: "border-box",
           }}
         >
           <div
             style={{
               position: "relative",
-              width: "196px",
-              height: "280px",
+              width: "clamp(176px, 75vw, 340px)",
+              height: "clamp(248px, 68vh, 560px)",
               overflow: "hidden",
               padding: "8px",
               boxSizing: "border-box",
@@ -463,7 +470,7 @@ export default function NoteFlashCardGame({
         </div>
       )}
       {/* Results table */}
-      {results.length > 0 && (
+      {isFinished && results.length > 0 && (
         <table
           style={{
             borderCollapse: "collapse",

@@ -429,20 +429,21 @@ function NoteFlashCard({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        width: "160px",
-        minHeight: "220px",
-        padding: "20px 0",
+        width: "100%",
+        height: "100%",
+        padding: "clamp(16px, 3vh, 28px) 12px",
         border: `2px solid ${isActive ? "#6366f1" : "#ccc"}`,
         borderRadius: "12px",
         backgroundColor: "#fff",
         boxShadow: isActive
           ? "0 0 14px rgba(99,102,241,0.35)"
           : "0 2px 8px rgba(0,0,0,0.15)",
-        gap: "8px",
+        gap: "clamp(6px, 1.5vh, 16px)",
         transition: "border-color 0.2s, box-shadow 0.2s",
+        boxSizing: "border-box",
       }}
     >
-      <span style={{ fontSize: "2.5rem", fontWeight: "bold", color: "#222" }}>
+      <span style={{ fontSize: "clamp(2.5rem, 7vh, 5rem)", fontWeight: "bold", color: "#222" }}>
         {note}
       </span>
       <span
@@ -452,7 +453,7 @@ function NoteFlashCard({
       </span>
 
       {isActive && (
-        <div style={{ width: "120px", marginTop: "8px", textAlign: "center" }}>
+        <div style={{ width: "100%", marginTop: "4px", textAlign: "center", padding: "0 12px", boxSizing: "border-box" }}>
           {matched ? (
             <div style={{ fontSize: "2rem" }}>✅</div>
           ) : (
