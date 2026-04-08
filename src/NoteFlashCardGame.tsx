@@ -60,6 +60,8 @@ interface NoteFlashCardGameProps {
   noteCount?: number;
   onNoteCountChange?: (count: number) => void;
   timeLimitMs?: number;
+  initialStarted?: boolean;
+  onStart?: () => void;
 }
 
 export default function NoteFlashCardGame({
@@ -72,21 +74,26 @@ export default function NoteFlashCardGame({
   noteCount = 5,
   onNoteCountChange,
   timeLimitMs = 5000,
+  initialStarted = false,
+  onStart,
 }: NoteFlashCardGameProps) {
   const activeNotes = notes;
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
   const [results, setResults] = useState<HitResult[]>([]);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(initialStarted);
   const [showSettings, setShowSettings] = useState(false);
   const [pendingCount, setPendingCount] = useState(noteCount);
   const [failed, setFailed] = useState(false);
 
+  function startGame() {
+    setStarted(true);
+    onStart?.();
+  }
+
   const isFinished = activeIndex >= activeNotes.length || failed;
 
-  const startOnsetCount = useThreeNoteSignal(!started && !showSettings, () =>
-    setStarted(true),
-  );
+  const startOnsetCount = useThreeNoteSignal(!started && !showSettings, startGame);
   const closeOnsetCount = useThreeNoteSignal(isFinished, () => onExit?.());
 
   const currentNote = activeNotes[activeIndex];
@@ -334,7 +341,7 @@ export default function NoteFlashCardGame({
             <Button3NotesSignal
               label="Start Game"
               onsetCount={startOnsetCount}
-              onClick={() => setStarted(true)}
+              onClick={startGame}
             />
             <button
               onClick={() => {

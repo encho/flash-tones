@@ -450,32 +450,6 @@ function NoteFlashCard({
       >
         {type}
       </span>
-      <button
-        onClick={async () => {
-          isPlayingRef.current = true;
-          inRangeSinceRef.current = null;
-          setHoldProgress(0);
-          playStartRef.current = performance.now();
-          await playNote(note, TRANSPOSE_SEMITONES[pitch] ?? 0);
-          if (playStartRef.current !== null) {
-            totalPlayTimeRef.current +=
-              performance.now() - playStartRef.current;
-            playStartRef.current = null;
-          }
-          isPlayingRef.current = false;
-        }}
-        style={{
-          marginTop: "4px",
-          padding: "6px 18px",
-          fontSize: "0.85rem",
-          borderRadius: "8px",
-          border: "1px solid #aaa",
-          backgroundColor: "#f0f0f0",
-          cursor: "pointer",
-        }}
-      >
-        ▶ Play
-      </button>
 
       {isActive && (
         <div style={{ width: "120px", marginTop: "8px", textAlign: "center" }}>

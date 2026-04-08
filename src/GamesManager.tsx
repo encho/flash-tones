@@ -1,6 +1,4 @@
-import { useState } from "react";
-import NoteFlashCardGame, { generateRandomNotes } from "./NoteFlashCardGame";
-import type { NoteEntry } from "./NoteFlashCardGame";
+import { useNavigate } from "react-router-dom";
 import { useThreeNoteSignal } from "./signals";
 import { Button3NotesSignal } from "./Buttons";
 
@@ -11,51 +9,15 @@ interface GamesManagerProps {
   pitch?: "CONCERT" | "Bb";
 }
 
-export default function GamesManager({
-  matchCents = 50,
-  displayRange = 300,
-  holdDuration = 300,
-  pitch = "CONCERT",
-}: GamesManagerProps) {
-  const [currentNotes, setCurrentNotes] = useState<NoteEntry[] | null>(null);
-  const [gameKey, setGameKey] = useState(0);
-  const [noteCount, setNoteCount] = useState(5);
+export default function GamesManager({}: GamesManagerProps) {
+  const navigate = useNavigate();
 
   function startNewGame() {
-    setCurrentNotes(generateRandomNotes(noteCount));
-    setGameKey((k) => k + 1);
+    navigate("/flash-game");
   }
 
-  function exitGame() {
-    setCurrentNotes(null);
-  }
+  const onsetCount = useThreeNoteSignal(true, startNewGame);
 
-  function handleNoteCountChange(count: number) {
-    setNoteCount(count);
-    setCurrentNotes(generateRandomNotes(count));
-    setGameKey((k) => k + 1);
-  }
-
-  const onsetCount = useThreeNoteSignal(currentNotes === null, startNewGame);
-
-  // ── Playing state ──────────────────────────────────────────────────────
-  if (currentNotes !== null) {
-    return (
-      <NoteFlashCardGame
-        key={gameKey}
-        notes={currentNotes}
-        matchCents={matchCents}
-        displayRange={displayRange}
-        holdDuration={holdDuration}
-        pitch={pitch}
-        onExit={exitGame}
-        noteCount={noteCount}
-        onNoteCountChange={handleNoteCountChange}
-      />
-    );
-  }
-
-  // ── Menu ───────────────────────────────────────────────────────────────
   return (
     <div
       style={{
