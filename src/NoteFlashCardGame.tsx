@@ -221,7 +221,7 @@ export default function NoteFlashCardGame({
         height: "100%",
         boxSizing: "border-box",
         overflowY: "auto",
-        backgroundColor: "#fff",
+        backgroundColor: "#f3f4f6",
       }}
     >
       {/* Game state header — only while game is running */}
@@ -235,7 +235,7 @@ export default function NoteFlashCardGame({
             right: 0,
             padding: "12px 16px",
             backgroundColor: "#fff",
-            borderTop: "1px solid #e5e7eb",
+            borderTop: "1px solid #c9cbd0",
             display: "flex",
             alignItems: "center",
             gap: "16px",
@@ -575,7 +575,7 @@ export default function NoteFlashCardGame({
               right: 0,
               padding: "16px",
               backgroundColor: "#fff",
-              borderTop: "1px solid #e5e7eb",
+              borderTop: "1px solid #c9cbd0",
               display: "flex",
               justifyContent: "center",
             }}
@@ -602,7 +602,7 @@ export default function NoteFlashCardGame({
             right: 0,
             padding: "16px",
             backgroundColor: "#fff",
-            borderTop: "1px solid #e5e7eb",
+            borderTop: "1px solid #c9cbd0",
             display: "flex",
             justifyContent: "center",
           }}

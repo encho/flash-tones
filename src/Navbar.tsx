@@ -10,7 +10,7 @@ export default function Navbar() {
       style={{
         height: `${NAVBAR_HEIGHT}px`,
         backgroundColor: "#fff",
-        borderBottom: "1px solid #e5e7eb",
+        borderBottom: "1px solid #c9cbd0",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
