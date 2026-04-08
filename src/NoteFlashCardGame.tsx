@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal } from "./signals";
-import { Button3NotesSignal } from "./Buttons";
+import { Button3NotesSignal, UIButtonGroup } from "./Buttons";
 
 const NOTE_NAMES = [
   "C",
@@ -269,27 +269,13 @@ export default function NoteFlashCardGame({
             >
               Notes per game
             </label>
-            <div style={{ display: "flex", gap: "8px" }}>
-              {[5, 10, 20].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setNoteCount(n)}
-                  style={{
-                    fontSize: "0.95rem",
-                    padding: "6px 16px",
-                    borderRadius: "8px",
-                    border: `2px solid ${noteCount === n ? "#6366f1" : "#d1d5db"}`,
-                    background: noteCount === n ? "#6366f1" : "#fff",
-                    color: noteCount === n ? "#fff" : "#444",
-                    cursor: "pointer",
-                    fontWeight: noteCount === n ? 700 : 400,
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {n} Notes
-                </button>
-              ))}
-            </div>
+            <UIButtonGroup
+              items={[5, 10, 20].map((n) => ({
+                label: `${n} Notes`,
+                onClick: () => setNoteCount(n),
+                active: noteCount === n,
+              }))}
+            />
           </div>
         </div>
       )}

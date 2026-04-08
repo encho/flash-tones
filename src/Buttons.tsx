@@ -32,6 +32,38 @@ interface Button3NotesSignalProps {
   padding?: string;
 }
 
+export interface UIButtonGroupItem {
+  label: string;
+  onClick: () => void;
+  active?: boolean;
+}
+
+export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      {items.map((item) => (
+        <button
+          key={item.label}
+          onClick={item.onClick}
+          style={{
+            fontSize: "0.95rem",
+            padding: "6px 16px",
+            borderRadius: "8px",
+            border: `2px solid ${item.active ? "#6366f1" : "#d1d5db"}`,
+            background: item.active ? "#6366f1" : "#fff",
+            color: item.active ? "#fff" : "#444",
+            cursor: "pointer",
+            fontWeight: item.active ? 700 : 400,
+            transition: "all 0.15s",
+          }}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Button3NotesSignal({
   label,
   onsetCount,
