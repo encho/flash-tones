@@ -77,7 +77,10 @@ export function useThreeNoteSignal(
       function tick() {
         if (stopped) return;
         analyser.getFloatTimeDomainData(buffer);
-        const [freq, clarity] = detector.findPitch(buffer, audioCtx!.sampleRate);
+        const [freq, clarity] = detector.findPitch(
+          buffer,
+          audioCtx!.sampleRate,
+        );
         const loud = rms(buffer) >= ONSET_LOUDNESS_THRESHOLD;
         const isHigh = clarity > 0.9 && loud;
 
