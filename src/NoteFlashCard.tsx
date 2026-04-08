@@ -17,6 +17,7 @@ interface NoteFlashCardProps {
   }) => void;
   timeLimitMs?: number;
   onTimeLimit?: () => void;
+  autoPlayMs?: number;
 }
 
 const NOTE_SEMITONES: Record<string, number> = {
@@ -202,8 +203,9 @@ function NoteFlashCard({
   holdDuration = 800,
   pitch = "CONCERT",
   onNoteHit,
-  timeLimitMs,
+  timeLimitMs = 5000,
   onTimeLimit,
+  autoPlayMs = 0,
 }: NoteFlashCardProps) {
   const [cents, setCents] = useState<number | null>(null);
   const [matched, setMatched] = useState(false);
@@ -285,6 +287,29 @@ function NoteFlashCard({
     totalPlayTimeRef.current = 0;
     timeLimitFiredRef.current = false;
     let stopped = false;
+
+    // Auto-play the note on activation
+    if (autoPlayMs > 0) {
+      isPlayingRef.current = true;
+      playStartRef.current = performance.now();
+      Tone.start().then(() => {
+        const transposedNote = Tone.Frequency(note)
+          .transpose(TRANSPOSE_SEMITONES[pitch] ?? 0)
+          .toNote();
+        const synth = new Tone.Synth({
+          oscillator: { type: "triangle" },
+          envelope: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 1.2 },
+        }).toDestination();
+        synth.triggerAttackRelease(transposedNote, autoPlayMs / 1000);
+        setTimeout(() => {
+          if (playStartRef.current !== null) {
+            totalPlayTimeRef.current += performance.now() - playStartRef.current;
+            playStartRef.current = null;
+          }
+          isPlayingRef.current = false;
+        }, autoPlayMs);
+      });
+    }
 
     // Time-limit countdown
     if (timeLimitMsRef.current != null) {

@@ -223,6 +223,7 @@ export default function NoteFlashCardGame({
               onNoteHit={handleNoteHit}
               timeLimitMs={timeLimitMs}
               onTimeLimit={handleTimeLimit}
+              autoPlayMs={500}
             />
           ))}
         </div>
