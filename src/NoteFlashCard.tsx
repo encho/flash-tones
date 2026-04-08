@@ -143,36 +143,6 @@ function TunerBar({ cents, matchCents, displayRange }: TunerBarProps) {
   );
 }
 
-// ── HoldProgressBar ─────────────────────────────────────────────────────────
-
-interface HoldProgressBarProps {
-  progress: number;
-}
-
-function HoldProgressBar({ progress }: HoldProgressBarProps) {
-  return (
-    <div
-      style={{
-        marginTop: "8px",
-        height: "6px",
-        width: "100%",
-        backgroundColor: "#e5e7eb",
-        borderRadius: "3px",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          height: "100%",
-          width: `${progress * 100}%`,
-          backgroundColor: progress > 0 ? "#22c55e" : "#d1d5db",
-          borderRadius: "3px",
-        }}
-      />
-    </div>
-  );
-}
-
 // ── TimerDonut ─────────────────────────────────────────────────────────────
 
 function TimerDonut({ progress }: { progress: number }) {
