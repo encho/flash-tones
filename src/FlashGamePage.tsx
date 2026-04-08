@@ -2,6 +2,23 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState } from "react";
 import NoteFlashCardGame, { type ScaleKey } from "./NoteFlashCardGame";
 
+const LS_KEY = "flashtones_settings";
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {};
+}
+
+function saveSettings(patch: Record<string, unknown>) {
+  try {
+    const current = loadSettings();
+    localStorage.setItem(LS_KEY, JSON.stringify({ ...current, ...patch }));
+  } catch {}
+}
+
 interface FlashGamePageProps {
   matchCents?: number;
   displayRange?: number;
@@ -17,11 +34,19 @@ export default function FlashGamePage({
   const { gameId } = useParams<{ gameId: string }>();
   const location = useLocation();
 
-  const [noteCount, setNoteCount] = useState(5);
-  const [scale, setScale] = useState<ScaleKey>("chromatic");
-  const [displayType, setDisplayType] = useState<"note" | "index">("note");
-  const [pitch, setPitch] = useState<"CONCERT" | "Bb">("Bb");
-  const [prehear, setPrehear] = useState(true);
+  const saved = loadSettings();
+
+  const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
+  const [scale, setScaleState] = useState<ScaleKey>(saved.scale ?? "chromatic");
+  const [displayType, setDisplayTypeState] = useState<"note" | "index">(saved.displayType ?? "note");
+  const [pitch, setPitchState] = useState<"CONCERT" | "Bb">(saved.pitch ?? "Bb");
+  const [prehear, setPrehearState] = useState<boolean>(saved.prehear ?? true);
+
+  function setNoteCount(v: number) { setNoteCountState(v); saveSettings({ noteCount: v }); }
+  function setScale(v: ScaleKey) { setScaleState(v); saveSettings({ scale: v }); }
+  function setDisplayType(v: "note" | "index") { setDisplayTypeState(v); saveSettings({ displayType: v }); }
+  function setPitch(v: "CONCERT" | "Bb") { setPitchState(v); saveSettings({ pitch: v }); }
+  function setPrehear(v: boolean) { setPrehearState(v); saveSettings({ prehear: v }); }
 
   function handleStart() {
     const id = crypto.randomUUID();
