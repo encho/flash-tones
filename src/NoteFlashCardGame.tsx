@@ -60,10 +60,17 @@ function generateRandomNotes(
   scale: ScaleKey = "chromatic",
 ): NoteEntry[] {
   const pool = getNotesForScale(scale);
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  return shuffled
-    .slice(0, Math.min(count, shuffled.length))
-    .map((note) => ({ note }));
+  if (pool.length === 0) return [];
+  const result: NoteEntry[] = [];
+  let lastNote: string | null = null;
+  for (let i = 0; i < count; i++) {
+    const candidates =
+      pool.length > 1 ? pool.filter((n) => n !== lastNote) : pool;
+    const note = candidates[Math.floor(Math.random() * candidates.length)];
+    result.push({ note });
+    lastNote = note;
+  }
+  return result;
 }
 
 export interface NoteEntry {
@@ -512,6 +519,7 @@ export default function NoteFlashCardGame({
             textAlign: "center",
             fontWeight: 700,
             fontSize: "1.1rem",
+            boxSizing: "border-box",
             ...(failed
               ? {
                   backgroundColor: "#fef2f2",
