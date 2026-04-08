@@ -102,6 +102,8 @@ interface NoteFlashCardGameProps {
   onScaleChange?: (s: ScaleKey) => void;
   displayType?: "note" | "index";
   onDisplayTypeChange?: (d: "note" | "index") => void;
+  prehear?: boolean;
+  onPrehearChange?: (v: boolean) => void;
 }
 
 export default function NoteFlashCardGame({
@@ -120,6 +122,8 @@ export default function NoteFlashCardGame({
   onScaleChange,
   displayType = "note",
   onDisplayTypeChange,
+  prehear = true,
+  onPrehearChange,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
     () => generateRandomNotes(noteCount, scale),
@@ -364,7 +368,7 @@ export default function NoteFlashCardGame({
                   onNoteHit={handleNoteHit}
                   timeLimitMs={timeLimitMs}
                   onTimeLimit={handleTimeLimit}
-                  autoPlayMs={500}
+                  autoPlayMs={prehear ? 500 : 0}
                 />
               </div>
             )}
@@ -377,14 +381,12 @@ export default function NoteFlashCardGame({
         <>
         <div
           style={{
-            flex: 1,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
             gap: "20px",
             width: "100%",
-            marginTop: "-15vh",
+            paddingTop: "8px",
             paddingBottom: "90px",
           }}
         >
@@ -521,6 +523,32 @@ export default function NoteFlashCardGame({
                   { label: "Index", onClick: () => onDisplayTypeChange?.("index"), active: displayType === "index" },
                 ]}
               />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "12px",
+                backgroundColor: "#f8f8f8",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "16px 24px",
+              }}
+            >
+              <input
+                id="prehear-checkbox"
+                type="checkbox"
+                checked={prehear}
+                onChange={(e) => onPrehearChange?.(e.target.checked)}
+                style={{ width: "18px", height: "18px", cursor: "pointer", accentColor: "#6366f1" }}
+              />
+              <label
+                htmlFor="prehear-checkbox"
+                style={{ fontSize: "0.9rem", color: "#444", fontWeight: 600, cursor: "pointer" }}
+              >
+                Prehear Note
+              </label>
             </div>
           </div>
         </div>

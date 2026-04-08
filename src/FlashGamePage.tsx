@@ -21,6 +21,7 @@ export default function FlashGamePage({
   const [scale, setScale] = useState<ScaleKey>("chromatic");
   const [displayType, setDisplayType] = useState<"note" | "index">("note");
   const [pitch, setPitch] = useState<"CONCERT" | "Bb">("Bb");
+  const [prehear, setPrehear] = useState(true);
 
   function handleStart() {
     const id = crypto.randomUUID();
@@ -48,6 +49,8 @@ export default function FlashGamePage({
       onScaleChange={setScale}
       displayType={displayType}
       onDisplayTypeChange={setDisplayType}
+      prehear={prehear}
+      onPrehearChange={setPrehear}
     />
   );
 }
