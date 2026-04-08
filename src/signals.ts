@@ -3,12 +3,18 @@ import { PitchDetector } from "pitchy";
 
 // ── Tuning constants ─────────────────────────────────────────────────────────
 /** All 3 onsets must arrive within this window (ms) to fire the signal. */
-export const ONSET_WINDOW_MS = 400;
+export const ONSET_WINDOW_MS = 3000;
 /** RMS loudness gate (0–1). Onsets quieter than this are ignored. */
 export const ONSET_LOUDNESS_THRESHOLD = 0.1;
 
+/** Convert a frequency to the nearest MIDI note number. */
+function freqToMidi(freq: number): number {
+  return Math.round(12 * Math.log2(freq / 440) + 69);
+}
+
 /**
- * Detects 3 loud note onsets within ONSET_WINDOW_MS and calls `onSignal`.
+ * Detects 3 loud onsets of the **same** note within ONSET_WINDOW_MS and calls `onSignal`.
+ * Resets the count whenever a different note is sung.
  *
  * @param enabled - Turn detection on/off (e.g. pass a boolean condition).
  * @param onSignal - Stable callback invoked once when the signal fires.
@@ -35,7 +41,10 @@ export function useThreeNoteSignal(
     let stream: MediaStream | null = null;
     let raf: number | null = null;
     let prevClarityHigh = false;
+    /** Timestamps of same-note onsets within the window. */
     const onsetTimes: number[] = [];
+    /** MIDI note of the current run. */
+    let currentMidi: number | null = null;
     setCount(0);
 
     (async () => {
@@ -68,17 +77,29 @@ export function useThreeNoteSignal(
       function tick() {
         if (stopped) return;
         analyser.getFloatTimeDomainData(buffer);
-        const [, clarity] = detector.findPitch(buffer, audioCtx!.sampleRate);
+        const [freq, clarity] = detector.findPitch(buffer, audioCtx!.sampleRate);
         const loud = rms(buffer) >= ONSET_LOUDNESS_THRESHOLD;
         const isHigh = clarity > 0.9 && loud;
 
         if (isHigh && !prevClarityHigh) {
           const now = performance.now();
-          onsetTimes.push(now);
+          const midi = freqToMidi(freq);
+
+          // Reset if a different note (>1 semitone away) or window expired
           const cutoff = now - ONSET_WINDOW_MS;
-          while (onsetTimes.length > 0 && onsetTimes[0] < cutoff)
-            onsetTimes.shift();
+          if (currentMidi === null || Math.abs(midi - currentMidi) > 1) {
+            // Different note — start fresh
+            onsetTimes.length = 0;
+            currentMidi = midi;
+          } else {
+            // Expire old onsets in the window
+            while (onsetTimes.length > 0 && onsetTimes[0] < cutoff)
+              onsetTimes.shift();
+          }
+
+          onsetTimes.push(now);
           setCount(onsetTimes.length);
+
           if (onsetTimes.length >= 3) {
             stopped = true;
             onSignalRef.current();
