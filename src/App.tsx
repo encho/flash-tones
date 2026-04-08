@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import GamesManager from "./GamesManager";
 import FlashGamePage from "./FlashGamePage";
 import Navbar from "./Navbar";
 import "./App.css";
@@ -17,7 +16,7 @@ function App() {
       <Navbar />
       <div style={{ flex: 1, overflow: "hidden" }}>
         <Routes>
-          <Route path="/" element={<GamesManager {...GAME_PROPS} />} />
+          <Route path="/" element={<Navigate to="/flash-game" replace />} />
           <Route
             path="/flash-game"
             element={<FlashGamePage {...GAME_PROPS} />}

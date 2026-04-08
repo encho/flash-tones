@@ -30,6 +30,7 @@ interface Button3NotesSignalProps {
   onClick: () => void;
   fontSize?: string;
   padding?: string;
+  width?: string;
 }
 
 export interface UIButtonGroupItem {
@@ -40,7 +41,7 @@ export interface UIButtonGroupItem {
 
 export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
   return (
-    <div style={{ display: "flex", gap: "8px" }}>
+    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }}>
       {items.map((item) => (
         <button
           key={item.label}
@@ -55,7 +56,7 @@ export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
             cursor: "pointer",
             fontWeight: item.active ? 700 : 400,
             transition: "all 0.15s",
-            minWidth: "100px",
+            flex: "1 1 0",
           }}
         >
           {item.label}
@@ -71,6 +72,7 @@ export function Button3NotesSignal({
   onClick,
   fontSize = "1rem",
   padding = "10px 28px",
+  width,
 }: Button3NotesSignalProps) {
   return (
     <button
@@ -78,6 +80,7 @@ export function Button3NotesSignal({
       style={{
         padding,
         fontSize,
+        width,
         borderRadius: "10px",
         border: "none",
         backgroundColor: "#6366f1",
@@ -86,6 +89,7 @@ export function Button3NotesSignal({
         fontWeight: 600,
         display: "flex",
         alignItems: "center",
+        justifyContent: "center",
         gap: "10px",
       }}
     >

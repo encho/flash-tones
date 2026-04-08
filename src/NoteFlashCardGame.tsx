@@ -357,75 +357,99 @@ export default function NoteFlashCardGame({
       {!started && !isFinished && (
         <div
           style={{
+            flex: 1,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center",
             gap: "20px",
+            width: "100%",
+            marginTop: "-15vh",
           }}
         >
-          <Button3NotesSignal
-            label="Start Game"
-            onsetCount={startOnsetCount}
-            onClick={startGame}
-          />
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "8px",
-              alignItems: "flex-start",
-              backgroundColor: "#f8f8f8",
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              padding: "16px 24px",
-              minWidth: "220px",
+              alignItems: "stretch",
+              gap: "20px",
+              width: "min(420px, 92vw)",
             }}
           >
-            <label
+            <h2
               style={{
-                fontSize: "0.9rem",
-                color: "#444",
-                fontWeight: 600,
+                margin: 0,
+                fontSize: "1.8rem",
+                fontWeight: 700,
+                color: "#222",
+                textAlign: "center",
               }}
             >
-              Notes per game
-            </label>
-            <UIButtonGroup
-              items={[5, 10, 20].map((n) => ({
-                label: `${n}`,
-                onClick: () => setNoteCount(n),
-                active: noteCount === n,
-              }))}
-            />
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-              alignItems: "flex-start",
-              backgroundColor: "#f8f8f8",
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              padding: "16px 24px",
-              minWidth: "220px",
-            }}
-          >
-            <label
+              Note Flash Cards
+            </h2>
+            <div
               style={{
-                fontSize: "0.9rem",
-                color: "#444",
-                fontWeight: 600,
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                alignItems: "flex-start",
+                backgroundColor: "#f8f8f8",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "16px 24px",
               }}
             >
-              Scale
-            </label>
-            <UIButtonGroup
-              items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
-                label: SCALE_LABELS[s],
-                onClick: () => setScale(s),
-                active: scale === s,
-              }))}
+              <label
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#444",
+                  fontWeight: 600,
+                }}
+              >
+                Notes per game
+              </label>
+              <UIButtonGroup
+                items={[5, 10, 20].map((n) => ({
+                  label: `${n}`,
+                  onClick: () => setNoteCount(n),
+                  active: noteCount === n,
+                }))}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                alignItems: "flex-start",
+                backgroundColor: "#f8f8f8",
+                border: "1px solid #e5e7eb",
+                borderRadius: "12px",
+                padding: "16px 24px",
+              }}
+            >
+              <label
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#444",
+                  fontWeight: 600,
+                }}
+              >
+                Scale
+              </label>
+              <UIButtonGroup
+                items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
+                  label: SCALE_LABELS[s],
+                  onClick: () => setScale(s),
+                  active: scale === s,
+                }))}
+              />
+            </div>
+            <Button3NotesSignal
+              label="Start Game"
+              onsetCount={startOnsetCount}
+              onClick={startGame}
+              width="100%"
             />
           </div>
         </div>
