@@ -38,9 +38,9 @@ export default function FlashGamePage({
 
   const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
   const [scale, setScaleState] = useState<ScaleKey>(saved.scale ?? "chromatic");
-  const [displayType, setDisplayTypeState] = useState<"note" | "index" | "visual_note">(
-    saved.displayType ?? "note",
-  );
+  const [displayType, setDisplayTypeState] = useState<
+    "note" | "index" | "visual_note"
+  >(saved.displayType ?? "note");
   const [pitch, setPitchState] = useState<"CONCERT" | "Bb">(
     saved.pitch ?? "Bb",
   );

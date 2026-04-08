@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "pitchy";
 import * as Tone from "tone";
-import { Renderer, Stave, StaveNote, Formatter, Voice, Accidental } from "vexflow";
+import {
+  Renderer,
+  Stave,
+  StaveNote,
+  Formatter,
+  Voice,
+  Accidental,
+} from "vexflow";
 
 interface NoteFlashCardProps {
   note: string;
