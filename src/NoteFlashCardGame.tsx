@@ -29,19 +29,39 @@ for (let octave = 3; octave <= 5; octave++) {
   }
 }
 
-// Scale semitone patterns (intervals from root)
+// Scale semitone patterns — absolute pitch classes (0=C, 1=C#, …, 11=B)
 const SCALE_SEMITONES: Record<string, number[]> = {
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-  cMajor: [0, 2, 4, 5, 7, 9, 11], // C D E F G A B
-  dMajor: [2, 4, 6, 7, 9, 11, 1], // D E F# G A B C#
+  cMajor:  [0, 2, 4, 5, 7, 9, 11], // C  D  E  F  G  A  B
+  gMajor:  [7, 9, 11, 0, 2, 4, 6],  // G  A  B  C  D  E  F#
+  dMajor:  [2, 4, 6, 7, 9, 11, 1],  // D  E  F# G  A  B  C#
+  aMajor:  [9, 11, 1, 2, 4, 6, 8],  // A  B  C# D  E  F# G#
+  eMajor:  [4, 6, 8, 9, 11, 1, 3],  // E  F# G# A  B  C# D#
+  bMajor:  [11, 1, 3, 4, 6, 8, 10], // B  C# D# E  F# G# A#
+  fsMajor: [6, 8, 10, 11, 1, 3, 5], // F# G# A# B  C# D# F
+  dbMajor: [1, 3, 5, 6, 8, 10, 0],  // Db Eb F  Gb Ab Bb C
+  abMajor: [8, 10, 0, 1, 3, 5, 7],  // Ab Bb C  Db Eb F  G
+  ebMajor: [3, 5, 7, 8, 10, 0, 2],  // Eb F  G  Ab Bb C  D
+  bbMajor: [10, 0, 2, 3, 5, 7, 9],  // Bb C  D  Eb F  G  A
+  fMajor:  [5, 7, 9, 10, 0, 2, 4],  // F  G  A  Bb C  D  E
 };
 
 export type ScaleKey = keyof typeof SCALE_SEMITONES;
 
 const SCALE_LABELS: Record<ScaleKey, string> = {
   chromatic: "Chrom.",
-  cMajor: "C Maj.",
-  dMajor: "D Maj.",
+  cMajor:  "C",
+  gMajor:  "G",
+  dMajor:  "D",
+  aMajor:  "A",
+  eMajor:  "E",
+  bMajor:  "B",
+  fsMajor: "F#",
+  dbMajor: "Db",
+  abMajor: "Ab",
+  ebMajor: "Eb",
+  bbMajor: "Bb",
+  fMajor:  "F",
 };
 
 function getNotesForScale(scale: ScaleKey): string[] {
