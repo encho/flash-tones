@@ -47,7 +47,9 @@ export default function FlashGamePage({
   const saved = loadSettings();
 
   const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
-  const [scaleType, setScaleTypeState] = useState<ScaleType>(saved.scaleType ?? "chromatic");
+  const [scaleType, setScaleTypeState] = useState<ScaleType>(
+    saved.scaleType ?? "chromatic",
+  );
   const [rootNote, setRootNoteState] = useState<number>(saved.rootNote ?? 0);
   const [displayType, setDisplayTypeState] = useState<
     "note" | "index" | "visual_note"

@@ -84,7 +84,12 @@ export function UIButtonGroup({
     <div
       style={
         n
-          ? { display: "grid", gridTemplateColumns: `repeat(${n}, 1fr)`, gap: "8px", width: "100%" }
+          ? {
+              display: "grid",
+              gridTemplateColumns: `repeat(${n}, 1fr)`,
+              gap: "8px",
+              width: "100%",
+            }
           : { display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }
       }
     >
