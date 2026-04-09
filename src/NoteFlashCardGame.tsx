@@ -139,7 +139,7 @@ export default function NoteFlashCardGame({
   timeLimitMs = 10000,
   initialStarted = false,
   onStart,
-  noteCount = 5,
+  noteCount = 20,
   onNoteCountChange,
   scale = "chromatic",
   onScaleChange,
@@ -453,7 +453,7 @@ export default function NoteFlashCardGame({
                   Notes per game
                 </label>
                 <UIButtonGroup
-                  items={[5, 10, 20].map((n) => ({
+                  items={[20, 50, 100].map((n) => ({
                     label: `${n}`,
                     onClick: () => onNoteCountChange?.(n),
                     active: noteCount === n,
