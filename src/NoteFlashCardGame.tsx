@@ -834,7 +834,7 @@ export default function NoteFlashCardGame({
                       </span>
                     )}
                   </td>
-                  <td style={tdStyle}>{(r.effectiveTime / 1000).toFixed(2)}</td>
+                  <td style={tdStyle}>{r.timedOut ? "—" : (r.effectiveTime / 1000).toFixed(2)}</td>
                   <td style={tdStyle}>
                     {r.timedOut ? (
                       <span style={{ color: "#ef4444", fontWeight: 600 }}>
