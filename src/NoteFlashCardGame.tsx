@@ -618,9 +618,21 @@ export default function NoteFlashCardGame({
                 </label>
                 <UIButtonGroup
                   items={[
-                    { label: "Low", onClick: () => onHoldTimeChange?.("low"), active: holdTime === "low" },
-                    { label: "Medium", onClick: () => onHoldTimeChange?.("medium"), active: holdTime === "medium" },
-                    { label: "High", onClick: () => onHoldTimeChange?.("high"), active: holdTime === "high" },
+                    {
+                      label: "Low",
+                      onClick: () => onHoldTimeChange?.("low"),
+                      active: holdTime === "low",
+                    },
+                    {
+                      label: "Medium",
+                      onClick: () => onHoldTimeChange?.("medium"),
+                      active: holdTime === "medium",
+                    },
+                    {
+                      label: "High",
+                      onClick: () => onHoldTimeChange?.("high"),
+                      active: holdTime === "high",
+                    },
                   ]}
                 />
               </div>
@@ -834,7 +846,9 @@ export default function NoteFlashCardGame({
                       </span>
                     )}
                   </td>
-                  <td style={tdStyle}>{r.timedOut ? "—" : (r.effectiveTime / 1000).toFixed(2)}</td>
+                  <td style={tdStyle}>
+                    {r.timedOut ? "—" : (r.effectiveTime / 1000).toFixed(2)}
+                  </td>
                   <td style={tdStyle}>
                     {r.timedOut ? (
                       <span style={{ color: "#ef4444", fontWeight: 600 }}>
