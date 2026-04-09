@@ -10,9 +10,9 @@ const GAME_PROPS = {
 
 function App() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
       <Navbar />
-      <div style={{ flex: 1, overflow: "hidden" }}>
+      <div style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Navigate to="/flash-game" replace />} />
           <Route

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal } from "./signals";
+import { NAVBAR_HEIGHT } from "./Navbar";
 import { Button3NotesSignal, UIButtonGroup } from "./Buttons";
 
 const NOTE_NAMES = [
@@ -230,18 +231,35 @@ export default function NoteFlashCardGame({
 
   return (
     <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "16px",
-        padding: "16px",
-        paddingBottom: isFinished || (started && !isFinished) ? "90px" : "16px",
-        height: "100%",
-        boxSizing: "border-box",
-        overflowY: started && !isFinished ? "hidden" : "auto",
-        backgroundColor: "#f3f4f6",
-      }}
+      style={
+        started && !isFinished
+          ? {
+              position: "fixed",
+              top: NAVBAR_HEIGHT,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "16px",
+              padding: "16px",
+              paddingBottom: "90px",
+              boxSizing: "border-box",
+              backgroundColor: "#f3f4f6",
+            }
+          : {
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "16px",
+              padding: "16px",
+              paddingBottom: "114px",
+              boxSizing: "border-box",
+              backgroundColor: "#f3f4f6",
+            }
+      }
     >
       {/* Game state header — only while game is running */}
       {/* Fixed game footer bar */}
@@ -431,7 +449,6 @@ export default function NoteFlashCardGame({
               gap: "20px",
               width: "100%",
               paddingTop: "8px",
-              paddingBottom: "90px",
             }}
           >
             <div
@@ -472,7 +489,7 @@ export default function NoteFlashCardGame({
                   Notes per game
                 </label>
                 <UIButtonGroup
-                  items={[20, 50, 100].map((n) => ({
+                  items={[5, 10, 20, 50, 100].map((n) => ({
                     label: `${n}`,
                     onClick: () => onNoteCountChange?.(n),
                     active: noteCount === n,
