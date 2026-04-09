@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState } from "react";
-import NoteFlashCardGame, { type ScaleKey } from "./NoteFlashCardGame";
+import NoteFlashCardGame, { type ScaleType } from "./NoteFlashCardGame";
 
 const LS_KEY = "flashtones_settings";
 
@@ -47,7 +47,8 @@ export default function FlashGamePage({
   const saved = loadSettings();
 
   const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
-  const [scale, setScaleState] = useState<ScaleKey>(saved.scale ?? "chromatic");
+  const [scaleType, setScaleTypeState] = useState<ScaleType>(saved.scaleType ?? "chromatic");
+  const [rootNote, setRootNoteState] = useState<number>(saved.rootNote ?? 0);
   const [displayType, setDisplayTypeState] = useState<
     "note" | "index" | "visual_note"
   >(saved.displayType ?? "note");
@@ -69,9 +70,13 @@ export default function FlashGamePage({
     setNoteCountState(v);
     saveSettings({ noteCount: v });
   }
-  function setScale(v: ScaleKey) {
-    setScaleState(v);
-    saveSettings({ scale: v });
+  function setScaleType(v: ScaleType) {
+    setScaleTypeState(v);
+    saveSettings({ scaleType: v });
+  }
+  function setRootNote(v: number) {
+    setRootNoteState(v);
+    saveSettings({ rootNote: v });
   }
   function setDisplayType(v: "note" | "index" | "visual_note") {
     setDisplayTypeState(v);
@@ -116,8 +121,10 @@ export default function FlashGamePage({
       onStart={handleStart}
       noteCount={noteCount}
       onNoteCountChange={setNoteCount}
-      scale={scale}
-      onScaleChange={setScale}
+      scaleType={scaleType}
+      onScaleTypeChange={setScaleType}
+      rootNote={rootNote}
+      onRootNoteChange={setRootNote}
       displayType={displayType}
       onDisplayTypeChange={setDisplayType}
       prehear={prehear}

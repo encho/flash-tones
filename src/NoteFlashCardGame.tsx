@@ -29,57 +29,44 @@ for (let octave = 3; octave <= 5; octave++) {
   }
 }
 
-// Scale semitone patterns — absolute pitch classes (0=C, 1=C#, …, 11=B)
-const SCALE_SEMITONES: Record<string, number[]> = {
-  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-  cMajor: [0, 2, 4, 5, 7, 9, 11], // C  D  E  F  G  A  B
-  gMajor: [7, 9, 11, 0, 2, 4, 6], // G  A  B  C  D  E  F#
-  dMajor: [2, 4, 6, 7, 9, 11, 1], // D  E  F# G  A  B  C#
-  aMajor: [9, 11, 1, 2, 4, 6, 8], // A  B  C# D  E  F# G#
-  eMajor: [4, 6, 8, 9, 11, 1, 3], // E  F# G# A  B  C# D#
-  bMajor: [11, 1, 3, 4, 6, 8, 10], // B  C# D# E  F# G# A#
-  fsMajor: [6, 8, 10, 11, 1, 3, 5], // F# G# A# B  C# D# F
-  dbMajor: [1, 3, 5, 6, 8, 10, 0], // Db Eb F  Gb Ab Bb C
-  abMajor: [8, 10, 0, 1, 3, 5, 7], // Ab Bb C  Db Eb F  G
-  ebMajor: [3, 5, 7, 8, 10, 0, 2], // Eb F  G  Ab Bb C  D
-  bbMajor: [10, 0, 2, 3, 5, 7, 9], // Bb C  D  Eb F  G  A
-  fMajor: [5, 7, 9, 10, 0, 2, 4], // F  G  A  Bb C  D  E
+// Major scale intervals (semitones from root)
+const MAJOR_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+
+export type ScaleType = "chromatic" | "major";
+
+// Root note semitone index (0=C … 11=B) → display label
+const ROOT_NOTE_LABELS: Record<number, string> = {
+  0: "C",
+  1: "Db",
+  2: "D",
+  3: "Eb",
+  4: "E",
+  5: "F",
+  6: "F#",
+  7: "G",
+  8: "Ab",
+  9: "A",
+  10: "Bb",
+  11: "B",
 };
 
-export type ScaleKey = keyof typeof SCALE_SEMITONES;
-
-const SCALE_LABELS: Record<ScaleKey, string> = {
-  chromatic: "Chrom.",
-  cMajor: "C",
-  gMajor: "G",
-  dMajor: "D",
-  aMajor: "A",
-  eMajor: "E",
-  bMajor: "B",
-  fsMajor: "F#",
-  dbMajor: "Db",
-  abMajor: "Ab",
-  ebMajor: "Eb",
-  bbMajor: "Bb",
-  fMajor: "F",
-};
-
-function getNotesForScale(scale: ScaleKey): string[] {
-  const allowed = new Set(SCALE_SEMITONES[scale]);
+function getNotesForScale(scaleType: ScaleType, rootNote: number): string[] {
+  if (scaleType === "chromatic") return ALL_NOTES;
+  const allowed = new Set(MAJOR_INTERVALS.map((i) => (rootNote + i) % 12));
   return ALL_NOTES.filter((note) => {
     const match = note.match(/^([A-G][#b]?)\d$/);
     if (!match) return false;
-    const name = match[1];
-    const si = NOTE_NAMES.indexOf(name);
+    const si = NOTE_NAMES.indexOf(match[1]);
     return si !== -1 && allowed.has(si % 12);
   });
 }
 
 function generateRandomNotes(
   count = 5,
-  scale: ScaleKey = "chromatic",
+  scaleType: ScaleType = "chromatic",
+  rootNote = 0,
 ): NoteEntry[] {
-  const pool = getNotesForScale(scale);
+  const pool = getNotesForScale(scaleType, rootNote);
   if (pool.length === 0) return [];
   const result: NoteEntry[] = [];
   let lastNote: string | null = null;
@@ -141,8 +128,10 @@ interface NoteFlashCardGameProps {
   onStart?: () => void;
   noteCount?: number;
   onNoteCountChange?: (n: number) => void;
-  scale?: ScaleKey;
-  onScaleChange?: (s: ScaleKey) => void;
+  scaleType?: ScaleType;
+  onScaleTypeChange?: (s: ScaleType) => void;
+  rootNote?: number;
+  onRootNoteChange?: (n: number) => void;
   displayType?: "note" | "index" | "visual_note";
   onDisplayTypeChange?: (d: "note" | "index" | "visual_note") => void;
   prehear?: boolean;
@@ -165,8 +154,10 @@ export default function NoteFlashCardGame({
   onStart,
   noteCount = 20,
   onNoteCountChange,
-  scale = "chromatic",
-  onScaleChange,
+  scaleType = "chromatic" as ScaleType,
+  onScaleTypeChange,
+  rootNote = 0,
+  onRootNoteChange,
   displayType = "note",
   onDisplayTypeChange,
   prehear = true,
@@ -177,8 +168,8 @@ export default function NoteFlashCardGame({
   onHoldTimeChange,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
-    () => generateRandomNotes(noteCount, scale),
-    [noteCount, scale],
+    () => generateRandomNotes(noteCount, scaleType, rootNote),
+    [noteCount, scaleType, rootNote],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
@@ -503,13 +494,49 @@ export default function NoteFlashCardGame({
                     fontWeight: 600,
                   }}
                 >
-                  Scale
+                  Scale Type
                 </label>
                 <UIButtonGroup
-                  items={(Object.keys(SCALE_LABELS) as ScaleKey[]).map((s) => ({
-                    label: SCALE_LABELS[s],
-                    onClick: () => onScaleChange?.(s),
-                    active: scale === s,
+                  items={[
+                    {
+                      label: "Chromatic",
+                      onClick: () => onScaleTypeChange?.("chromatic"),
+                      active: scaleType === "chromatic",
+                    },
+                    {
+                      label: "Major",
+                      onClick: () => onScaleTypeChange?.("major"),
+                      active: scaleType === "major",
+                    },
+                  ]}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
+                  opacity: scaleType === "chromatic" ? 0.35 : 1,
+                  transition: "opacity 0.2s",
+                  pointerEvents: scaleType === "chromatic" ? "none" : "auto",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Root Note
+                </label>
+                <UIButtonGroup
+                  buttonsPerRow={{ small: 3, medium: 4, large: 4 }}
+                  items={Object.entries(ROOT_NOTE_LABELS).map(([k, label]) => ({
+                    label,
+                    onClick: () => onRootNoteChange?.(Number(k)),
+                    active: rootNote === Number(k),
                   }))}
                 />
               </div>

@@ -1,4 +1,19 @@
+import { useState, useEffect } from "react";
 import { onsetDots } from "./signals";
+
+type Breakpoint = "small" | "medium" | "large";
+
+function useBreakpoint(): Breakpoint {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  if (width < 480) return "small";
+  if (width < 768) return "medium";
+  return "large";
+}
 
 interface OnsetDotsProps {
   count: number;
@@ -39,10 +54,39 @@ export interface UIButtonGroupItem {
   active?: boolean;
 }
 
-export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
+export interface ButtonsPerRow {
+  small?: number;
+  medium?: number;
+  large?: number;
+}
+
+export function UIButtonGroup({
+  items,
+  buttonsPerRow,
+}: {
+  items: UIButtonGroupItem[];
+  buttonsPerRow?: number | ButtonsPerRow;
+}) {
+  const breakpoint = useBreakpoint();
+
+  let n: number | undefined;
+  if (typeof buttonsPerRow === "number") {
+    n = buttonsPerRow;
+  } else if (buttonsPerRow) {
+    n =
+      buttonsPerRow[breakpoint] ??
+      buttonsPerRow.large ??
+      buttonsPerRow.medium ??
+      buttonsPerRow.small;
+  }
+
   return (
     <div
-      style={{ display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }}
+      style={
+        n
+          ? { display: "grid", gridTemplateColumns: `repeat(${n}, 1fr)`, gap: "8px", width: "100%" }
+          : { display: "flex", gap: "8px", flexWrap: "wrap", width: "100%" }
+      }
     >
       {items.map((item) => (
         <button
@@ -58,7 +102,7 @@ export function UIButtonGroup({ items }: { items: UIButtonGroupItem[] }) {
             cursor: "pointer",
             fontWeight: item.active ? 700 : 400,
             transition: "all 0.15s",
-            flex: "1 1 0",
+            ...(n ? {} : { flex: "1 1 0" }),
           }}
         >
           {item.label}
