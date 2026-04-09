@@ -3,7 +3,9 @@ import { PitchDetector } from "pitchy";
 
 // ── Tuning constants ─────────────────────────────────────────────────────────
 /** All 3 onsets must arrive within this window (ms) to fire the signal. */
-export const ONSET_WINDOW_MS = 3000;
+export const ONSET_WINDOW_MS = 1000;
+/** If no new onset arrives within this duration (ms) the accumulated count resets. */
+export const ONSET_RESET_MS = 300;
 /** RMS loudness gate (0–1). Onsets quieter than this are ignored. */
 export const ONSET_LOUDNESS_THRESHOLD = 0.1;
 
@@ -45,7 +47,17 @@ export function useThreeNoteSignal(
     const onsetTimes: number[] = [];
     /** MIDI note of the current run. */
     let currentMidi: number | null = null;
+    let resetTimer: ReturnType<typeof setTimeout> | null = null;
     setCount(0);
+
+    function scheduleReset() {
+      if (resetTimer) clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        onsetTimes.length = 0;
+        currentMidi = null;
+        setCount(0);
+      }, ONSET_RESET_MS);
+    }
 
     (async () => {
       try {
@@ -102,6 +114,7 @@ export function useThreeNoteSignal(
 
           onsetTimes.push(now);
           setCount(onsetTimes.length);
+          scheduleReset();
 
           if (onsetTimes.length >= 3) {
             stopped = true;
@@ -119,6 +132,7 @@ export function useThreeNoteSignal(
     return () => {
       stopped = true;
       if (raf) cancelAnimationFrame(raf);
+      if (resetTimer) clearTimeout(resetTimer);
       stream?.getTracks().forEach((t) => t.stop());
       audioCtx?.close();
       setCount(0);
