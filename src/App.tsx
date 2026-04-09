@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 import "./App.css";
 
 const GAME_PROPS = {
-  matchCents: 50,
   displayRange: 300,
   holdDuration: 300,
   pitch: "Bb" as const,

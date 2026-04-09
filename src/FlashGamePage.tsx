@@ -20,13 +20,18 @@ function saveSettings(patch: Record<string, unknown>) {
 }
 
 interface FlashGamePageProps {
-  matchCents?: number;
   displayRange?: number;
   holdDuration?: number;
 }
 
+type Precision = "easy" | "medium" | "hard";
+const PRECISION_CENTS: Record<Precision, number> = {
+  easy: 50,
+  medium: 35,
+  hard: 20,
+};
+
 export default function FlashGamePage({
-  matchCents = 50,
   displayRange = 300,
   holdDuration = 300,
 }: FlashGamePageProps) {
@@ -45,6 +50,11 @@ export default function FlashGamePage({
     saved.pitch ?? "Bb",
   );
   const [prehear, setPrehearState] = useState<boolean>(saved.prehear ?? true);
+  const [precision, setPrecisionState] = useState<Precision>(
+    saved.precision ?? "easy",
+  );
+
+  const matchCents = PRECISION_CENTS[precision];
 
   function setNoteCount(v: number) {
     setNoteCountState(v);
@@ -65,6 +75,10 @@ export default function FlashGamePage({
   function setPrehear(v: boolean) {
     setPrehearState(v);
     saveSettings({ prehear: v });
+  }
+  function setPrecision(v: Precision) {
+    setPrecisionState(v);
+    saveSettings({ precision: v });
   }
 
   function handleStart() {
@@ -95,6 +109,8 @@ export default function FlashGamePage({
       onDisplayTypeChange={setDisplayType}
       prehear={prehear}
       onPrehearChange={setPrehear}
+      precision={precision}
+      onPrecisionChange={setPrecision}
     />
   );
 }

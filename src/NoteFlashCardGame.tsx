@@ -127,6 +127,8 @@ interface NoteFlashCardGameProps {
   onDisplayTypeChange?: (d: "note" | "index" | "visual_note") => void;
   prehear?: boolean;
   onPrehearChange?: (v: boolean) => void;
+  precision?: "easy" | "medium" | "hard";
+  onPrecisionChange?: (v: "easy" | "medium" | "hard") => void;
 }
 
 export default function NoteFlashCardGame({
@@ -147,6 +149,8 @@ export default function NoteFlashCardGame({
   onDisplayTypeChange,
   prehear = true,
   onPrehearChange,
+  precision = "easy",
+  onPrecisionChange,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
     () => generateRandomNotes(noteCount, scale),
@@ -551,6 +555,31 @@ export default function NoteFlashCardGame({
                       onClick: () => onDisplayTypeChange?.("visual_note"),
                       active: displayType === "visual_note",
                     },
+                  ]}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Precision
+                </label>
+                <UIButtonGroup
+                  items={[
+                    { label: "Easy", onClick: () => onPrecisionChange?.("easy"), active: precision === "easy" },
+                    { label: "Medium", onClick: () => onPrecisionChange?.("medium"), active: precision === "medium" },
+                    { label: "Hard", onClick: () => onPrecisionChange?.("hard"), active: precision === "hard" },
                   ]}
                 />
               </div>
