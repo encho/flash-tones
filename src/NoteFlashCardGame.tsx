@@ -577,9 +577,21 @@ export default function NoteFlashCardGame({
                 </label>
                 <UIButtonGroup
                   items={[
-                    { label: "Easy", onClick: () => onPrecisionChange?.("easy"), active: precision === "easy" },
-                    { label: "Medium", onClick: () => onPrecisionChange?.("medium"), active: precision === "medium" },
-                    { label: "Hard", onClick: () => onPrecisionChange?.("hard"), active: precision === "hard" },
+                    {
+                      label: "Easy",
+                      onClick: () => onPrecisionChange?.("easy"),
+                      active: precision === "easy",
+                    },
+                    {
+                      label: "Medium",
+                      onClick: () => onPrecisionChange?.("medium"),
+                      active: precision === "medium",
+                    },
+                    {
+                      label: "Hard",
+                      onClick: () => onPrecisionChange?.("hard"),
+                      active: precision === "hard",
+                    },
                   ]}
                 />
               </div>
