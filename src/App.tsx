@@ -10,7 +10,9 @@ const GAME_PROPS = {
 
 function App() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100dvh" }}
+    >
       <Navbar />
       <div style={{ flex: 1 }}>
         <Routes>
