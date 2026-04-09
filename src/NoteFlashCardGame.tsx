@@ -129,6 +129,8 @@ interface NoteFlashCardGameProps {
   onPrehearChange?: (v: boolean) => void;
   precision?: "easy" | "medium" | "hard";
   onPrecisionChange?: (v: "easy" | "medium" | "hard") => void;
+  holdTime?: "low" | "medium" | "high";
+  onHoldTimeChange?: (v: "low" | "medium" | "high") => void;
 }
 
 export default function NoteFlashCardGame({
@@ -151,6 +153,8 @@ export default function NoteFlashCardGame({
   onPrehearChange,
   precision = "easy",
   onPrecisionChange,
+  holdTime = "low",
+  onHoldTimeChange,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
     () => generateRandomNotes(noteCount, scale),
@@ -592,6 +596,31 @@ export default function NoteFlashCardGame({
                       onClick: () => onPrecisionChange?.("hard"),
                       active: precision === "hard",
                     },
+                  ]}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Hold Time
+                </label>
+                <UIButtonGroup
+                  items={[
+                    { label: "Low", onClick: () => onHoldTimeChange?.("low"), active: holdTime === "low" },
+                    { label: "Medium", onClick: () => onHoldTimeChange?.("medium"), active: holdTime === "medium" },
+                    { label: "High", onClick: () => onHoldTimeChange?.("high"), active: holdTime === "high" },
                   ]}
                 />
               </div>

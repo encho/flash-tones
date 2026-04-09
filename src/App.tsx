@@ -5,7 +5,6 @@ import "./App.css";
 
 const GAME_PROPS = {
   displayRange: 300,
-  holdDuration: 300,
   pitch: "Bb" as const,
 };
 

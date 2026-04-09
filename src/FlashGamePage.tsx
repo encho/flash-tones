@@ -21,7 +21,6 @@ function saveSettings(patch: Record<string, unknown>) {
 
 interface FlashGamePageProps {
   displayRange?: number;
-  holdDuration?: number;
 }
 
 type Precision = "easy" | "medium" | "hard";
@@ -31,9 +30,15 @@ const PRECISION_CENTS: Record<Precision, number> = {
   hard: 20,
 };
 
+type HoldTime = "low" | "medium" | "high";
+const HOLD_TIME_MS: Record<HoldTime, number> = {
+  low: 300,
+  medium: 500,
+  high: 1000,
+};
+
 export default function FlashGamePage({
   displayRange = 300,
-  holdDuration = 300,
 }: FlashGamePageProps) {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
@@ -53,8 +58,12 @@ export default function FlashGamePage({
   const [precision, setPrecisionState] = useState<Precision>(
     saved.precision ?? "easy",
   );
+  const [holdTime, setHoldTimeState] = useState<HoldTime>(
+    saved.holdTime ?? "low",
+  );
 
   const matchCents = PRECISION_CENTS[precision];
+  const holdDuration = HOLD_TIME_MS[holdTime];
 
   function setNoteCount(v: number) {
     setNoteCountState(v);
@@ -79,6 +88,10 @@ export default function FlashGamePage({
   function setPrecision(v: Precision) {
     setPrecisionState(v);
     saveSettings({ precision: v });
+  }
+  function setHoldTime(v: HoldTime) {
+    setHoldTimeState(v);
+    saveSettings({ holdTime: v });
   }
 
   function handleStart() {
@@ -111,6 +124,8 @@ export default function FlashGamePage({
       onPrehearChange={setPrehear}
       precision={precision}
       onPrecisionChange={setPrecision}
+      holdTime={holdTime}
+      onHoldTimeChange={setHoldTime}
     />
   );
 }
