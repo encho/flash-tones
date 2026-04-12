@@ -33,7 +33,13 @@ export default function Navbar() {
           borderRadius: "8px",
         }}
       >
-        <span style={{ fontSize: "1.5rem" }}>🎵</span>
+        <img
+          src="/favicon.svg"
+          alt="TrumpetTrain logo"
+          width={28}
+          height={28}
+          style={{ display: "block" }}
+        />
         <span
           style={{
             fontSize: "1.1rem",
@@ -42,7 +48,7 @@ export default function Navbar() {
             letterSpacing: "0.03em",
           }}
         >
-          Notes Trainer
+          TrumpetTrain
         </span>
       </button>
     </header>
