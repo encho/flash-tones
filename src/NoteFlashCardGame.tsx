@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import NoteFlashCard from "./NoteFlashCard";
-import { useThreeNoteSignal } from "./signals";
 import { NAVBAR_HEIGHT } from "./Navbar";
 import { Button3NotesSignal, UIButtonGroup } from "./Buttons";
 import { SettingLabel } from "./InfoModal";
@@ -284,9 +283,6 @@ export default function NoteFlashCardGame({
   }
 
   const isFinished = activeIndex >= activeNotes.length;
-
-  const startOnsetCount = useThreeNoteSignal(!started, startGame);
-  const closeOnsetCount = useThreeNoteSignal(isFinished, () => onExit?.());
 
   const currentNote = activeNotes[activeIndex];
 
@@ -696,7 +692,7 @@ export default function NoteFlashCardGame({
               >
                 <SettingLabel
                   text="Note Display"
-                  info="Name shows the note letter (e.g. C#4). Index shows the fingering number for Bb instruments. Staff shows the note on a treble clef staff."
+                  info="Name shows the note letter (e.g. C#4). Index shows the semitone position within the trainer's trumpet range (F#3 = 1, G3 = 2, ...). Staff shows the note on a treble clef staff."
                 />
                 <UIButtonGroup
                   items={[
@@ -844,8 +840,7 @@ export default function NoteFlashCardGame({
             }}
           >
             <Button3NotesSignal
-              label="Start Challenge"
-              onsetCount={startOnsetCount}
+              label="Start Training"
               onClick={startGame}
               width="min(420px, calc(92vw))"
               padding="18px 28px"
@@ -872,7 +867,6 @@ export default function NoteFlashCardGame({
         >
           <Button3NotesSignal
             label="Back"
-            onsetCount={closeOnsetCount}
             onClick={() => onExit?.()}
             width="min(420px, calc(92vw))"
             padding="18px 28px"

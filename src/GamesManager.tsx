@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useThreeNoteSignal } from "./signals";
 import { Button3NotesSignal } from "./Buttons";
 
 interface GamesManagerProps {
@@ -16,8 +15,6 @@ export default function GamesManager({}: GamesManagerProps) {
     navigate("/flash-game");
   }
 
-  const onsetCount = useThreeNoteSignal(true, startNewGame);
-
   return (
     <div
       style={{
@@ -33,7 +30,6 @@ export default function GamesManager({}: GamesManagerProps) {
     >
       <Button3NotesSignal
         label="New Game"
-        onsetCount={onsetCount}
         onClick={startNewGame}
         fontSize="1.1rem"
         padding="12px 36px"
