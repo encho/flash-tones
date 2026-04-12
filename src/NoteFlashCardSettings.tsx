@@ -100,11 +100,23 @@ export default function NoteFlashCardSettings({
           fontSize: "1.8rem",
           fontWeight: 700,
           color: "#222",
-          textAlign: "center",
+          textAlign: "left",
         }}
       >
         Note Flash Cards
       </h2>
+      <p
+        style={{
+          margin: "-20px 0 0 0",
+          fontSize: "0.95rem",
+          lineHeight: 1.4,
+          color: "#555",
+          textAlign: "left",
+        }}
+      >
+        Build speed and accuracy by recognizing, hearing, and playing notes
+        across your selected trumpet range.
+      </p>
       <div
         style={{
           display: "flex",
