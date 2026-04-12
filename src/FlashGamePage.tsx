@@ -1,6 +1,9 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState } from "react";
-import NoteFlashCardGame, { type ScaleType, type SequenceType } from "./NoteFlashCardGame";
+import NoteFlashCardGame, {
+  type ScaleType,
+  type SequenceType,
+} from "./NoteFlashCardGame";
 
 const LS_KEY = "flashtones_settings";
 
