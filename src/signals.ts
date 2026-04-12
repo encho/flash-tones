@@ -16,7 +16,7 @@ function freqToMidi(freq: number): number {
 
 /**
  * Detects 3 loud onsets of the **same** note within ONSET_WINDOW_MS and calls `onSignal`.
- * Resets the count whenever a different note is sung.
+ * Resets the count whenever a different note is played.
  *
  * @param enabled - Turn detection on/off (e.g. pass a boolean condition).
  * @param onSignal - Stable callback invoked once when the signal fires.

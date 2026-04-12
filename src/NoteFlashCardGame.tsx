@@ -88,30 +88,47 @@ function cycleStartOffset(cycle: string[], rootNote: number): number {
   return idx < 0 ? 0 : idx;
 }
 
-function sequentialFromPool(count: number, pool: string[], rootNote: number, scaleType: ScaleType): NoteEntry[] {
+function sequentialFromPool(
+  count: number,
+  pool: string[],
+  rootNote: number,
+  scaleType: ScaleType,
+): NoteEntry[] {
   const L = pool.length;
   if (L === 0) return [];
   if (L === 1) return Array.from({ length: count }, () => ({ note: pool[0] }));
   // up then down, shared endpoints: [0..L-1, L-2..1]
   const cycle = [...pool, ...pool.slice(1, -1).reverse()];
-  const offset = scaleType === "chromatic" ? 0 : cycleStartOffset(cycle, rootNote);
-  return Array.from({ length: count }, (_, i) => ({ note: cycle[(offset + i) % cycle.length] }));
+  const offset =
+    scaleType === "chromatic" ? 0 : cycleStartOffset(cycle, rootNote);
+  return Array.from({ length: count }, (_, i) => ({
+    note: cycle[(offset + i) % cycle.length],
+  }));
 }
 
-function triadsFromPool(count: number, pool: string[], rootNote: number, scaleType: ScaleType): NoteEntry[] {
+function triadsFromPool(
+  count: number,
+  pool: string[],
+  rootNote: number,
+  scaleType: ScaleType,
+): NoteEntry[] {
   // Chromatic: major-chord intervals (+4 semitones then +3); diatonic: every other scale degree (+2 then +2)
   const steps: [number, number] = scaleType === "chromatic" ? [4, 3] : [2, 2];
   const [s1, s2] = steps;
   const totalStep = s1 + s2;
   const L = pool.length;
   if (L === 0) return [];
-  if (L <= totalStep) return Array.from({ length: count }, (_, i) => ({ note: pool[i % L] }));
+  if (L <= totalStep)
+    return Array.from({ length: count }, (_, i) => ({ note: pool[i % L] }));
 
   // For chromatic always start at the lowest note (gStart=0); for major find the root
   let gStart = 0;
   if (scaleType !== "chromatic") {
     for (let g = 0; g + totalStep <= L - 1; g++) {
-      if (notePC(pool[g]) === rootNote) { gStart = g; break; }
+      if (notePC(pool[g]) === rootNote) {
+        gStart = g;
+        break;
+      }
     }
   }
 
@@ -129,7 +146,9 @@ function triadsFromPool(count: number, pool: string[], rootNote: number, scaleTy
   for (let g = 0; g < gStart && g + totalStep <= L - 1; g++) push(seq, g, true);
 
   if (seq.length === 0) return [];
-  return Array.from({ length: count }, (_, i) => ({ note: seq[i % seq.length] }));
+  return Array.from({ length: count }, (_, i) => ({
+    note: seq[i % seq.length],
+  }));
 }
 
 function generateRandomNotes(
@@ -140,8 +159,10 @@ function generateRandomNotes(
 ): NoteEntry[] {
   const pool = getNotesForScale(scaleType, rootNote);
   if (pool.length === 0) return [];
-  if (sequenceType === "sequential") return sequentialFromPool(count, pool, rootNote, scaleType);
-  if (sequenceType === "triads") return triadsFromPool(count, pool, rootNote, scaleType);
+  if (sequenceType === "sequential")
+    return sequentialFromPool(count, pool, rootNote, scaleType);
+  if (sequenceType === "triads")
+    return triadsFromPool(count, pool, rootNote, scaleType);
   return randomFromPool(count, pool);
 }
 
@@ -554,11 +575,13 @@ export default function NoteFlashCardGame({
                   info="Controls the order in which notes are presented. Random picks notes unpredictably. Sequential moves up then down through the scale range. Triads groups every other note into chord-like sets, ascending then descending."
                 />
                 <UIButtonGroup
-                  items={([
-                    ["random", "Random"],
-                    ["sequential", "Sequential"],
-                    ["triads", "Triads"],
-                  ] as [SequenceType, string][]).map(([v, label]) => ({
+                  items={(
+                    [
+                      ["random", "Random"],
+                      ["sequential", "Sequential"],
+                      ["triads", "Triads"],
+                    ] as [SequenceType, string][]
+                  ).map(([v, label]) => ({
                     label,
                     onClick: () => onSequenceTypeChange?.(v),
                     active: sequenceType === v,
@@ -575,7 +598,7 @@ export default function NoteFlashCardGame({
               >
                 <SettingLabel
                   text="Notes per game"
-                  info="How many notes you will be asked to sing or play before the results are shown."
+                  info="How many notes you will be asked to play on trumpet before the results are shown."
                 />
                 <UIButtonGroup
                   items={[5, 10, 20, 50, 100].map((n) => ({
@@ -709,9 +732,21 @@ export default function NoteFlashCardGame({
                 />
                 <UIButtonGroup
                   items={[
-                    { label: "Loose", onClick: () => onPrecisionChange?.("easy"), active: precision === "easy" },
-                    { label: "Tight", onClick: () => onPrecisionChange?.("medium"), active: precision === "medium" },
-                    { label: "Strict", onClick: () => onPrecisionChange?.("hard"), active: precision === "hard" },
+                    {
+                      label: "Loose",
+                      onClick: () => onPrecisionChange?.("easy"),
+                      active: precision === "easy",
+                    },
+                    {
+                      label: "Tight",
+                      onClick: () => onPrecisionChange?.("medium"),
+                      active: precision === "medium",
+                    },
+                    {
+                      label: "Strict",
+                      onClick: () => onPrecisionChange?.("hard"),
+                      active: precision === "hard",
+                    },
                   ]}
                 />
               </div>
@@ -729,9 +764,21 @@ export default function NoteFlashCardGame({
                 />
                 <UIButtonGroup
                   items={[
-                    { label: "Short", onClick: () => onHoldTimeChange?.("low"), active: holdTime === "low" },
-                    { label: "Medium", onClick: () => onHoldTimeChange?.("medium"), active: holdTime === "medium" },
-                    { label: "Long", onClick: () => onHoldTimeChange?.("high"), active: holdTime === "high" },
+                    {
+                      label: "Short",
+                      onClick: () => onHoldTimeChange?.("low"),
+                      active: holdTime === "low",
+                    },
+                    {
+                      label: "Medium",
+                      onClick: () => onHoldTimeChange?.("medium"),
+                      active: holdTime === "medium",
+                    },
+                    {
+                      label: "Long",
+                      onClick: () => onHoldTimeChange?.("high"),
+                      active: holdTime === "high",
+                    },
                   ]}
                 />
               </div>
@@ -765,7 +812,7 @@ export default function NoteFlashCardGame({
               >
                 <SettingLabel
                   text="Prehear Note"
-                  info="When enabled, the target note is played automatically a short moment after the card appears, so you can hear the pitch before singing it."
+                  info="When enabled, the target note is played automatically a short moment after the card appears, so you can hear the pitch before playing it on trumpet."
                 />
                 <input
                   id="prehear-checkbox"
