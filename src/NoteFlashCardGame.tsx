@@ -3,6 +3,7 @@ import NoteFlashCard from "./NoteFlashCard";
 import { useThreeNoteSignal } from "./signals";
 import { NAVBAR_HEIGHT } from "./Navbar";
 import { Button3NotesSignal, UIButtonGroup } from "./Buttons";
+import { SettingLabel } from "./InfoModal";
 
 const NOTE_NAMES = [
   "C",
@@ -548,15 +549,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Notes Sequence
-                </label>
+                <SettingLabel
+                  text="Notes Sequence"
+                  info="Controls the order in which notes are presented. Random picks notes unpredictably. Sequential moves up then down through the scale range. Triads groups every other note into chord-like sets, ascending then descending."
+                />
                 <UIButtonGroup
                   items={([
                     ["random", "Random"],
@@ -577,15 +573,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Notes per game
-                </label>
+                <SettingLabel
+                  text="Notes per game"
+                  info="How many notes you will be asked to sing or play before the results are shown."
+                />
                 <UIButtonGroup
                   items={[5, 10, 20, 50, 100].map((n) => ({
                     label: `${n}`,
@@ -602,15 +593,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Scale Type
-                </label>
+                <SettingLabel
+                  text="Scale Type"
+                  info="Chromatic uses all 19 available notes. Major restricts notes to the 7 notes of the selected major key."
+                />
                 <UIButtonGroup
                   items={[
                     {
@@ -637,15 +623,10 @@ export default function NoteFlashCardGame({
                   pointerEvents: scaleType === "chromatic" ? "none" : "auto",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Root Note
-                </label>
+                <SettingLabel
+                  text="Root Note"
+                  info="The tonic of the major scale. Only active when Scale Type is Major. Sequential and Triads sequences start from this note."
+                />
                 <UIButtonGroup
                   buttonsPerRow={{ small: 3, medium: 4, large: 4 }}
                   items={Object.entries(ROOT_NOTE_LABELS).map(([k, label]) => ({
@@ -663,15 +644,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Pitch
-                </label>
+                <SettingLabel
+                  text="Pitch"
+                  info="Bb transposes all displayed note names up a whole tone for Bb instruments (e.g. trumpet, clarinet). Concert shows concert-pitch note names."
+                />
                 <UIButtonGroup
                   items={[
                     {
@@ -695,15 +671,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Note Display
-                </label>
+                <SettingLabel
+                  text="Note Display"
+                  info="Name shows the note letter (e.g. C#4). Index shows the fingering number for Bb instruments. Staff shows the note on a treble clef staff."
+                />
                 <UIButtonGroup
                   items={[
                     {
@@ -732,15 +703,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Precision
-                </label>
+                <SettingLabel
+                  text="Precision"
+                  info="How closely your pitch must match the target. Loose: ±50 cents. Tight: ±35 cents. Strict: ±20 cents. (100 cents = 1 semitone)"
+                />
                 <UIButtonGroup
                   items={[
                     { label: "Loose", onClick: () => onPrecisionChange?.("easy"), active: precision === "easy" },
@@ -757,15 +723,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Hold Time
-                </label>
+                <SettingLabel
+                  text="Hold Time"
+                  info="How long you must hold the correct pitch before it registers as a hit. Short: 300ms. Medium: 500ms. Long: 1000ms."
+                />
                 <UIButtonGroup
                   items={[
                     { label: "Short", onClick: () => onHoldTimeChange?.("low"), active: holdTime === "low" },
@@ -782,15 +743,10 @@ export default function NoteFlashCardGame({
                   alignItems: "flex-start",
                 }}
               >
-                <label
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                  }}
-                >
-                  Time Limit
-                </label>
+                <SettingLabel
+                  text="Time Limit"
+                  info="Maximum time allowed per note. If you don't hit the note within this window it is marked as timed out and the next note appears."
+                />
                 <UIButtonGroup
                   items={[2000, 5000, 10000].map((ms) => ({
                     label: `${ms / 1000}s`,
@@ -807,17 +763,10 @@ export default function NoteFlashCardGame({
                   gap: "12px",
                 }}
               >
-                <label
-                  htmlFor="prehear-checkbox"
-                  style={{
-                    fontSize: "1rem",
-                    color: "#444",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Prehear Note
-                </label>
+                <SettingLabel
+                  text="Prehear Note"
+                  info="When enabled, the target note is played automatically a short moment after the card appears, so you can hear the pitch before singing it."
+                />
                 <input
                   id="prehear-checkbox"
                   type="checkbox"
