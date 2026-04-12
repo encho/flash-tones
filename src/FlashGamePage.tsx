@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState } from "react";
 import NoteFlashCardGame, {
+  AVAILABLE_RANGE_NOTES,
   type ScaleType,
   type SequenceType,
 } from "./NoteFlashCardGame";
@@ -17,6 +18,8 @@ type NoteFlashCardsSettings = {
   sequenceType: SequenceType;
   scaleType: ScaleType;
   rootNote: number;
+  lowestNote: string;
+  highestNote: string;
   displayType: "note" | "index" | "visual_note";
   pitch: "CONCERT" | "Bb";
   prehear: boolean;
@@ -38,6 +41,8 @@ const DEFAULT_NOTE_FLASH_CARDS_SETTINGS: NoteFlashCardsSettings = {
   sequenceType: "random",
   scaleType: "chromatic",
   rootNote: 0,
+  lowestNote: "F#3",
+  highestNote: "C5",
   displayType: "note",
   pitch: "Bb",
   prehear: true,
@@ -65,6 +70,12 @@ function isNoteFlashCardsSettings(raw: unknown): raw is NoteFlashCardsSettings {
     Number.isInteger(src.rootNote) &&
     src.rootNote >= 0 &&
     src.rootNote <= 11 &&
+    typeof src.lowestNote === "string" &&
+    AVAILABLE_RANGE_NOTES.includes(src.lowestNote) &&
+    typeof src.highestNote === "string" &&
+    AVAILABLE_RANGE_NOTES.includes(src.highestNote) &&
+    AVAILABLE_RANGE_NOTES.indexOf(src.lowestNote) <=
+      AVAILABLE_RANGE_NOTES.indexOf(src.highestNote) &&
     (src.displayType === "note" ||
       src.displayType === "index" ||
       src.displayType === "visual_note") &&
@@ -154,6 +165,12 @@ export default function FlashGamePage({
     saved.scaleType ?? "chromatic",
   );
   const [rootNote, setRootNoteState] = useState<number>(saved.rootNote ?? 0);
+  const [lowestNote, setLowestNoteState] = useState<string>(
+    saved.lowestNote ?? "F#3",
+  );
+  const [highestNote, setHighestNoteState] = useState<string>(
+    saved.highestNote ?? "C5",
+  );
   const [displayType, setDisplayTypeState] = useState<
     "note" | "index" | "visual_note"
   >(saved.displayType ?? "note");
@@ -189,6 +206,32 @@ export default function FlashGamePage({
   function setRootNote(v: number) {
     setRootNoteState(v);
     saveSettings({ rootNote: v });
+  }
+  function setLowestNote(v: string) {
+    const lowIdx = AVAILABLE_RANGE_NOTES.indexOf(v);
+    const highIdx = AVAILABLE_RANGE_NOTES.indexOf(highestNote);
+    if (lowIdx === -1) return;
+    if (highIdx !== -1 && lowIdx > highIdx) {
+      setLowestNoteState(v);
+      setHighestNoteState(v);
+      saveSettings({ lowestNote: v, highestNote: v });
+      return;
+    }
+    setLowestNoteState(v);
+    saveSettings({ lowestNote: v });
+  }
+  function setHighestNote(v: string) {
+    const highIdx = AVAILABLE_RANGE_NOTES.indexOf(v);
+    const lowIdx = AVAILABLE_RANGE_NOTES.indexOf(lowestNote);
+    if (highIdx === -1) return;
+    if (lowIdx !== -1 && highIdx < lowIdx) {
+      setLowestNoteState(v);
+      setHighestNoteState(v);
+      saveSettings({ lowestNote: v, highestNote: v });
+      return;
+    }
+    setHighestNoteState(v);
+    saveSettings({ highestNote: v });
   }
   function setDisplayType(v: "note" | "index" | "visual_note") {
     setDisplayTypeState(v);
@@ -244,6 +287,10 @@ export default function FlashGamePage({
             onScaleTypeChange={setScaleType}
             rootNote={rootNote}
             onRootNoteChange={setRootNote}
+            lowestNote={lowestNote}
+            onLowestNoteChange={setLowestNote}
+            highestNote={highestNote}
+            onHighestNoteChange={setHighestNote}
             pitch={pitch}
             onPitchChange={setPitch}
             displayType={displayType}
@@ -272,6 +319,8 @@ export default function FlashGamePage({
         sequenceType={sequenceType}
         scaleType={scaleType}
         rootNote={rootNote}
+        lowestNote={lowestNote}
+        highestNote={highestNote}
         displayType={displayType}
         prehear={prehear}
         timeLimitMs={timeLimit}

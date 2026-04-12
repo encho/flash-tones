@@ -1,6 +1,10 @@
 import { UIButtonGroup } from "./Buttons";
 import { SettingLabel } from "./InfoModal";
-import type { ScaleType, SequenceType } from "./NoteFlashCardGame";
+import {
+  AVAILABLE_RANGE_NOTES,
+  type ScaleType,
+  type SequenceType,
+} from "./NoteFlashCardGame";
 
 const ROOT_NOTE_LABELS: Record<number, string> = {
   0: "C",
@@ -26,6 +30,10 @@ interface NoteFlashCardSettingsProps {
   onScaleTypeChange?: (s: ScaleType) => void;
   rootNote: number;
   onRootNoteChange?: (n: number) => void;
+  lowestNote: string;
+  onLowestNoteChange?: (n: string) => void;
+  highestNote: string;
+  onHighestNoteChange?: (n: string) => void;
   pitch: "CONCERT" | "Bb";
   onPitchChange?: (p: "CONCERT" | "Bb") => void;
   displayType: "note" | "index" | "visual_note";
@@ -49,6 +57,10 @@ export default function NoteFlashCardSettings({
   onScaleTypeChange,
   rootNote,
   onRootNoteChange,
+  lowestNote,
+  onLowestNoteChange,
+  highestNote,
+  onHighestNoteChange,
   pitch,
   onPitchChange,
   displayType,
@@ -171,14 +183,94 @@ export default function NoteFlashCardSettings({
           text="Root Note"
           info="The tonic of the major scale. Only active when Scale Type is Major. Sequential and Triads sequences start from this note."
         />
-        <UIButtonGroup
-          buttonsPerRow={{ small: 3, medium: 4, large: 4 }}
-          items={Object.entries(ROOT_NOTE_LABELS).map(([k, label]) => ({
-            label,
-            onClick: () => onRootNoteChange?.(Number(k)),
-            active: rootNote === Number(k),
-          }))}
+        <select
+          value={rootNote}
+          onChange={(e) => onRootNoteChange?.(Number(e.target.value))}
+          style={{
+            width: "100%",
+            fontSize: "0.95rem",
+            padding: "8px 10px",
+            borderRadius: "8px",
+            border: "1px solid #d1d5db",
+            background: "#fff",
+          }}
+        >
+          {Object.entries(ROOT_NOTE_LABELS).map(([k, label]) => (
+            <option key={k} value={k}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Lowest Note"
+          info="Lowest note allowed in the challenge range."
         />
+        <select
+          value={lowestNote}
+          onChange={(e) => onLowestNoteChange?.(e.target.value)}
+          style={{
+            width: "100%",
+            fontSize: "0.95rem",
+            padding: "8px 10px",
+            borderRadius: "8px",
+            border: "1px solid #d1d5db",
+            background: "#fff",
+          }}
+        >
+          {AVAILABLE_RANGE_NOTES.filter(
+            (n) =>
+              AVAILABLE_RANGE_NOTES.indexOf(n) <=
+              AVAILABLE_RANGE_NOTES.indexOf(highestNote),
+          ).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Highest Note"
+          info="Highest note allowed in the challenge range. Maximum supported note is C6."
+        />
+        <select
+          value={highestNote}
+          onChange={(e) => onHighestNoteChange?.(e.target.value)}
+          style={{
+            width: "100%",
+            fontSize: "0.95rem",
+            padding: "8px 10px",
+            borderRadius: "8px",
+            border: "1px solid #d1d5db",
+            background: "#fff",
+          }}
+        >
+          {AVAILABLE_RANGE_NOTES.filter(
+            (n) =>
+              AVAILABLE_RANGE_NOTES.indexOf(n) >=
+              AVAILABLE_RANGE_NOTES.indexOf(lowestNote),
+          ).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
       </div>
       <div
         style={{

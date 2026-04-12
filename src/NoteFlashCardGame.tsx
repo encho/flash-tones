@@ -18,16 +18,21 @@ const NOTE_NAMES = [
   "B",
 ];
 
-// All chromatic notes from F#3 (MIDI 54) to C5 (MIDI 72)
-const ALL_NOTES: string[] = [];
-for (let octave = 3; octave <= 5; octave++) {
+const RANGE_MIN_MIDI = 54; // F#3
+const RANGE_MAX_MIDI = 84; // C6
+
+// All chromatic notes across the supported range: F#3..C6
+const AVAILABLE_RANGE_NOTES: string[] = [];
+for (let octave = 3; octave <= 6; octave++) {
   for (let si = 0; si < NOTE_NAMES.length; si++) {
     const midi = (octave + 1) * 12 + si;
-    if (midi >= 54 && midi <= 72) {
-      ALL_NOTES.push(`${NOTE_NAMES[si]}${octave}`);
+    if (midi >= RANGE_MIN_MIDI && midi <= RANGE_MAX_MIDI) {
+      AVAILABLE_RANGE_NOTES.push(`${NOTE_NAMES[si]}${octave}`);
     }
   }
 }
+
+export { AVAILABLE_RANGE_NOTES };
 
 // Major scale intervals (semitones from root)
 const MAJOR_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
@@ -37,13 +42,37 @@ export type ScaleType = "chromatic" | "major";
 export type SequenceType = "random" | "sequential" | "triads";
 
 function getNotesForScale(scaleType: ScaleType, rootNote: number): string[] {
-  if (scaleType === "chromatic") return ALL_NOTES;
+  if (scaleType === "chromatic") return AVAILABLE_RANGE_NOTES;
   const allowed = new Set(MAJOR_INTERVALS.map((i) => (rootNote + i) % 12));
-  return ALL_NOTES.filter((note) => {
+  return AVAILABLE_RANGE_NOTES.filter((note) => {
     const match = note.match(/^([A-G][#b]?)\d$/);
     if (!match) return false;
     const si = NOTE_NAMES.indexOf(match[1]);
     return si !== -1 && allowed.has(si % 12);
+  });
+}
+
+function noteToMidi(note: string): number | null {
+  const match = note.match(/^([A-G][#b]?)(\d)$/);
+  if (!match) return null;
+  const semitone = NOTE_SEMITONES_GAME[match[1]];
+  if (semitone === undefined) return null;
+  return (parseInt(match[2], 10) + 1) * 12 + semitone;
+}
+
+function applyNoteRange(
+  pool: string[],
+  lowestNote: string,
+  highestNote: string,
+): string[] {
+  const low = noteToMidi(lowestNote);
+  const high = noteToMidi(highestNote);
+  if (low === null || high === null) return pool;
+  const min = Math.min(low, high);
+  const max = Math.max(low, high);
+  return pool.filter((n) => {
+    const midi = noteToMidi(n);
+    return midi !== null && midi >= min && midi <= max;
   });
 }
 
@@ -138,8 +167,14 @@ function generateRandomNotes(
   scaleType: ScaleType = "chromatic",
   rootNote = 0,
   sequenceType: SequenceType = "random",
+  lowestNote = "F#3",
+  highestNote = "C5",
 ): NoteEntry[] {
-  const pool = getNotesForScale(scaleType, rootNote);
+  const pool = applyNoteRange(
+    getNotesForScale(scaleType, rootNote),
+    lowestNote,
+    highestNote,
+  );
   if (pool.length === 0) return [];
   if (sequenceType === "sequential")
     return sequentialFromPool(count, pool, rootNote, scaleType);
@@ -197,6 +232,8 @@ interface NoteFlashCardGameProps {
   sequenceType?: SequenceType;
   scaleType?: ScaleType;
   rootNote?: number;
+  lowestNote?: string;
+  highestNote?: string;
   displayType?: "note" | "index" | "visual_note";
   prehear?: boolean;
 }
@@ -214,12 +251,22 @@ export default function NoteFlashCardGame({
   sequenceType = "random" as SequenceType,
   scaleType = "chromatic" as ScaleType,
   rootNote = 0,
+  lowestNote = "F#3",
+  highestNote = "C5",
   displayType = "note",
   prehear = true,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
-    () => generateRandomNotes(noteCount, scaleType, rootNote, sequenceType),
-    [noteCount, scaleType, rootNote, sequenceType],
+    () =>
+      generateRandomNotes(
+        noteCount,
+        scaleType,
+        rootNote,
+        sequenceType,
+        lowestNote,
+        highestNote,
+      ),
+    [noteCount, scaleType, rootNote, sequenceType, lowestNote, highestNote],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
