@@ -3,6 +3,9 @@ import { useState } from "react";
 import NoteFlashCardGame, {
   AVAILABLE_RANGE_NOTES,
   type AccidentalDisplay,
+  resolveScaleType,
+  type ScaleFamily,
+  type ScaleMode,
   type ScaleType,
   type SequenceType,
 } from "./NoteFlashCardGame";
@@ -17,7 +20,8 @@ type HoldTime = "low" | "medium" | "high";
 type NoteFlashCardsSettings = {
   noteCount: number;
   sequenceType: SequenceType;
-  scaleType: ScaleType;
+  scaleFamily: ScaleFamily;
+  scaleMode: ScaleMode;
   rootNote: number;
   lowestNote: string;
   highestNote: string;
@@ -41,7 +45,8 @@ const TIME_LIMIT_OPTIONS = [2000, 5000, 10000];
 const DEFAULT_NOTE_FLASH_CARDS_SETTINGS: NoteFlashCardsSettings = {
   noteCount: 5,
   sequenceType: "random",
-  scaleType: "chromatic",
+  scaleFamily: "chromatic",
+  scaleMode: "major",
   rootNote: 0,
   lowestNote: "F#3",
   highestNote: "C5",
@@ -68,7 +73,10 @@ function isNoteFlashCardsSettings(raw: unknown): raw is NoteFlashCardsSettings {
     (src.sequenceType === "random" ||
       src.sequenceType === "sequential" ||
       src.sequenceType === "triads") &&
-    (src.scaleType === "chromatic" || src.scaleType === "major") &&
+    (src.scaleFamily === "chromatic" ||
+      src.scaleFamily === "diatonic" ||
+      src.scaleFamily === "pentatonic") &&
+    (src.scaleMode === "major" || src.scaleMode === "minor") &&
     typeof src.rootNote === "number" &&
     Number.isInteger(src.rootNote) &&
     src.rootNote >= 0 &&
@@ -167,8 +175,11 @@ export default function FlashGamePage({
   const [sequenceType, setSequenceTypeState] = useState<SequenceType>(
     saved.sequenceType ?? "random",
   );
-  const [scaleType, setScaleTypeState] = useState<ScaleType>(
-    saved.scaleType ?? "chromatic",
+  const [scaleFamily, setScaleFamilyState] = useState<ScaleFamily>(
+    saved.scaleFamily ?? "chromatic",
+  );
+  const [scaleMode, setScaleModeState] = useState<ScaleMode>(
+    saved.scaleMode ?? "major",
   );
   const [rootNote, setRootNoteState] = useState<number>(saved.rootNote ?? 0);
   const [lowestNote, setLowestNoteState] = useState<string>(
@@ -207,9 +218,13 @@ export default function FlashGamePage({
     setSequenceTypeState(v);
     saveSettings({ sequenceType: v });
   }
-  function setScaleType(v: ScaleType) {
-    setScaleTypeState(v);
-    saveSettings({ scaleType: v });
+  function setScaleFamily(v: ScaleFamily) {
+    setScaleFamilyState(v);
+    saveSettings({ scaleFamily: v });
+  }
+  function setScaleMode(v: ScaleMode) {
+    setScaleModeState(v);
+    saveSettings({ scaleMode: v });
   }
   function setRootNote(v: number) {
     setRootNoteState(v);
@@ -279,6 +294,8 @@ export default function FlashGamePage({
     navigate("/flash-game");
   }
 
+  const scaleType: ScaleType = resolveScaleType(scaleFamily, scaleMode);
+
   return (
     <>
       {!gameId && (
@@ -295,8 +312,10 @@ export default function FlashGamePage({
             onNoteCountChange={setNoteCount}
             sequenceType={sequenceType}
             onSequenceTypeChange={setSequenceType}
-            scaleType={scaleType}
-            onScaleTypeChange={setScaleType}
+            scaleFamily={scaleFamily}
+            onScaleFamilyChange={setScaleFamily}
+            scaleMode={scaleMode}
+            onScaleModeChange={setScaleMode}
             rootNote={rootNote}
             onRootNoteChange={setRootNote}
             lowestNote={lowestNote}

@@ -5,7 +5,8 @@ import {
   formatNoteLabel,
   formatPitchClassLabel,
   type AccidentalDisplay,
-  type ScaleType,
+  type ScaleFamily,
+  type ScaleMode,
   type SequenceType,
 } from "./NoteFlashCardGame";
 
@@ -14,8 +15,10 @@ interface NoteFlashCardSettingsProps {
   onNoteCountChange?: (n: number) => void;
   sequenceType: SequenceType;
   onSequenceTypeChange?: (s: SequenceType) => void;
-  scaleType: ScaleType;
-  onScaleTypeChange?: (s: ScaleType) => void;
+  scaleFamily: ScaleFamily;
+  onScaleFamilyChange?: (s: ScaleFamily) => void;
+  scaleMode: ScaleMode;
+  onScaleModeChange?: (s: ScaleMode) => void;
   rootNote: number;
   onRootNoteChange?: (n: number) => void;
   lowestNote: string;
@@ -43,8 +46,10 @@ export default function NoteFlashCardSettings({
   onNoteCountChange,
   sequenceType,
   onSequenceTypeChange,
-  scaleType,
-  onScaleTypeChange,
+  scaleFamily,
+  onScaleFamilyChange,
+  scaleMode,
+  onScaleModeChange,
   rootNote,
   onRootNoteChange,
   lowestNote,
@@ -239,20 +244,25 @@ export default function NoteFlashCardSettings({
         }}
       >
         <SettingLabel
-          text="Scale Type"
-          info="Chromatic uses all 19 available notes. Major restricts notes to the 7 notes of the selected major key."
+          text="Scale Family"
+          info="Chromatic uses all notes in the selected range. Diatonic uses 7-note scales from the selected root. Pentatonic uses 5-note scales from the selected root."
         />
         <UIButtonGroup
           items={[
             {
               label: "Chromatic",
-              onClick: () => onScaleTypeChange?.("chromatic"),
-              active: scaleType === "chromatic",
+              onClick: () => onScaleFamilyChange?.("chromatic"),
+              active: scaleFamily === "chromatic",
             },
             {
-              label: "Major",
-              onClick: () => onScaleTypeChange?.("major"),
-              active: scaleType === "major",
+              label: "Diatonic",
+              onClick: () => onScaleFamilyChange?.("diatonic"),
+              active: scaleFamily === "diatonic",
+            },
+            {
+              label: "Pentatonic",
+              onClick: () => onScaleFamilyChange?.("pentatonic"),
+              active: scaleFamily === "pentatonic",
             },
           ]}
         />
@@ -263,9 +273,39 @@ export default function NoteFlashCardSettings({
           flexDirection: "column",
           gap: "8px",
           alignItems: "flex-start",
-          opacity: scaleType === "chromatic" ? 0.35 : 1,
+          opacity: scaleFamily === "chromatic" ? 0.35 : 1,
           transition: "opacity 0.2s",
-          pointerEvents: scaleType === "chromatic" ? "none" : "auto",
+          pointerEvents: scaleFamily === "chromatic" ? "none" : "auto",
+        }}
+      >
+        <SettingLabel
+          text="Scale Mode"
+          info="Applies to Diatonic and Pentatonic families. Choose Major or Minor."
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Major",
+              onClick: () => onScaleModeChange?.("major"),
+              active: scaleMode === "major",
+            },
+            {
+              label: "Minor",
+              onClick: () => onScaleModeChange?.("minor"),
+              active: scaleMode === "minor",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+          opacity: scaleFamily === "chromatic" ? 0.35 : 1,
+          transition: "opacity 0.2s",
+          pointerEvents: scaleFamily === "chromatic" ? "none" : "auto",
         }}
       >
         <style>{`
@@ -281,7 +321,7 @@ export default function NoteFlashCardSettings({
         `}</style>
         <SettingLabel
           text="Root Note"
-          info="The tonic of the major scale. Only active when Scale Type is Major. Sequential and Triads sequences start from this note."
+          info="The tonic of the selected scale. Active for Diatonic and Pentatonic families. Sequential and Triads sequences start from this note."
         />
         <select
           className="settings-select"

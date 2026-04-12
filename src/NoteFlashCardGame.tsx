@@ -34,10 +34,32 @@ for (let octave = 3; octave <= 6; octave++) {
 
 export { AVAILABLE_RANGE_NOTES };
 
-// Major scale intervals (semitones from root)
+// Scale intervals (semitones from root)
 const MAJOR_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+const MINOR_INTERVALS = [0, 2, 3, 5, 7, 8, 10];
+const MAJOR_PENTATONIC_INTERVALS = [0, 2, 4, 7, 9];
+const MINOR_PENTATONIC_INTERVALS = [0, 3, 5, 7, 10];
 
-export type ScaleType = "chromatic" | "major";
+export type ScaleType =
+  | "chromatic"
+  | "major"
+  | "minor"
+  | "major_pentatonic"
+  | "minor_pentatonic";
+
+export type ScaleFamily = "chromatic" | "diatonic" | "pentatonic";
+export type ScaleMode = "major" | "minor";
+
+export function resolveScaleType(
+  scaleFamily: ScaleFamily,
+  scaleMode: ScaleMode,
+): ScaleType {
+  if (scaleFamily === "chromatic") return "chromatic";
+  if (scaleFamily === "diatonic") {
+    return scaleMode === "major" ? "major" : "minor";
+  }
+  return scaleMode === "major" ? "major_pentatonic" : "minor_pentatonic";
+}
 
 export type SequenceType = "random" | "sequential" | "triads";
 
@@ -100,7 +122,15 @@ export function formatNoteLabel(
 
 function getNotesForScale(scaleType: ScaleType, rootNote: number): string[] {
   if (scaleType === "chromatic") return AVAILABLE_RANGE_NOTES;
-  const allowed = new Set(MAJOR_INTERVALS.map((i) => (rootNote + i) % 12));
+  const intervals =
+    scaleType === "major"
+      ? MAJOR_INTERVALS
+      : scaleType === "minor"
+        ? MINOR_INTERVALS
+        : scaleType === "major_pentatonic"
+          ? MAJOR_PENTATONIC_INTERVALS
+          : MINOR_PENTATONIC_INTERVALS;
+  const allowed = new Set(intervals.map((i) => (rootNote + i) % 12));
   return AVAILABLE_RANGE_NOTES.filter((note) => {
     const match = note.match(/^([A-G][#b]?)\d$/);
     if (!match) return false;
