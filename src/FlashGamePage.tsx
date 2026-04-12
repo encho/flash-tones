@@ -7,10 +7,133 @@ import NoteFlashCardGame, {
 
 const LS_KEY = "flashtones_settings";
 
+type StoredSettings = {
+  noteCount?: number;
+  sequenceType?: SequenceType;
+  scaleType?: ScaleType;
+  rootNote?: number;
+  displayType?: "note" | "index" | "visual_note";
+  pitch?: "CONCERT" | "Bb";
+  prehear?: boolean;
+  precision?: "easy" | "medium" | "hard";
+  holdTime?: "low" | "medium" | "high";
+  timeLimit?: number;
+};
+
+const NOTE_COUNT_OPTIONS = [5, 10, 20, 50, 100];
+const TIME_LIMIT_OPTIONS = [2000, 5000, 10000];
+
+const LEGACY_MAJOR_ROOTS: Record<string, number> = {
+  cMajor: 0,
+  gMajor: 7,
+  dMajor: 2,
+  aMajor: 9,
+  eMajor: 4,
+  bMajor: 11,
+  fsMajor: 6,
+  dbMajor: 1,
+  abMajor: 8,
+  ebMajor: 3,
+  bbMajor: 10,
+  fMajor: 5,
+};
+
+function normalizeSettings(raw: unknown): StoredSettings {
+  if (!raw || typeof raw !== "object") return {};
+  const src = raw as Record<string, unknown>;
+  const out: StoredSettings = {};
+
+  if (
+    typeof src.noteCount === "number" &&
+    NOTE_COUNT_OPTIONS.includes(src.noteCount)
+  ) {
+    out.noteCount = src.noteCount;
+  }
+
+  if (
+    src.sequenceType === "random" ||
+    src.sequenceType === "sequential" ||
+    src.sequenceType === "triads"
+  ) {
+    out.sequenceType = src.sequenceType;
+  }
+
+  if (src.scaleType === "chromatic" || src.scaleType === "major") {
+    out.scaleType = src.scaleType;
+  }
+
+  if (
+    typeof src.rootNote === "number" &&
+    Number.isInteger(src.rootNote) &&
+    src.rootNote >= 0 &&
+    src.rootNote <= 11
+  ) {
+    out.rootNote = src.rootNote;
+  }
+
+  if (
+    src.displayType === "note" ||
+    src.displayType === "index" ||
+    src.displayType === "visual_note"
+  ) {
+    out.displayType = src.displayType;
+  }
+
+  if (src.pitch === "CONCERT" || src.pitch === "Bb") {
+    out.pitch = src.pitch;
+  }
+
+  if (typeof src.prehear === "boolean") {
+    out.prehear = src.prehear;
+  }
+
+  if (
+    src.precision === "easy" ||
+    src.precision === "medium" ||
+    src.precision === "hard"
+  ) {
+    out.precision = src.precision;
+  }
+
+  if (
+    src.holdTime === "low" ||
+    src.holdTime === "medium" ||
+    src.holdTime === "high"
+  ) {
+    out.holdTime = src.holdTime;
+  }
+
+  if (
+    typeof src.timeLimit === "number" &&
+    TIME_LIMIT_OPTIONS.includes(src.timeLimit)
+  ) {
+    out.timeLimit = src.timeLimit;
+  } else if (
+    typeof src.timeLimitMs === "number" &&
+    TIME_LIMIT_OPTIONS.includes(src.timeLimitMs)
+  ) {
+    // Legacy key migration support
+    out.timeLimit = src.timeLimitMs;
+  }
+
+  // Legacy scale migration support (older deployments used a single "scale" key)
+  if (!out.scaleType && typeof src.scale === "string") {
+    if (src.scale === "chromatic") {
+      out.scaleType = "chromatic";
+    } else if (src.scale in LEGACY_MAJOR_ROOTS) {
+      out.scaleType = "major";
+      if (out.rootNote === undefined)
+        out.rootNote = LEGACY_MAJOR_ROOTS[src.scale];
+    }
+  }
+
+  return out;
+}
+
 function loadSettings() {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalizeSettings(JSON.parse(raw));
   } catch {}
   return {};
 }
