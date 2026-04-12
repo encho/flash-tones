@@ -1,0 +1,353 @@
+import { UIButtonGroup } from "./Buttons";
+import { SettingLabel } from "./InfoModal";
+import type { ScaleType, SequenceType } from "./NoteFlashCardGame";
+
+const ROOT_NOTE_LABELS: Record<number, string> = {
+  0: "C",
+  1: "Db",
+  2: "D",
+  3: "Eb",
+  4: "E",
+  5: "F",
+  6: "F#",
+  7: "G",
+  8: "Ab",
+  9: "A",
+  10: "Bb",
+  11: "B",
+};
+
+interface NoteFlashCardSettingsProps {
+  noteCount: number;
+  onNoteCountChange?: (n: number) => void;
+  sequenceType: SequenceType;
+  onSequenceTypeChange?: (s: SequenceType) => void;
+  scaleType: ScaleType;
+  onScaleTypeChange?: (s: ScaleType) => void;
+  rootNote: number;
+  onRootNoteChange?: (n: number) => void;
+  pitch: "CONCERT" | "Bb";
+  onPitchChange?: (p: "CONCERT" | "Bb") => void;
+  displayType: "note" | "index" | "visual_note";
+  onDisplayTypeChange?: (d: "note" | "index" | "visual_note") => void;
+  precision: "easy" | "medium" | "hard";
+  onPrecisionChange?: (v: "easy" | "medium" | "hard") => void;
+  holdTime: "low" | "medium" | "high";
+  onHoldTimeChange?: (v: "low" | "medium" | "high") => void;
+  timeLimitMs: number;
+  onTimeLimitChange?: (v: number) => void;
+  prehear: boolean;
+  onPrehearChange?: (v: boolean) => void;
+}
+
+export default function NoteFlashCardSettings({
+  noteCount,
+  onNoteCountChange,
+  sequenceType,
+  onSequenceTypeChange,
+  scaleType,
+  onScaleTypeChange,
+  rootNote,
+  onRootNoteChange,
+  pitch,
+  onPitchChange,
+  displayType,
+  onDisplayTypeChange,
+  precision,
+  onPrecisionChange,
+  holdTime,
+  onHoldTimeChange,
+  timeLimitMs,
+  onTimeLimitChange,
+  prehear,
+  onPrehearChange,
+}: NoteFlashCardSettingsProps) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        gap: "32px",
+        width: "min(420px, 92vw)",
+      }}
+    >
+      <h2
+        style={{
+          margin: 0,
+          fontSize: "1.8rem",
+          fontWeight: 700,
+          color: "#222",
+          textAlign: "center",
+        }}
+      >
+        Note Flash Cards
+      </h2>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Notes Sequence"
+          info="Controls the order in which notes are presented. Random picks notes unpredictably. Sequential moves up then down through the scale range. Triads groups every other note into chord-like sets, ascending then descending."
+        />
+        <UIButtonGroup
+          items={(
+            [
+              ["random", "Random"],
+              ["sequential", "Sequential"],
+              ["triads", "Triads"],
+            ] as [SequenceType, string][]
+          ).map(([v, label]) => ({
+            label,
+            onClick: () => onSequenceTypeChange?.(v),
+            active: sequenceType === v,
+          }))}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Notes per game"
+          info="How many notes you will be asked to play on trumpet before the results are shown."
+        />
+        <UIButtonGroup
+          items={[5, 10, 20, 50, 100].map((n) => ({
+            label: `${n}`,
+            onClick: () => onNoteCountChange?.(n),
+            active: noteCount === n,
+          }))}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Scale Type"
+          info="Chromatic uses all 19 available notes. Major restricts notes to the 7 notes of the selected major key."
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Chromatic",
+              onClick: () => onScaleTypeChange?.("chromatic"),
+              active: scaleType === "chromatic",
+            },
+            {
+              label: "Major",
+              onClick: () => onScaleTypeChange?.("major"),
+              active: scaleType === "major",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+          opacity: scaleType === "chromatic" ? 0.35 : 1,
+          transition: "opacity 0.2s",
+          pointerEvents: scaleType === "chromatic" ? "none" : "auto",
+        }}
+      >
+        <SettingLabel
+          text="Root Note"
+          info="The tonic of the major scale. Only active when Scale Type is Major. Sequential and Triads sequences start from this note."
+        />
+        <UIButtonGroup
+          buttonsPerRow={{ small: 3, medium: 4, large: 4 }}
+          items={Object.entries(ROOT_NOTE_LABELS).map(([k, label]) => ({
+            label,
+            onClick: () => onRootNoteChange?.(Number(k)),
+            active: rootNote === Number(k),
+          }))}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Pitch"
+          info="Bb transposes all displayed note names up a whole tone for Bb instruments (e.g. trumpet, clarinet). Concert shows concert-pitch note names."
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Bb",
+              onClick: () => onPitchChange?.("Bb"),
+              active: pitch === "Bb",
+            },
+            {
+              label: "Concert",
+              onClick: () => onPitchChange?.("CONCERT"),
+              active: pitch === "CONCERT",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Note Display"
+          info="Name shows the note letter (e.g. C#4). Index shows the semitone position within the trainer's trumpet range (F#3 = 1, G3 = 2, ...). Staff shows the note on a treble clef staff."
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Name",
+              onClick: () => onDisplayTypeChange?.("note"),
+              active: displayType === "note",
+            },
+            {
+              label: "Index",
+              onClick: () => onDisplayTypeChange?.("index"),
+              active: displayType === "index",
+            },
+            {
+              label: "Staff",
+              onClick: () => onDisplayTypeChange?.("visual_note"),
+              active: displayType === "visual_note",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Precision"
+          info="How closely your pitch must match the target. Loose: ±50 cents. Tight: ±35 cents. Strict: ±20 cents. (100 cents = 1 semitone)"
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Loose",
+              onClick: () => onPrecisionChange?.("easy"),
+              active: precision === "easy",
+            },
+            {
+              label: "Tight",
+              onClick: () => onPrecisionChange?.("medium"),
+              active: precision === "medium",
+            },
+            {
+              label: "Strict",
+              onClick: () => onPrecisionChange?.("hard"),
+              active: precision === "hard",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Hold Time"
+          info="How long you must hold the correct pitch before it registers as a hit. Short: 300ms. Medium: 500ms. Long: 1000ms."
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Short",
+              onClick: () => onHoldTimeChange?.("low"),
+              active: holdTime === "low",
+            },
+            {
+              label: "Medium",
+              onClick: () => onHoldTimeChange?.("medium"),
+              active: holdTime === "medium",
+            },
+            {
+              label: "Long",
+              onClick: () => onHoldTimeChange?.("high"),
+              active: holdTime === "high",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Time Limit"
+          info="Maximum time allowed per note. If you don't hit the note within this window it is marked as timed out and the next note appears."
+        />
+        <UIButtonGroup
+          items={[2000, 5000, 10000].map((ms) => ({
+            label: `${ms / 1000}s`,
+            onClick: () => onTimeLimitChange?.(ms),
+            active: timeLimitMs === ms,
+          }))}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
+        <SettingLabel
+          text="Prehear Note"
+          info="When enabled, the target note is played automatically a short moment after the card appears, so you can hear the pitch before playing it on trumpet."
+        />
+        <input
+          id="prehear-checkbox"
+          type="checkbox"
+          checked={prehear}
+          onChange={(e) => onPrehearChange?.(e.target.checked)}
+          style={{
+            width: "18px",
+            height: "18px",
+            cursor: "pointer",
+            accentColor: "#111",
+          }}
+        />
+      </div>
+    </div>
+  );
+}

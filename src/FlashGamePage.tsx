@@ -4,6 +4,7 @@ import NoteFlashCardGame, {
   type ScaleType,
   type SequenceType,
 } from "./NoteFlashCardGame";
+import NoteFlashCardSettings from "./NoteFlashCardSettings";
 
 const LS_KEY = "flashtones_settings";
 
@@ -251,34 +252,57 @@ export default function FlashGamePage({
   }
 
   return (
-    <NoteFlashCardGame
-      key={location.key}
-      matchCents={matchCents}
-      displayRange={displayRange}
-      holdDuration={holdDuration}
-      pitch={pitch}
-      onPitchChange={setPitch}
-      onExit={handleExit}
-      initialStarted={!!gameId}
-      onStart={handleStart}
-      noteCount={noteCount}
-      onNoteCountChange={setNoteCount}
-      sequenceType={sequenceType}
-      onSequenceTypeChange={setSequenceType}
-      scaleType={scaleType}
-      onScaleTypeChange={setScaleType}
-      rootNote={rootNote}
-      onRootNoteChange={setRootNote}
-      displayType={displayType}
-      onDisplayTypeChange={setDisplayType}
-      prehear={prehear}
-      onPrehearChange={setPrehear}
-      precision={precision}
-      onPrecisionChange={setPrecision}
-      holdTime={holdTime}
-      onHoldTimeChange={setHoldTime}
-      timeLimitMs={timeLimit}
-      onTimeLimitChange={setTimeLimit}
-    />
+    <>
+      {!gameId && (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            paddingTop: "24px",
+          }}
+        >
+          <NoteFlashCardSettings
+            noteCount={noteCount}
+            onNoteCountChange={setNoteCount}
+            sequenceType={sequenceType}
+            onSequenceTypeChange={setSequenceType}
+            scaleType={scaleType}
+            onScaleTypeChange={setScaleType}
+            rootNote={rootNote}
+            onRootNoteChange={setRootNote}
+            pitch={pitch}
+            onPitchChange={setPitch}
+            displayType={displayType}
+            onDisplayTypeChange={setDisplayType}
+            precision={precision}
+            onPrecisionChange={setPrecision}
+            holdTime={holdTime}
+            onHoldTimeChange={setHoldTime}
+            timeLimitMs={timeLimit}
+            onTimeLimitChange={setTimeLimit}
+            prehear={prehear}
+            onPrehearChange={setPrehear}
+          />
+        </div>
+      )}
+      <NoteFlashCardGame
+        key={location.key}
+        matchCents={matchCents}
+        displayRange={displayRange}
+        holdDuration={holdDuration}
+        pitch={pitch}
+        onExit={handleExit}
+        initialStarted={!!gameId}
+        onStart={handleStart}
+        noteCount={noteCount}
+        sequenceType={sequenceType}
+        scaleType={scaleType}
+        rootNote={rootNote}
+        displayType={displayType}
+        prehear={prehear}
+        timeLimitMs={timeLimit}
+      />
+    </>
   );
 }
