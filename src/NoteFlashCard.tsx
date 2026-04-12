@@ -13,6 +13,7 @@ import { useMicStream } from "./MicContext";
 
 interface NoteFlashCardProps {
   note: string;
+  displayNote?: string;
   displayType?: "note" | "index" | "visual_note";
   isActive?: boolean;
   matchCents?: number;
@@ -273,6 +274,7 @@ function TimerDonut({ progress }: { progress: number }) {
 
 function NoteFlashCard({
   note,
+  displayNote,
   displayType = "note",
   isActive = false,
   matchCents = 50,
@@ -545,7 +547,9 @@ function NoteFlashCard({
             color: "#222",
           }}
         >
-          {displayType === "index" ? (noteToIndex(note) ?? note) : note}
+          {displayType === "index"
+            ? (noteToIndex(note) ?? note)
+            : (displayNote ?? note)}
         </span>
       )}
 

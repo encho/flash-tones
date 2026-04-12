@@ -2,24 +2,12 @@ import { UIButtonGroup } from "./Buttons";
 import { SettingLabel } from "./InfoModal";
 import {
   AVAILABLE_RANGE_NOTES,
+  formatNoteLabel,
+  formatPitchClassLabel,
+  type AccidentalDisplay,
   type ScaleType,
   type SequenceType,
 } from "./NoteFlashCardGame";
-
-const ROOT_NOTE_LABELS: Record<number, string> = {
-  0: "C",
-  1: "Db",
-  2: "D",
-  3: "Eb",
-  4: "E",
-  5: "F",
-  6: "F#",
-  7: "G",
-  8: "Ab",
-  9: "A",
-  10: "Bb",
-  11: "B",
-};
 
 interface NoteFlashCardSettingsProps {
   noteCount: number;
@@ -34,6 +22,8 @@ interface NoteFlashCardSettingsProps {
   onLowestNoteChange?: (n: string) => void;
   highestNote: string;
   onHighestNoteChange?: (n: string) => void;
+  accidentalDisplay: AccidentalDisplay;
+  onAccidentalDisplayChange?: (v: AccidentalDisplay) => void;
   pitch: "CONCERT" | "Bb";
   onPitchChange?: (p: "CONCERT" | "Bb") => void;
   displayType: "note" | "index" | "visual_note";
@@ -61,6 +51,8 @@ export default function NoteFlashCardSettings({
   onLowestNoteChange,
   highestNote,
   onHighestNoteChange,
+  accidentalDisplay,
+  onAccidentalDisplayChange,
   pitch,
   onPitchChange,
   displayType,
@@ -74,6 +66,19 @@ export default function NoteFlashCardSettings({
   prehear,
   onPrehearChange,
 }: NoteFlashCardSettingsProps) {
+  const selectStyle: React.CSSProperties = {
+    width: "100%",
+    fontSize: "1rem",
+    padding: "10px 12px",
+    minHeight: "44px",
+    borderRadius: "8px",
+    border: "1px solid #d1d5db",
+    background: "#fff",
+    color: "#111",
+    appearance: "auto",
+    WebkitAppearance: "menulist",
+  };
+
   return (
     <div
       style={{
@@ -95,6 +100,78 @@ export default function NoteFlashCardSettings({
       >
         Note Flash Cards
       </h2>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
+        <SettingLabel
+          text="Prehear Note"
+          info="When enabled, the target note is played automatically a short moment after the card appears, so you can hear the pitch before playing it on trumpet."
+        />
+        <input
+          id="prehear-checkbox"
+          type="checkbox"
+          checked={prehear}
+          onChange={(e) => onPrehearChange?.(e.target.checked)}
+          style={{
+            width: "18px",
+            height: "18px",
+            cursor: "pointer",
+            accentColor: "#111",
+          }}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Pitch"
+          info="Bb transposes all displayed note names up a whole tone for Bb instruments (e.g. trumpet, clarinet). Concert shows concert-pitch note names."
+        />
+        <UIButtonGroup
+          items={[
+            {
+              label: "Bb",
+              onClick: () => onPitchChange?.("Bb"),
+              active: pitch === "Bb",
+            },
+            {
+              label: "Concert",
+              onClick: () => onPitchChange?.("CONCERT"),
+              active: pitch === "CONCERT",
+            },
+          ]}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          alignItems: "flex-start",
+        }}
+      >
+        <SettingLabel
+          text="Notes per game"
+          info="How many notes you will be asked to play on trumpet before the results are shown."
+        />
+        <UIButtonGroup
+          items={[5, 10, 20, 50, 100].map((n) => ({
+            label: `${n}`,
+            onClick: () => onNoteCountChange?.(n),
+            active: noteCount === n,
+          }))}
+        />
+      </div>
       <div
         style={{
           display: "flex",
@@ -130,15 +207,27 @@ export default function NoteFlashCardSettings({
         }}
       >
         <SettingLabel
-          text="Notes per game"
-          info="How many notes you will be asked to play on trumpet before the results are shown."
+          text="Accidentals Display"
+          info="Controls how accidental note names are displayed in Name mode and in note dropdowns. b uses flats, # uses sharps, both shows both forms."
         />
         <UIButtonGroup
-          items={[5, 10, 20, 50, 100].map((n) => ({
-            label: `${n}`,
-            onClick: () => onNoteCountChange?.(n),
-            active: noteCount === n,
-          }))}
+          items={[
+            {
+              label: "b",
+              onClick: () => onAccidentalDisplayChange?.("flat"),
+              active: accidentalDisplay === "flat",
+            },
+            {
+              label: "#",
+              onClick: () => onAccidentalDisplayChange?.("sharp"),
+              active: accidentalDisplay === "sharp",
+            },
+            {
+              label: "both",
+              onClick: () => onAccidentalDisplayChange?.("both"),
+              active: accidentalDisplay === "both",
+            },
+          ]}
         />
       </div>
       <div
@@ -179,25 +268,30 @@ export default function NoteFlashCardSettings({
           pointerEvents: scaleType === "chromatic" ? "none" : "auto",
         }}
       >
+        <style>{`
+          @media (max-width: 768px) {
+            .settings-select {
+              font-size: 16px !important;
+              padding: 12px 12px !important;
+              min-height: 48px;
+              appearance: auto;
+              -webkit-appearance: menulist;
+            }
+          }
+        `}</style>
         <SettingLabel
           text="Root Note"
           info="The tonic of the major scale. Only active when Scale Type is Major. Sequential and Triads sequences start from this note."
         />
         <select
+          className="settings-select"
           value={rootNote}
           onChange={(e) => onRootNoteChange?.(Number(e.target.value))}
-          style={{
-            width: "100%",
-            fontSize: "0.95rem",
-            padding: "8px 10px",
-            borderRadius: "8px",
-            border: "1px solid #d1d5db",
-            background: "#fff",
-          }}
+          style={selectStyle}
         >
-          {Object.entries(ROOT_NOTE_LABELS).map(([k, label]) => (
-            <option key={k} value={k}>
-              {label}
+          {Array.from({ length: 12 }, (_, n) => n).map((n) => (
+            <option key={n} value={n}>
+              {formatPitchClassLabel(n, accidentalDisplay)}
             </option>
           ))}
         </select>
@@ -215,16 +309,10 @@ export default function NoteFlashCardSettings({
           info="Lowest note allowed in the challenge range."
         />
         <select
+          className="settings-select"
           value={lowestNote}
           onChange={(e) => onLowestNoteChange?.(e.target.value)}
-          style={{
-            width: "100%",
-            fontSize: "0.95rem",
-            padding: "8px 10px",
-            borderRadius: "8px",
-            border: "1px solid #d1d5db",
-            background: "#fff",
-          }}
+          style={selectStyle}
         >
           {AVAILABLE_RANGE_NOTES.filter(
             (n) =>
@@ -232,7 +320,7 @@ export default function NoteFlashCardSettings({
               AVAILABLE_RANGE_NOTES.indexOf(highestNote),
           ).map((n) => (
             <option key={n} value={n}>
-              {n}
+              {formatNoteLabel(n, accidentalDisplay)}
             </option>
           ))}
         </select>
@@ -250,16 +338,10 @@ export default function NoteFlashCardSettings({
           info="Highest note allowed in the challenge range. Maximum supported note is C6."
         />
         <select
+          className="settings-select"
           value={highestNote}
           onChange={(e) => onHighestNoteChange?.(e.target.value)}
-          style={{
-            width: "100%",
-            fontSize: "0.95rem",
-            padding: "8px 10px",
-            borderRadius: "8px",
-            border: "1px solid #d1d5db",
-            background: "#fff",
-          }}
+          style={selectStyle}
         >
           {AVAILABLE_RANGE_NOTES.filter(
             (n) =>
@@ -267,7 +349,7 @@ export default function NoteFlashCardSettings({
               AVAILABLE_RANGE_NOTES.indexOf(lowestNote),
           ).map((n) => (
             <option key={n} value={n}>
-              {n}
+              {formatNoteLabel(n, accidentalDisplay)}
             </option>
           ))}
         </select>
@@ -281,38 +363,16 @@ export default function NoteFlashCardSettings({
         }}
       >
         <SettingLabel
-          text="Pitch"
-          info="Bb transposes all displayed note names up a whole tone for Bb instruments (e.g. trumpet, clarinet). Concert shows concert-pitch note names."
-        />
-        <UIButtonGroup
-          items={[
-            {
-              label: "Bb",
-              onClick: () => onPitchChange?.("Bb"),
-              active: pitch === "Bb",
-            },
-            {
-              label: "Concert",
-              onClick: () => onPitchChange?.("CONCERT"),
-              active: pitch === "CONCERT",
-            },
-          ]}
-        />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          alignItems: "flex-start",
-        }}
-      >
-        <SettingLabel
           text="Note Display"
-          info="Name shows the note letter (e.g. C#4). Index shows the semitone position within the trainer's trumpet range (F#3 = 1, G3 = 2, ...). Staff shows the note on a treble clef staff."
+          info="Name shows the note letter (e.g. C#4). Index shows the semitone position within the range of a standard trumpet (F#3 = 1, G3 = 2, ... C6 = 31). Staff shows the note on a treble clef staff."
         />
         <UIButtonGroup
           items={[
+            {
+              label: "Staff",
+              onClick: () => onDisplayTypeChange?.("visual_note"),
+              active: displayType === "visual_note",
+            },
             {
               label: "Name",
               onClick: () => onDisplayTypeChange?.("note"),
@@ -322,11 +382,6 @@ export default function NoteFlashCardSettings({
               label: "Index",
               onClick: () => onDisplayTypeChange?.("index"),
               active: displayType === "index",
-            },
-            {
-              label: "Staff",
-              onClick: () => onDisplayTypeChange?.("visual_note"),
-              active: displayType === "visual_note",
             },
           ]}
         />
@@ -413,31 +468,6 @@ export default function NoteFlashCardSettings({
             onClick: () => onTimeLimitChange?.(ms),
             active: timeLimitMs === ms,
           }))}
-        />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: "12px",
-        }}
-      >
-        <SettingLabel
-          text="Prehear Note"
-          info="When enabled, the target note is played automatically a short moment after the card appears, so you can hear the pitch before playing it on trumpet."
-        />
-        <input
-          id="prehear-checkbox"
-          type="checkbox"
-          checked={prehear}
-          onChange={(e) => onPrehearChange?.(e.target.checked)}
-          style={{
-            width: "18px",
-            height: "18px",
-            cursor: "pointer",
-            accentColor: "#111",
-          }}
         />
       </div>
     </div>

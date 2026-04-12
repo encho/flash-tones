@@ -41,6 +41,63 @@ export type ScaleType = "chromatic" | "major";
 
 export type SequenceType = "random" | "sequential" | "triads";
 
+export type AccidentalDisplay = "flat" | "sharp" | "both";
+
+const NOTE_NAMES_SHARP = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
+
+const NOTE_NAMES_FLAT = [
+  "C",
+  "Db",
+  "D",
+  "Eb",
+  "E",
+  "F",
+  "Gb",
+  "G",
+  "Ab",
+  "A",
+  "Bb",
+  "B",
+];
+
+export function formatPitchClassLabel(
+  pitchClass: number,
+  accidentalDisplay: AccidentalDisplay,
+): string {
+  const pc = ((pitchClass % 12) + 12) % 12;
+  const sharp = NOTE_NAMES_SHARP[pc];
+  const flat = NOTE_NAMES_FLAT[pc];
+  if (accidentalDisplay === "sharp") return sharp;
+  if (accidentalDisplay === "flat") return flat;
+  if (sharp === flat) return sharp;
+  return `${sharp}/${flat}`;
+}
+
+export function formatNoteLabel(
+  note: string,
+  accidentalDisplay: AccidentalDisplay,
+): string {
+  const match = note.match(/^([A-G][#b]?)(\d)$/);
+  if (!match) return note;
+  const midi = noteToMidi(note);
+  if (midi === null) return note;
+  const pc = midi % 12;
+  return `${formatPitchClassLabel(pc, accidentalDisplay)}${match[2]}`;
+}
+
 function getNotesForScale(scaleType: ScaleType, rootNote: number): string[] {
   if (scaleType === "chromatic") return AVAILABLE_RANGE_NOTES;
   const allowed = new Set(MAJOR_INTERVALS.map((i) => (rootNote + i) % 12));
@@ -235,6 +292,7 @@ interface NoteFlashCardGameProps {
   lowestNote?: string;
   highestNote?: string;
   displayType?: "note" | "index" | "visual_note";
+  accidentalDisplay?: AccidentalDisplay;
   prehear?: boolean;
 }
 
@@ -254,6 +312,7 @@ export default function NoteFlashCardGame({
   lowestNote = "F#3",
   highestNote = "C5",
   displayType = "note",
+  accidentalDisplay = "sharp",
   prehear = true,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
@@ -291,6 +350,9 @@ export default function NoteFlashCardGame({
   const isFinished = activeIndex >= activeNotes.length;
 
   const currentNote = activeNotes[activeIndex];
+  const currentNoteLabel = currentNote
+    ? formatNoteLabel(currentNote.note, accidentalDisplay)
+    : "";
 
   function handleNoteHit(result: HitResult) {
     const leaving = activeIndex;
@@ -403,7 +465,7 @@ export default function NoteFlashCardGame({
             }}
           >
             <span style={{ color: "#888" }}>Play </span>
-            <strong style={{ color: "#111" }}>{currentNote.note}</strong>
+            <strong style={{ color: "#111" }}>{currentNoteLabel}</strong>
           </div>
           <button
             onClick={() => onExit?.()}
@@ -485,6 +547,10 @@ export default function NoteFlashCardGame({
                 >
                   <NoteFlashCard
                     note={activeNotes[exitingIndex].note}
+                    displayNote={formatNoteLabel(
+                      activeNotes[exitingIndex].note,
+                      accidentalDisplay,
+                    )}
                     displayType={displayType}
                     isActive={false}
                     matchCents={matchCents}
@@ -513,6 +579,10 @@ export default function NoteFlashCardGame({
                 >
                   <NoteFlashCard
                     note={activeNotes[activeIndex].note}
+                    displayNote={formatNoteLabel(
+                      activeNotes[activeIndex].note,
+                      accidentalDisplay,
+                    )}
                     displayType={displayType}
                     isActive={true}
                     matchCents={matchCents}
@@ -695,7 +765,7 @@ export default function NoteFlashCardGame({
                 <tr key={i} style={{ backgroundColor: "#fff" }}>
                   <td style={tdStyle}>{i + 1}</td>
                   <td style={{ ...tdStyle, fontWeight: 700, color: "#111" }}>
-                    {r.note}
+                    {formatNoteLabel(r.note, accidentalDisplay)}
                     {displayType === "index" && pitch === "Bb" && (
                       <span
                         style={{

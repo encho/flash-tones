@@ -2,6 +2,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState } from "react";
 import NoteFlashCardGame, {
   AVAILABLE_RANGE_NOTES,
+  type AccidentalDisplay,
   type ScaleType,
   type SequenceType,
 } from "./NoteFlashCardGame";
@@ -20,6 +21,7 @@ type NoteFlashCardsSettings = {
   rootNote: number;
   lowestNote: string;
   highestNote: string;
+  accidentalDisplay: AccidentalDisplay;
   displayType: "note" | "index" | "visual_note";
   pitch: "CONCERT" | "Bb";
   prehear: boolean;
@@ -43,6 +45,7 @@ const DEFAULT_NOTE_FLASH_CARDS_SETTINGS: NoteFlashCardsSettings = {
   rootNote: 0,
   lowestNote: "F#3",
   highestNote: "C5",
+  accidentalDisplay: "sharp",
   displayType: "note",
   pitch: "Bb",
   prehear: true,
@@ -76,6 +79,9 @@ function isNoteFlashCardsSettings(raw: unknown): raw is NoteFlashCardsSettings {
     AVAILABLE_RANGE_NOTES.includes(src.highestNote) &&
     AVAILABLE_RANGE_NOTES.indexOf(src.lowestNote) <=
       AVAILABLE_RANGE_NOTES.indexOf(src.highestNote) &&
+    (src.accidentalDisplay === "flat" ||
+      src.accidentalDisplay === "sharp" ||
+      src.accidentalDisplay === "both") &&
     (src.displayType === "note" ||
       src.displayType === "index" ||
       src.displayType === "visual_note") &&
@@ -171,6 +177,8 @@ export default function FlashGamePage({
   const [highestNote, setHighestNoteState] = useState<string>(
     saved.highestNote ?? "C5",
   );
+  const [accidentalDisplay, setAccidentalDisplayState] =
+    useState<AccidentalDisplay>(saved.accidentalDisplay ?? "sharp");
   const [displayType, setDisplayTypeState] = useState<
     "note" | "index" | "visual_note"
   >(saved.displayType ?? "note");
@@ -237,6 +245,10 @@ export default function FlashGamePage({
     setDisplayTypeState(v);
     saveSettings({ displayType: v });
   }
+  function setAccidentalDisplay(v: AccidentalDisplay) {
+    setAccidentalDisplayState(v);
+    saveSettings({ accidentalDisplay: v });
+  }
   function setPitch(v: "CONCERT" | "Bb") {
     setPitchState(v);
     saveSettings({ pitch: v });
@@ -291,6 +303,8 @@ export default function FlashGamePage({
             onLowestNoteChange={setLowestNote}
             highestNote={highestNote}
             onHighestNoteChange={setHighestNote}
+            accidentalDisplay={accidentalDisplay}
+            onAccidentalDisplayChange={setAccidentalDisplay}
             pitch={pitch}
             onPitchChange={setPitch}
             displayType={displayType}
@@ -322,6 +336,7 @@ export default function FlashGamePage({
         lowestNote={lowestNote}
         highestNote={highestNote}
         displayType={displayType}
+        accidentalDisplay={accidentalDisplay}
         prehear={prehear}
         timeLimitMs={timeLimit}
       />
