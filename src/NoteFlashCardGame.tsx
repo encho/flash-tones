@@ -51,6 +51,8 @@ const ROOT_NOTE_LABELS: Record<number, string> = {
   11: "B",
 };
 
+export type SequenceType = "random" | "sequential" | "triads";
+
 function getNotesForScale(scaleType: ScaleType, rootNote: number): string[] {
   if (scaleType === "chromatic") return ALL_NOTES;
   const allowed = new Set(MAJOR_INTERVALS.map((i) => (rootNote + i) % 12));
@@ -62,13 +64,7 @@ function getNotesForScale(scaleType: ScaleType, rootNote: number): string[] {
   });
 }
 
-function generateRandomNotes(
-  count = 5,
-  scaleType: ScaleType = "chromatic",
-  rootNote = 0,
-): NoteEntry[] {
-  const pool = getNotesForScale(scaleType, rootNote);
-  if (pool.length === 0) return [];
+function randomFromPool(count: number, pool: string[]): NoteEntry[] {
   const result: NoteEntry[] = [];
   let lastNote: string | null = null;
   for (let i = 0; i < count; i++) {
@@ -79,6 +75,73 @@ function generateRandomNotes(
     lastNote = note;
   }
   return result;
+}
+
+function notePC(note: string): number {
+  const m = note.match(/^([A-G][#b]?)\d$/);
+  return m ? NOTE_NAMES.indexOf(m[1]) : -1;
+}
+
+function cycleStartOffset(cycle: string[], rootNote: number): number {
+  const idx = cycle.findIndex((n) => notePC(n) === rootNote);
+  return idx < 0 ? 0 : idx;
+}
+
+function sequentialFromPool(count: number, pool: string[], rootNote: number, scaleType: ScaleType): NoteEntry[] {
+  const L = pool.length;
+  if (L === 0) return [];
+  if (L === 1) return Array.from({ length: count }, () => ({ note: pool[0] }));
+  // up then down, shared endpoints: [0..L-1, L-2..1]
+  const cycle = [...pool, ...pool.slice(1, -1).reverse()];
+  const offset = scaleType === "chromatic" ? 0 : cycleStartOffset(cycle, rootNote);
+  return Array.from({ length: count }, (_, i) => ({ note: cycle[(offset + i) % cycle.length] }));
+}
+
+function triadsFromPool(count: number, pool: string[], rootNote: number, scaleType: ScaleType): NoteEntry[] {
+  // Chromatic: major-chord intervals (+4 semitones then +3); diatonic: every other scale degree (+2 then +2)
+  const steps: [number, number] = scaleType === "chromatic" ? [4, 3] : [2, 2];
+  const [s1, s2] = steps;
+  const totalStep = s1 + s2;
+  const L = pool.length;
+  if (L === 0) return [];
+  if (L <= totalStep) return Array.from({ length: count }, (_, i) => ({ note: pool[i % L] }));
+
+  // For chromatic always start at the lowest note (gStart=0); for major find the root
+  let gStart = 0;
+  if (scaleType !== "chromatic") {
+    for (let g = 0; g + totalStep <= L - 1; g++) {
+      if (notePC(pool[g]) === rootNote) { gStart = g; break; }
+    }
+  }
+
+  const push = (seq: string[], g: number, up: boolean) => {
+    const idxs = up ? [g, g + s1, g + totalStep] : [g, g - s1, g - totalStep];
+    for (const idx of idxs) if (idx >= 0 && idx < L) seq.push(pool[idx]);
+  };
+
+  const seq: string[] = [];
+  // Ascending from gStart to top
+  for (let g = gStart; g + totalStep <= L - 1; g++) push(seq, g, true);
+  // Descending from L-1 to 0
+  for (let g = L - 1; g - totalStep >= 0; g--) push(seq, g, false);
+  // Wrap-around ascending from 0 to gStart (exclusive)
+  for (let g = 0; g < gStart && g + totalStep <= L - 1; g++) push(seq, g, true);
+
+  if (seq.length === 0) return [];
+  return Array.from({ length: count }, (_, i) => ({ note: seq[i % seq.length] }));
+}
+
+function generateRandomNotes(
+  count = 5,
+  scaleType: ScaleType = "chromatic",
+  rootNote = 0,
+  sequenceType: SequenceType = "random",
+): NoteEntry[] {
+  const pool = getNotesForScale(scaleType, rootNote);
+  if (pool.length === 0) return [];
+  if (sequenceType === "sequential") return sequentialFromPool(count, pool, rootNote, scaleType);
+  if (sequenceType === "triads") return triadsFromPool(count, pool, rootNote, scaleType);
+  return randomFromPool(count, pool);
 }
 
 export interface NoteEntry {
@@ -125,10 +188,13 @@ interface NoteFlashCardGameProps {
   onPitchChange?: (p: "CONCERT" | "Bb") => void;
   onExit?: () => void;
   timeLimitMs?: number;
+  onTimeLimitChange?: (v: number) => void;
   initialStarted?: boolean;
   onStart?: () => void;
   noteCount?: number;
   onNoteCountChange?: (n: number) => void;
+  sequenceType?: SequenceType;
+  onSequenceTypeChange?: (s: SequenceType) => void;
   scaleType?: ScaleType;
   onScaleTypeChange?: (s: ScaleType) => void;
   rootNote?: number;
@@ -151,10 +217,13 @@ export default function NoteFlashCardGame({
   onPitchChange,
   onExit,
   timeLimitMs = 10000,
+  onTimeLimitChange,
   initialStarted = false,
   onStart,
   noteCount = 20,
   onNoteCountChange,
+  sequenceType = "random" as SequenceType,
+  onSequenceTypeChange,
   scaleType = "chromatic" as ScaleType,
   onScaleTypeChange,
   rootNote = 0,
@@ -169,8 +238,8 @@ export default function NoteFlashCardGame({
   onHoldTimeChange,
 }: NoteFlashCardGameProps) {
   const activeNotes = useMemo(
-    () => generateRandomNotes(noteCount, scaleType, rootNote),
-    [noteCount, scaleType, rootNote],
+    () => generateRandomNotes(noteCount, scaleType, rootNote, sequenceType),
+    [noteCount, scaleType, rootNote, sequenceType],
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [hits, setHits] = useState(0);
@@ -486,6 +555,35 @@ export default function NoteFlashCardGame({
                     fontWeight: 600,
                   }}
                 >
+                  Notes Sequence
+                </label>
+                <UIButtonGroup
+                  items={([
+                    ["random", "Random"],
+                    ["sequential", "Sequential"],
+                    ["triads", "Triads"],
+                  ] as [SequenceType, string][]).map(([v, label]) => ({
+                    label,
+                    onClick: () => onSequenceTypeChange?.(v),
+                    active: sequenceType === v,
+                  }))}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
                   Notes per game
                 </label>
                 <UIButtonGroup
@@ -645,21 +743,9 @@ export default function NoteFlashCardGame({
                 </label>
                 <UIButtonGroup
                   items={[
-                    {
-                      label: "Easy",
-                      onClick: () => onPrecisionChange?.("easy"),
-                      active: precision === "easy",
-                    },
-                    {
-                      label: "Medium",
-                      onClick: () => onPrecisionChange?.("medium"),
-                      active: precision === "medium",
-                    },
-                    {
-                      label: "Hard",
-                      onClick: () => onPrecisionChange?.("hard"),
-                      active: precision === "hard",
-                    },
+                    { label: "Loose", onClick: () => onPrecisionChange?.("easy"), active: precision === "easy" },
+                    { label: "Tight", onClick: () => onPrecisionChange?.("medium"), active: precision === "medium" },
+                    { label: "Strict", onClick: () => onPrecisionChange?.("hard"), active: precision === "hard" },
                   ]}
                 />
               </div>
@@ -682,22 +768,35 @@ export default function NoteFlashCardGame({
                 </label>
                 <UIButtonGroup
                   items={[
-                    {
-                      label: "Low",
-                      onClick: () => onHoldTimeChange?.("low"),
-                      active: holdTime === "low",
-                    },
-                    {
-                      label: "Medium",
-                      onClick: () => onHoldTimeChange?.("medium"),
-                      active: holdTime === "medium",
-                    },
-                    {
-                      label: "High",
-                      onClick: () => onHoldTimeChange?.("high"),
-                      active: holdTime === "high",
-                    },
+                    { label: "Short", onClick: () => onHoldTimeChange?.("low"), active: holdTime === "low" },
+                    { label: "Medium", onClick: () => onHoldTimeChange?.("medium"), active: holdTime === "medium" },
+                    { label: "Long", onClick: () => onHoldTimeChange?.("high"), active: holdTime === "high" },
                   ]}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  alignItems: "flex-start",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "1rem",
+                    color: "#444",
+                    fontWeight: 600,
+                  }}
+                >
+                  Time Limit
+                </label>
+                <UIButtonGroup
+                  items={[2000, 5000, 10000].map((ms) => ({
+                    label: `${ms / 1000}s`,
+                    onClick: () => onTimeLimitChange?.(ms),
+                    active: timeLimitMs === ms,
+                  }))}
                 />
               </div>
               <div

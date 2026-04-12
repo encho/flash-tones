@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState } from "react";
-import NoteFlashCardGame, { type ScaleType } from "./NoteFlashCardGame";
+import NoteFlashCardGame, { type ScaleType, type SequenceType } from "./NoteFlashCardGame";
 
 const LS_KEY = "flashtones_settings";
 
@@ -47,6 +47,9 @@ export default function FlashGamePage({
   const saved = loadSettings();
 
   const [noteCount, setNoteCountState] = useState<number>(saved.noteCount ?? 5);
+  const [sequenceType, setSequenceTypeState] = useState<SequenceType>(
+    saved.sequenceType ?? "random",
+  );
   const [scaleType, setScaleTypeState] = useState<ScaleType>(
     saved.scaleType ?? "chromatic",
   );
@@ -64,6 +67,9 @@ export default function FlashGamePage({
   const [holdTime, setHoldTimeState] = useState<HoldTime>(
     saved.holdTime ?? "low",
   );
+  const [timeLimit, setTimeLimitState] = useState<number>(
+    saved.timeLimit ?? 10000,
+  );
 
   const matchCents = PRECISION_CENTS[precision];
   const holdDuration = HOLD_TIME_MS[holdTime];
@@ -71,6 +77,10 @@ export default function FlashGamePage({
   function setNoteCount(v: number) {
     setNoteCountState(v);
     saveSettings({ noteCount: v });
+  }
+  function setSequenceType(v: SequenceType) {
+    setSequenceTypeState(v);
+    saveSettings({ sequenceType: v });
   }
   function setScaleType(v: ScaleType) {
     setScaleTypeState(v);
@@ -100,6 +110,10 @@ export default function FlashGamePage({
     setHoldTimeState(v);
     saveSettings({ holdTime: v });
   }
+  function setTimeLimit(v: number) {
+    setTimeLimitState(v);
+    saveSettings({ timeLimit: v });
+  }
 
   function handleStart() {
     const id = crypto.randomUUID();
@@ -123,6 +137,8 @@ export default function FlashGamePage({
       onStart={handleStart}
       noteCount={noteCount}
       onNoteCountChange={setNoteCount}
+      sequenceType={sequenceType}
+      onSequenceTypeChange={setSequenceType}
       scaleType={scaleType}
       onScaleTypeChange={setScaleType}
       rootNote={rootNote}
@@ -135,6 +151,8 @@ export default function FlashGamePage({
       onPrecisionChange={setPrecision}
       holdTime={holdTime}
       onHoldTimeChange={setHoldTime}
+      timeLimitMs={timeLimit}
+      onTimeLimitChange={setTimeLimit}
     />
   );
 }
