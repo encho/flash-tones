@@ -33,7 +33,9 @@ export function InfoModal({ title, text, onClose }: InfoModalProps) {
   return (
     <div
       ref={overlayRef}
-      onClick={(e) => { if (e.target === overlayRef.current) handleClose(); }}
+      onClick={(e) => {
+        if (e.target === overlayRef.current) handleClose();
+      }}
       style={{
         position: "fixed",
         inset: 0,
@@ -57,7 +59,9 @@ export function InfoModal({ title, text, onClose }: InfoModalProps) {
           boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
           position: "relative",
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0) scale(1)" : "translateY(12px) scale(0.97)",
+          transform: visible
+            ? "translateY(0) scale(1)"
+            : "translateY(12px) scale(0.97)",
           transition: "opacity 0.18s ease, transform 0.18s ease",
         }}
       >
@@ -78,10 +82,26 @@ export function InfoModal({ title, text, onClose }: InfoModalProps) {
         >
           ✕
         </button>
-        <p style={{ margin: "0 0 8px", fontWeight: 700, fontSize: "1rem", color: "#111", textAlign: "left" }}>
+        <p
+          style={{
+            margin: "0 0 8px",
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: "#111",
+            textAlign: "left",
+          }}
+        >
           {title}
         </p>
-        <p style={{ margin: 0, fontSize: "0.9rem", color: "#444", lineHeight: "1.5", textAlign: "left" }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.9rem",
+            color: "#444",
+            lineHeight: "1.5",
+            textAlign: "left",
+          }}
+        >
           {text}
         </p>
       </div>
@@ -100,7 +120,9 @@ export function SettingLabel({ text, info }: SettingLabelProps) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <span style={{ fontSize: "1rem", color: "#444", fontWeight: 600 }}>{text}</span>
+        <span style={{ fontSize: "1rem", color: "#444", fontWeight: 600 }}>
+          {text}
+        </span>
         <button
           onClick={() => setOpen(true)}
           aria-label={`Info about ${text}`}
@@ -120,7 +142,9 @@ export function SettingLabel({ text, info }: SettingLabelProps) {
           ⓘ
         </button>
       </div>
-      {open && <InfoModal title={text} text={info} onClose={() => setOpen(false)} />}
+      {open && (
+        <InfoModal title={text} text={info} onClose={() => setOpen(false)} />
+      )}
     </>
   );
 }
